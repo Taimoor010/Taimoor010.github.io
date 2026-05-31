@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Car Price Prediction App by Taimoor Ali: a live machine learning tool that estimates used car prices from marketplace listing data.">
+    <meta name="theme-color" content="#111827">
+    <meta property="og:title" content="Car Price Prediction App | Taimoor Ali">
+    <meta property="og:description" content="A live ML price estimation tool built from marketplace listing data.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="http://taimoorali.online/project-car-price.html">
+    <meta property="og:image" content="http://taimoorali.online/assets/actual_vs_predicted.png">
+    <title>Car Price Prediction App | Taimoor Ali</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Taimoor Ali home"><span class="brand-mark">TA</span><span>Taimoor Ali</span></a>
+      <nav aria-label="Primary navigation"><a href="projects.html">Projects</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="marketlens.html">MarketLens</a></nav>
+    </header>
+
+    <main>
+      <section class="case-hero">
+        <p class="eyebrow">Live ML Tool / Data Product</p>
+        <h1>Car Price Prediction App</h1>
+        <p>A live machine learning tool that estimates used car prices from marketplace listing data.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="marketlens.html">Try Live Tool</a>
+          <a class="button secondary" href="projects.html">View Projects</a>
+          <a class="button secondary" href="https://github.com/Taimoor010/pakwheels-sportage-price-intelligence" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </section>
+
+      <section class="section case-layout">
+        <article class="case-main">
+          <span class="status-label live">Live</span>
+          <h2>Problem</h2>
+          <p>
+            Used car buyers and sellers often struggle to estimate fair market value because prices vary by
+            model, year, mileage, engine size, city, registration city, colour, variant, transmission, and
+            other listing signals.
+          </p>
+
+          <h2>Approach</h2>
+          <p>
+            I collected marketplace listing data, cleaned and filtered the dataset, engineered relevant
+            features, compared machine learning models, evaluated prediction error using MAE and R2, and
+            deployed the final model into a live interface where users can enter car details and receive a
+            predicted price estimate.
+          </p>
+
+          <h2>Input fields supported</h2>
+          <div class="tag-row">
+            <span>Make/model</span><span>Year</span><span>Mileage</span><span>Engine size</span><span>City</span><span>Registration city</span><span>Colour</span><span>Variant</span><span>Transmission</span>
+          </div>
+
+          <h2>Impact</h2>
+          <ul class="case-list">
+            <li>Built and deployed a live ML price estimation tool.</li>
+            <li>Created a reusable workflow for data collection, cleaning, model training, and prediction.</li>
+            <li>Converted raw marketplace listings into a practical decision-support product.</li>
+          </ul>
+        </article>
+
+        <aside class="case-side">
+          <figure class="plot-panel">
+            <img src="assets/actual_vs_predicted.png" alt="Actual versus predicted model scatter plot">
+            <figcaption>Actual versus predicted prices from the trained model.</figcaption>
+          </figure>
+          <div class="metric-card"><strong>Live</strong><span>Browser-hosted estimator deployed on the portfolio domain.</span></div>
+          <div class="metric-card"><strong>MAE / R2</strong><span>Model evaluation focused on prediction error and explanatory performance.</span></div>
+        </aside>
+      </section>
+    </main>
+
+    <footer><span>© <span id="year"></span> Taimoor Ali</span><a href="projects.html">Projects</a></footer>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 # Taimoor Ali Portfolio
 
-Static portfolio website for `taimoorali.com`, deployed with GitHub Pages.
+Static portfolio website for `taimoorali.online`, deployed with GitHub Pages.
 
 ## Local Preview
 
