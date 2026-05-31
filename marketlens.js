@@ -79,8 +79,21 @@ form.addEventListener("submit", (event) => {
   try {
     const result = window.MarketLensModel.predict(formPayload());
     paintResult(result);
+    if (typeof window.trackPortfolioEvent === "function") {
+      window.trackPortfolioEvent("marketlens_estimate", {
+        confidence_label: result.confidence.label,
+        confidence_score: result.confidence.score,
+        variant: result.input.variant,
+        price_band_lacs: Math.round(result.prediction.price_lacs / 10) * 10,
+      });
+    }
     modelStatus.textContent = "Ready";
   } catch (error) {
+    if (typeof window.trackPortfolioEvent === "function") {
+      window.trackPortfolioEvent("marketlens_error", {
+        error_message: error.message,
+      });
+    }
     predictedPrice.textContent = "Check inputs";
     priceRange.textContent = error.message;
     confidenceScore.textContent = "-";

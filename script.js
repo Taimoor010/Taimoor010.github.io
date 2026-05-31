@@ -4,10 +4,10 @@ if (yearNode) yearNode.textContent = new Date().getFullYear();
 function projectCard(project) {
   const isLive = project.status === "Live";
   const liveButton = project.liveUrl
-    ? `<a class="button primary compact" href="${project.liveUrl}">Try Live Tool</a>`
+    ? `<a class="button primary compact" href="${project.liveUrl}" data-track="project_live_tool" data-project="${project.slug}">Try Live Tool</a>`
     : "";
   const githubButton = project.githubUrl
-    ? `<a class="button secondary compact" href="${project.githubUrl}" target="_blank" rel="noreferrer">GitHub</a>`
+    ? `<a class="button secondary compact" href="${project.githubUrl}" target="_blank" rel="noreferrer" data-track="project_github" data-project="${project.slug}">GitHub</a>`
     : "";
   const statusClass = isLive ? "live" : "soon";
 
@@ -23,7 +23,7 @@ function projectCard(project) {
         <p class="project-outcome">${project.outcome}</p>
         <div class="project-links">
           ${liveButton}
-          <a class="button secondary compact" href="${project.summaryUrl}">View Summary</a>
+          <a class="button secondary compact" href="${project.summaryUrl}" data-track="project_summary" data-project="${project.slug}">View Summary</a>
           ${githubButton}
           ${!isLive ? '<span class="button ghost compact">Case Study Coming Soon</span>' : ""}
         </div>
@@ -35,6 +35,27 @@ function projectCard(project) {
 function renderProjects(container, projects) {
   container.innerHTML = projects.map(projectCard).join("");
 }
+
+document.addEventListener("click", (event) => {
+  const tracked = event.target.closest("[data-track]");
+  if (tracked && typeof window.trackPortfolioEvent === "function") {
+    window.trackPortfolioEvent(tracked.dataset.track, {
+      link_text: tracked.textContent.trim(),
+      link_url: tracked.getAttribute("href") || "",
+      project: tracked.dataset.project || "",
+    });
+    return;
+  }
+
+  const link = event.target.closest("a");
+  if (!link || typeof window.trackPortfolioEvent !== "function") return;
+  if (link.closest("nav") || link.classList.contains("button")) {
+    window.trackPortfolioEvent("navigation_click", {
+      link_text: link.textContent.trim(),
+      link_url: link.getAttribute("href") || "",
+    });
+  }
+});
 
 const featured = document.querySelector("#featuredProjects");
 if (featured && window.PORTFOLIO) {
@@ -48,6 +69,9 @@ if (gallery && window.PORTFOLIO) {
   document.querySelectorAll(".filter-button").forEach((button) => {
     button.addEventListener("click", () => {
       const filter = button.dataset.filter;
+      if (typeof window.trackPortfolioEvent === "function") {
+        window.trackPortfolioEvent("project_filter", { filter });
+      }
       document.querySelectorAll(".filter-button").forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
 
