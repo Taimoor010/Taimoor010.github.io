@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MarketLens KIA Sportage price estimator for PakWheels listings.">
+    <meta name="theme-color" content="#0f172a">
+    <title>MarketLens | Sportage Price Estimator</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Taimoor Ali home">
+        <span class="brand-mark">TA</span>
+        <span>Taimoor Ali</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="index.html#work">Projects</a>
+        <a href="marketlens.html">MarketLens</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="tool-hero" aria-labelledby="tool-title">
+        <div>
+          <p class="eyebrow">MarketLens</p>
+          <h1 id="tool-title">KIA Sportage price estimator</h1>
+          <p class="tool-subtitle">
+            A browser-deployed scikit-learn model for Pakistani used-car market pricing, confidence ranges,
+            and model-performance context.
+          </p>
+        </div>
+        <div class="metric-strip" aria-label="Model metrics">
+          <div>
+            <span id="cvMape">-</span>
+            <p>CV MAPE</p>
+          </div>
+          <div>
+            <span id="trainMape">-</span>
+            <p>Train MAPE</p>
+          </div>
+          <div>
+            <span id="modelStatus">Loading</span>
+            <p>Status</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="estimator-layout" aria-label="Sportage estimate workspace">
+        <form id="predictionForm" class="estimator-form">
+          <div class="form-section-title">
+            <p class="eyebrow">Vehicle details</p>
+            <h2>Estimate a listing price</h2>
+          </div>
+
+          <label>
+            Variant
+            <select name="variant" id="variant"></select>
+          </label>
+
+          <label>
+            City
+            <input name="city" id="city" list="cityOptions" value="Lahore" autocomplete="off">
+            <datalist id="cityOptions"></datalist>
+          </label>
+
+          <label>
+            Year
+            <input name="year" id="yearInput" type="number" min="1990" max="2030" value="2023">
+          </label>
+
+          <label>
+            Mileage
+            <input name="mileage_km" type="number" min="0" max="500000" step="500" value="25000">
+          </label>
+
+          <label>
+            Fuel
+            <select name="fuel_type" id="fuelType"></select>
+          </label>
+
+          <label>
+            Engine
+            <input name="engine_cc" value="2000 cc">
+          </label>
+
+          <label>
+            Transmission
+            <select name="transmission" id="transmission"></select>
+          </label>
+
+          <label class="switch-row">
+            Featured listing
+            <input name="is_featured" type="checkbox">
+          </label>
+
+          <button type="submit" class="button primary estimate-button">Estimate price</button>
+        </form>
+
+        <aside class="estimate-output" aria-live="polite">
+          <div class="result-band" id="resultBand">
+            <p class="result-label">Suggested price</p>
+            <div class="result-price" id="predictedPrice">Ready</div>
+            <p class="result-range" id="priceRange">Set the vehicle details and run an estimate.</p>
+          </div>
+
+          <div class="confidence-panel">
+            <div class="confidence-ring" id="confidenceRing">
+              <span id="confidenceScore">-</span>
+            </div>
+            <div>
+              <p class="result-label">Confidence</p>
+              <h2 id="confidenceLabel">Waiting</h2>
+              <p id="confidenceDetail" class="muted">The model compares your car with similar training listings.</p>
+            </div>
+          </div>
+
+          <figure class="plot-panel">
+            <img src="assets/actual_vs_predicted.png" alt="Actual versus predicted model scatter plot">
+            <figcaption>Actual versus predicted prices from the trained model.</figcaption>
+          </figure>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> Taimoor Ali</span>
+      <a href="index.html">Portfolio</a>
+    </footer>
+
+    <script src="marketlens-model.js"></script>
+    <script src="marketlens.js"></script>
+  </body>
+</html>
