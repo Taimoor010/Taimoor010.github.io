@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="MarketLens KIA Sportage price estimator for marketplace listing data.">
+    <meta name="description" content="MarketLens all-cars price estimator for Pakistani used-car market listings.">
     <meta name="theme-color" content="#0f172a">
-    <meta property="og:title" content="MarketLens | Sportage Price Estimator">
-    <meta property="og:description" content="A live browser-based car price prediction tool from marketplace listing data.">
+    <meta property="og:title" content="MarketLens | Pakistan Car Price Estimator">
+    <meta property="og:description" content="A live browser-based all-cars price prediction tool from Pakistani marketplace listing data.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://taimoorali.online/marketlens.html">
-    <meta property="og:image" content="http://taimoorali.online/assets/actual_vs_predicted.png">
-    <title>MarketLens | Sportage Price Estimator</title>
+    <meta property="og:url" content="https://taimoorali.online/marketlens.html">
+    <meta property="og:image" content="https://taimoorali.online/assets/actual_vs_predicted.png">
+    <title>MarketLens | Pakistan Car Price Estimator</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -31,10 +31,10 @@
       <section class="tool-hero" aria-labelledby="tool-title">
         <div>
           <p class="eyebrow">MarketLens</p>
-          <h1 id="tool-title">KIA Sportage price estimator</h1>
+          <h1 id="tool-title">Pakistan car price estimator</h1>
           <p class="tool-subtitle">
-            A browser-deployed machine learning model for Pakistani used-car market pricing, confidence ranges,
-            and model-performance context.
+            A browser-deployed LightGBM model for Pakistani used-car pricing, expected deal range,
+            and confidence context across supported makes and models.
           </p>
         </div>
         <div class="metric-strip" aria-label="Model metrics">
@@ -44,7 +44,7 @@
           </div>
           <div>
             <span id="trainMape">-</span>
-            <p>Train MAPE</p>
+            <p>Holdout MAPE</p>
           </div>
           <div>
             <span id="modelStatus">Loading</span>
@@ -53,7 +53,7 @@
         </div>
       </section>
 
-      <section class="estimator-layout" aria-label="Sportage estimate workspace">
+      <section class="estimator-layout" aria-label="Car estimate workspace">
         <form id="predictionForm" class="estimator-form">
           <div class="form-section-title">
             <p class="eyebrow">Vehicle details</p>
@@ -61,24 +61,18 @@
           </div>
 
           <label>
+            Make
+            <select name="make" id="make"></select>
+          </label>
+
+          <label>
+            Model
+            <select name="model" id="model"></select>
+          </label>
+
+          <label>
             Variant
             <select name="variant" id="variant"></select>
-          </label>
-
-          <label>
-            City
-            <input name="city" id="city" list="cityOptions" value="Lahore" autocomplete="off">
-            <datalist id="cityOptions"></datalist>
-          </label>
-
-          <label>
-            Year
-            <input name="year" id="yearInput" type="number" min="1990" max="2030" value="2023">
-          </label>
-
-          <label>
-            Mileage
-            <input name="mileage_km" type="number" min="0" max="500000" step="500" value="25000">
           </label>
 
           <label>
@@ -87,8 +81,18 @@
           </label>
 
           <label>
-            Engine
-            <input name="engine_cc" value="2000 cc">
+            Year
+            <input name="year" id="yearInput" type="number" min="2000" max="2030" value="2021">
+          </label>
+
+          <label>
+            Mileage
+            <input name="mileage_km" type="number" min="0" max="500000" step="500" value="25000">
+          </label>
+
+          <label>
+            Engine CC
+            <input name="engine_cc" id="engineCc" type="number" min="600" max="10000" step="1" value="1300">
           </label>
 
           <label>
@@ -96,9 +100,14 @@
             <select name="transmission" id="transmission"></select>
           </label>
 
-          <label class="switch-row">
-            Featured listing
-            <input name="is_featured" type="checkbox">
+          <label>
+            Color
+            <select name="color" id="color"></select>
+          </label>
+
+          <label>
+            Registered in
+            <select name="registered_in" id="registeredIn"></select>
           </label>
 
           <button type="submit" class="button primary estimate-button">Estimate price</button>
@@ -109,6 +118,7 @@
             <p class="result-label">Suggested price</p>
             <div class="result-price" id="predictedPrice">Ready</div>
             <p class="result-range" id="priceRange">Set the vehicle details and run an estimate.</p>
+            <p class="result-range" id="dealPrice">Expected deal price will appear here.</p>
           </div>
 
           <div class="confidence-panel">
@@ -118,7 +128,7 @@
             <div>
               <p class="result-label">Confidence</p>
               <h2 id="confidenceLabel">Waiting</h2>
-              <p id="confidenceDetail" class="muted">The model compares your car with similar training listings.</p>
+              <p id="confidenceDetail" class="muted">Confidence uses model range width and training support for the selected car.</p>
             </div>
           </div>
 
