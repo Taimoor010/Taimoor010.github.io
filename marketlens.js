@@ -1,163 +1,447 @@
-const form = document.querySelector("#predictionForm");
-const modelStatus = document.querySelector("#modelStatus");
-const predictedPrice = document.querySelector("#predictedPrice");
-const priceRange = document.querySelector("#priceRange");
-const dealPrice = document.querySelector("#dealPrice");
-const confidenceRing = document.querySelector("#confidenceRing");
-const confidenceScore = document.querySelector("#confidenceScore");
-const confidenceLabel = document.querySelector("#confidenceLabel");
-const confidenceDetail = document.querySelector("#confidenceDetail");
-const cvMape = document.querySelector("#cvMape");
-const trainMape = document.querySelector("#trainMape");
+/* ======================================================
+   AutoValue — Application Logic
+   ====================================================== */
 
-const makeSelect = document.querySelector("#make");
-const modelSelect = document.querySelector("#model");
-const variantSelect = document.querySelector("#variant");
-const fuelSelect = document.querySelector("#fuelType");
-const transmissionSelect = document.querySelector("#transmission");
-const colorSelect = document.querySelector("#color");
-const registeredInSelect = document.querySelector("#registeredIn");
-const yearInput = document.querySelector("#yearInput");
-const engineInput = document.querySelector("#engineCc");
+// ---- DOM Elements ----
+const form = document.getElementById('estimatorForm');
+const makeSelect = document.getElementById('carMake');
+const modelSelect = document.getElementById('carModel');
+const variantSelect = document.getElementById('carVariant');
+const yearSelect = document.getElementById('carYear');
+const fuelSelect = document.getElementById('fuelType');
+const transmissionSelect = document.getElementById('transmissionType');
+const engineInput = document.getElementById('engineCapacity');
+const mileageInput = document.getElementById('mileage');
+const citySelect = document.getElementById('regCity');
+const colorInput = document.getElementById('carColor');
+const colorOptions = document.getElementById('colorOptions');
+const colorLabel = document.getElementById('colorLabel');
+const progressBar = document.getElementById('progressBar');
+const submitBtn = document.getElementById('submitBtn');
+const resultPanel = document.getElementById('resultPanel');
+const resetBtn = document.getElementById('resetBtn');
 
-document.querySelector("#year").textContent = new Date().getFullYear();
+const modelApi = window.MarketLensModel;
+const metadata = modelApi.metadata;
 
-function option(value, label = value) {
-  const item = document.createElement("option");
-  item.value = value;
-  item.textContent = label;
-  return item;
+const cityToRegion = {
+    karachi: 'Sindh',
+    hyderabad: 'Sindh',
+    sukkur: 'Sindh',
+    larkana: 'Sindh',
+    islamabad: 'Islamabad',
+    lahore: 'Punjab',
+    rawalpindi: 'Punjab',
+    faisalabad: 'Punjab',
+    multan: 'Punjab',
+    sialkot: 'Punjab',
+    gujranwala: 'Punjab',
+    bahawalpur: 'Punjab',
+    sargodha: 'Punjab',
+    sahiwal: 'Punjab',
+    jhang: 'Punjab',
+};
+
+// ---- Helpers ----
+function key(...parts) {
+    return modelApi.key(parts);
 }
 
-function fillSelect(select, values, preferred) {
-  select.innerHTML = "";
-  values.forEach((value) => {
-    const item = typeof value === "object"
-      ? option(value.value, value.label)
-      : option(value);
-    if ((typeof value === "object" ? value.value : value) === preferred) {
-      item.selected = true;
+function createOption(value, label = value) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    return opt;
+}
+
+function resetSelect(select, placeholder, disabled = true) {
+    select.innerHTML = '';
+    select.appendChild(createOption('', placeholder));
+    select.value = '';
+    select.disabled = disabled;
+}
+
+function fillSelect(select, values, placeholder) {
+    resetSelect(select, placeholder, false);
+    values.forEach(item => {
+        if (typeof item === 'object') {
+            select.appendChild(createOption(item.value, item.label));
+        } else {
+            select.appendChild(createOption(item));
+        }
+    });
+}
+
+function selectedOptionText(select) {
+    return select.options[select.selectedIndex]?.textContent || '';
+}
+
+function registrationRegion() {
+    return cityToRegion[citySelect.value] || selectedOptionText(citySelect) || 'Punjab';
+}
+
+function formatLakh(value) {
+    if (value >= 10000000) {
+        return (value / 10000000).toFixed(2) + ' Crore';
     }
-    select.appendChild(item);
-  });
+    return (value / 100000).toFixed(1) + ' Lakh';
 }
 
-function modelKey(...parts) {
-  return window.MarketLensModel.key(parts);
+function impactLabel(value) {
+    if (value >= 80) return 'Very High';
+    if (value >= 60) return 'High Impact';
+    if (value >= 40) return 'Medium Impact';
+    return 'Low Impact';
 }
 
-function selectedMakeModelVariantKey() {
-  return modelKey(makeSelect.value, modelSelect.value, variantSelect.value);
+// ---- Populate Static Selects From Model Metadata ----
+function populateMakes() {
+    resetSelect(makeSelect, 'Select make', false);
+    metadata.makes.forEach(make => {
+        makeSelect.appendChild(createOption(make));
+    });
 }
 
-function updateModels() {
-  const models = window.MarketLensModel.metadata.modelsByMake[makeSelect.value] || [];
-  fillSelect(modelSelect, models, models[0]);
-  updateVariants();
-}
-
-function updateVariants() {
-  const key = modelKey(makeSelect.value, modelSelect.value);
-  const variants = window.MarketLensModel.metadata.variantsByMakeModel[key] || [
-    { label: "General", value: "General" },
-  ];
-  fillSelect(variantSelect, variants, variants[0]?.value);
-  updateDependentOptions();
-}
-
-function updateDependentOptions() {
-  const key = selectedMakeModelVariantKey();
-  const fuels = window.MarketLensModel.metadata.fuelByMakeModelVariant[key] || ["Petrol"];
-  const transmissions = window.MarketLensModel.metadata.transmissionByMakeModelVariant[key] || ["Automatic", "Manual"];
-  fillSelect(fuelSelect, fuels, fuels[0]);
-  fillSelect(transmissionSelect, transmissions, transmissions[0]);
-  updateEngine();
-}
-
-function updateEngine() {
-  const key = modelKey(makeSelect.value, modelSelect.value, variantSelect.value, fuelSelect.value);
-  const engines = window.MarketLensModel.metadata.engineByMakeModelVariantFuel[key] || [];
-  if (engines.length) {
-    engineInput.value = engines[0];
-  }
-}
-
-function loadModelMetadata() {
-  const metadata = window.MarketLensModel.metadata;
-  fillSelect(makeSelect, metadata.makes, "Toyota");
-  if (!makeSelect.value) fillSelect(makeSelect, metadata.makes, metadata.makes[0]);
-  updateModels();
-  fillSelect(colorSelect, metadata.colors.filter((color) => color !== "Unlisted"), "White");
-  fillSelect(registeredInSelect, metadata.registrationRegions, "Punjab");
-  yearInput.min = metadata.yearMin;
-  yearInput.max = Math.max(metadata.yearMax, new Date().getFullYear() + 1);
-  cvMape.textContent = `${metadata.cvMapePercent.toFixed(2)}%`;
-  trainMape.textContent = `${metadata.holdoutMapePercent.toFixed(2)}%`;
-  modelStatus.textContent = "Ready";
-}
-
-function formPayload() {
-  const data = new FormData(form);
-  return {
-    make: data.get("make"),
-    model: data.get("model"),
-    variant: data.get("variant"),
-    fuel_type: data.get("fuel_type"),
-    year: Number(data.get("year")),
-    mileage_km: Number(data.get("mileage_km")),
-    engine_cc: Number(data.get("engine_cc")),
-    transmission: data.get("transmission"),
-    color: data.get("color"),
-    registered_in: data.get("registered_in"),
-  };
-}
-
-function paintResult(result) {
-  predictedPrice.textContent = result.prediction.formatted;
-  priceRange.textContent = `90% range: ${result.range.formatted}`;
-  dealPrice.textContent = `Expected deal price: ${result.deal.formatted}`;
-  confidenceScore.textContent = `${result.confidence.score}`;
-  confidenceLabel.textContent = result.confidence.label;
-  confidenceDetail.textContent = `${result.confidence.make_model_support_rows.toLocaleString()} make/model rows and ${result.confidence.variant_support_rows.toLocaleString()} variant rows. ${result.confidence.reasons.join("; ")}.`;
-  confidenceRing.style.setProperty("--score-angle", `${result.confidence.score * 3.6}deg`);
-}
-
-makeSelect.addEventListener("change", updateModels);
-modelSelect.addEventListener("change", updateVariants);
-variantSelect.addEventListener("change", updateDependentOptions);
-fuelSelect.addEventListener("change", updateEngine);
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  modelStatus.textContent = "Estimating";
-
-  try {
-    const result = window.MarketLensModel.predict(formPayload());
-    paintResult(result);
-    if (typeof window.trackPortfolioEvent === "function") {
-      window.trackPortfolioEvent("marketlens_estimate", {
-        confidence_label: result.confidence.label,
-        confidence_score: result.confidence.score,
-        make: result.normalizedInput.canonical_make,
-        model: result.normalizedInput.canonical_model_family,
-      });
+function populateYears() {
+    const currentYear = Math.max(new Date().getFullYear(), metadata.yearMax);
+    resetSelect(yearSelect, 'Select year', false);
+    for (let year = currentYear; year >= metadata.yearMin; year--) {
+        yearSelect.appendChild(createOption(year));
     }
-    modelStatus.textContent = "Ready";
-  } catch (error) {
-    if (typeof window.trackPortfolioEvent === "function") {
-      window.trackPortfolioEvent("marketlens_error", {
-        error_message: error.message,
-      });
-    }
-    predictedPrice.textContent = "Check inputs";
-    priceRange.textContent = error.message;
-    dealPrice.textContent = "";
-    confidenceScore.textContent = "-";
-    confidenceLabel.textContent = "No estimate";
-    confidenceDetail.textContent = "";
-    confidenceRing.style.setProperty("--score-angle", "0deg");
-    modelStatus.textContent = "Needs input";
-  }
+}
+
+// ---- Cascading Dropdowns ----
+makeSelect.addEventListener('change', () => {
+    const make = makeSelect.value;
+    const models = metadata.modelsByMake[make] || [];
+
+    fillSelect(modelSelect, models, 'Select model');
+    resetSelect(variantSelect, 'Select model first');
+    resetSelect(fuelSelect, 'Select variant first');
+    resetSelect(transmissionSelect, 'Select variant first');
+    engineInput.value = '';
+    updateProgress();
 });
 
-loadModelMetadata();
+modelSelect.addEventListener('change', () => {
+    const make = makeSelect.value;
+    const model = modelSelect.value;
+    const variants = metadata.variantsByMakeModel[key(make, model)] || [];
+
+    fillSelect(variantSelect, variants, 'Select variant');
+    resetSelect(fuelSelect, 'Select variant first');
+    resetSelect(transmissionSelect, 'Select variant first');
+    engineInput.value = '';
+    updateProgress();
+});
+
+variantSelect.addEventListener('change', () => {
+    const make = makeSelect.value;
+    const model = modelSelect.value;
+    const variant = variantSelect.value;
+    const groupKey = key(make, model, variant);
+    const fuels = metadata.fuelByMakeModelVariant[groupKey] || ['Petrol'];
+    const transmissions = metadata.transmissionByMakeModelVariant[groupKey] || ['Automatic', 'Manual'];
+
+    fillSelect(fuelSelect, fuels, 'Select fuel type');
+    fillSelect(transmissionSelect, transmissions, 'Select transmission');
+    if (fuels.length === 1) fuelSelect.value = fuels[0];
+    if (transmissions.length === 1) transmissionSelect.value = transmissions[0];
+    updateEngineFromSelection();
+    updateProgress();
+});
+
+fuelSelect.addEventListener('change', () => {
+    updateEngineFromSelection();
+    updateProgress();
+});
+
+function updateEngineFromSelection() {
+    const engineKey = key(makeSelect.value, modelSelect.value, variantSelect.value, fuelSelect.value);
+    const engines = metadata.engineByMakeModelVariantFuel[engineKey] || [];
+    if (engines.length) {
+        engineInput.value = engines[0];
+    }
+}
+
+// ---- Color Selector ----
+colorOptions.addEventListener('click', (e) => {
+    const btn = e.target.closest('.color-option');
+    if (!btn) return;
+
+    colorOptions.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    colorInput.value = btn.dataset.label;
+    colorLabel.textContent = btn.dataset.label;
+    colorLabel.style.color = 'var(--text-secondary)';
+    updateProgress();
+});
+
+// ---- Progress Bar ----
+const formFields = [
+    makeSelect,
+    modelSelect,
+    variantSelect,
+    yearSelect,
+    fuelSelect,
+    transmissionSelect,
+    engineInput,
+    mileageInput,
+    citySelect,
+    colorInput,
+];
+
+function updateProgress() {
+    const filled = formFields.filter(field => field.value && field.value !== '').length;
+    const percent = (filled / formFields.length) * 100;
+    progressBar.style.width = `${percent}%`;
+}
+
+[makeSelect, modelSelect, variantSelect, yearSelect, fuelSelect, transmissionSelect, citySelect].forEach(el => {
+    el.addEventListener('change', updateProgress);
+});
+
+[engineInput, mileageInput].forEach(el => {
+    el.addEventListener('input', updateProgress);
+});
+
+// ---- Form Submission ----
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!colorInput.value) {
+        colorLabel.textContent = 'Please select a color';
+        colorLabel.style.color = '#ef4444';
+        return;
+    }
+
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+
+    try {
+        await runEstimate();
+    } catch (error) {
+        alert(error.message || 'Could not calculate estimate. Please check your inputs.');
+    }
+
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+});
+
+// ---- Model Estimate ----
+async function runEstimate() {
+    await new Promise(resolve => setTimeout(resolve, 450));
+
+    const payload = {
+        make: makeSelect.value,
+        model: modelSelect.value,
+        variant: variantSelect.value,
+        fuel_type: fuelSelect.value,
+        year: Number(yearSelect.value),
+        mileage_km: Number(mileageInput.value),
+        engine_cc: Number(engineInput.value),
+        transmission: transmissionSelect.value,
+        color: colorInput.value,
+        registered_in: registrationRegion(),
+    };
+
+    const result = modelApi.predict(payload);
+    const makeName = makeSelect.value;
+    const modelName = modelSelect.value;
+    const variantName = selectedOptionText(variantSelect);
+    const city = selectedOptionText(citySelect);
+
+    document.getElementById('resultCarName').textContent = `${makeName} ${modelName} ${variantName}`;
+    document.getElementById('resultCarMeta').textContent = `${payload.year} · ${payload.mileage_km.toLocaleString()} km · ${payload.color} · ${city}`;
+    document.getElementById('resultConfidence').textContent = `${result.confidence.score}% confidence`;
+
+    const amountEl = document.getElementById('resultAmount');
+    animateCounter(amountEl, result.prediction.asking_price_pkr);
+
+    document.getElementById('rangeLow').textContent = `PKR ${formatLakh(result.range.low_pkr)}`;
+    document.getElementById('rangeHigh').textContent = `PKR ${formatLakh(result.range.high_pkr)}`;
+    document.querySelector('.range-mid-label').textContent = `Deal: PKR ${formatLakh(result.deal.expected_deal_price_pkr)}`;
+
+    updateFactor('factorAge', Math.min(95, Math.max(20, (2026 - payload.year) * 8)), 'Vehicle Age');
+    updateFactor('factorMileage', Math.min(95, Math.max(20, payload.mileage_km / 2500)), 'Mileage');
+    updateFactor('factorBrand', Math.min(95, Math.max(35, result.confidence.make_model_support_rows / 70)), 'Brand & Model');
+    updateFactor('factorCity', payload.registered_in === 'Islamabad' ? 55 : 42, 'Location');
+
+    resultPanel.classList.add('visible');
+
+    if (typeof window.trackPortfolioEvent === 'function') {
+        window.trackPortfolioEvent('marketlens_estimate', {
+            make: payload.make,
+            model: payload.model,
+            confidence_score: result.confidence.score,
+            confidence_label: result.confidence.label,
+        });
+    }
+
+    setTimeout(() => {
+        resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+}
+
+function updateFactor(id, score, name) {
+    const factor = document.getElementById(id);
+    if (!factor) return;
+    const fill = factor.querySelector('.factor-fill');
+    const impact = factor.querySelector('.factor-impact');
+    const label = factor.querySelector('.factor-name');
+    fill.style.setProperty('--factor-width', `${Math.round(score)}%`);
+    impact.textContent = impactLabel(score);
+    label.textContent = name;
+}
+
+function animateCounter(el, target) {
+    const duration = 1100;
+    const start = performance.now();
+    const formatted = formatLakh(target);
+
+    function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(target * eased);
+
+        el.textContent = formatLakh(current);
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            el.textContent = formatted;
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+
+// ---- Reset ----
+resetBtn.addEventListener('click', () => {
+    form.reset();
+    resultPanel.classList.remove('visible');
+    progressBar.style.width = '0%';
+    colorInput.value = '';
+    colorLabel.textContent = 'Select a color';
+    colorLabel.style.color = '';
+    colorOptions.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+
+    resetSelect(modelSelect, 'Select make first');
+    resetSelect(variantSelect, 'Select model first');
+    resetSelect(fuelSelect, 'Select variant first');
+    resetSelect(transmissionSelect, 'Select variant first');
+
+    document.getElementById('estimator').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ---- Navbar Scroll Effect ----
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    const currentScroll = window.scrollY;
+
+    if (currentScroll > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+
+    lastScroll = currentScroll;
+}, { passive: true });
+
+// ---- Animated Counter (Hero Stats) ----
+function animateStatCounters() {
+    const statNumbers = document.querySelectorAll('.stat-number[data-target]');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const target = parseInt(el.dataset.target);
+                const duration = 2000;
+                const start = performance.now();
+
+                function updateCount(now) {
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const current = Math.round(target * eased);
+
+                    el.textContent = current.toLocaleString();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        el.textContent = target.toLocaleString();
+                    }
+                }
+
+                requestAnimationFrame(updateCount);
+                observer.unobserve(el);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    statNumbers.forEach(el => observer.observe(el));
+}
+
+// ---- Scroll-triggered Fade-in ----
+function initScrollAnimations() {
+    const elements = document.querySelectorAll('.step-card, .trust-card, .form-card, .section-header');
+
+    elements.forEach(el => el.classList.add('fade-in'));
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    elements.forEach(el => observer.observe(el));
+}
+
+// ---- Background Particles ----
+function createParticles() {
+    const container = document.getElementById('bgParticles');
+    const count = 30;
+
+    for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.animationDelay = `${Math.random() * 8}s`;
+        particle.style.animationDuration = `${6 + Math.random() * 6}s`;
+        particle.style.width = `${1 + Math.random() * 2}px`;
+        particle.style.height = particle.style.width;
+        container.appendChild(particle);
+    }
+}
+
+// ---- Smooth scroll for anchor links ----
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// ---- Init ----
+document.addEventListener('DOMContentLoaded', () => {
+    populateMakes();
+    populateYears();
+    resetSelect(modelSelect, 'Select make first');
+    resetSelect(variantSelect, 'Select model first');
+    resetSelect(fuelSelect, 'Select variant first');
+    resetSelect(transmissionSelect, 'Select variant first');
+    createParticles();
+    animateStatCounters();
+    initScrollAnimations();
+});
