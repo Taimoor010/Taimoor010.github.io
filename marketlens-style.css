@@ -1,5 +1,5 @@
 /* ======================================================
-   AutoValue — Premium Car Price Estimator
+   AutoInsight — Premium Car Price Estimator
    Design System & Full Styles
    ====================================================== */
 
@@ -693,6 +693,7 @@ input, select {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .form-group label {
@@ -714,22 +715,28 @@ input, select {
 /* Select Wrapper */
 .select-wrapper {
     position: relative;
+    min-width: 0;
 }
 
 .select-wrapper select {
     width: 100%;
+    min-height: 52px;
     padding: 14px 40px 14px 16px;
     background: var(--bg-input);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 500;
+    line-height: 1.3;
     appearance: none;
     -webkit-appearance: none;
     cursor: pointer;
     transition: var(--transition-fast);
     outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .select-wrapper select:focus {
@@ -766,17 +773,20 @@ input, select {
 /* Input Wrapper */
 .input-wrapper {
     position: relative;
+    min-width: 0;
 }
 
 .input-wrapper input {
     width: 100%;
+    min-height: 52px;
     padding: 14px 50px 14px 16px;
     background: var(--bg-input);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 500;
+    line-height: 1.3;
     outline: none;
     transition: var(--transition-fast);
 }
@@ -1135,6 +1145,84 @@ input[type=number] {
 }
 
 /* ---- Stats Section ---- */
+.market-insights-section {
+    position: relative;
+    z-index: 1;
+    padding: 24px 0 96px;
+}
+
+.market-insights-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(420px, 1.05fr);
+    gap: 44px;
+    align-items: center;
+}
+
+.market-insights-copy .section-title,
+.market-insights-copy .section-subtitle {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.market-insights-copy .section-title {
+    max-width: 620px;
+}
+
+.market-insights-copy .section-subtitle {
+    max-width: 620px;
+    margin-bottom: 30px;
+}
+
+.market-insights-preview {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.insight-preview-card {
+    min-height: 154px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    transition: var(--transition-default);
+}
+
+.insight-preview-card:hover {
+    border-color: var(--border-default);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.preview-label {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.insight-preview-card strong {
+    display: block;
+    margin: 18px 0 8px;
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    line-height: 1;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.insight-preview-card span:last-child {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+}
+
 .stats-section {
     position: relative;
     z-index: 1;
@@ -1287,6 +1375,10 @@ input[type=number] {
         flex-direction: column;
     }
 
+    .market-insights-layout {
+        grid-template-columns: 1fr;
+    }
+
     .result-card {
         position: static;
     }
@@ -1307,6 +1399,12 @@ input[type=number] {
         --section-padding: 80px;
     }
 
+    .section-container,
+    .nav-container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
     .nav-links {
         display: none;
     }
@@ -1319,12 +1417,18 @@ input[type=number] {
         grid-template-columns: 1fr 1fr;
     }
 
+    .market-insights-preview {
+        grid-template-columns: 1fr 1fr;
+    }
+
     .form-card {
-        padding: 28px;
+        padding: 24px;
+        border-radius: var(--radius-lg);
     }
 
     .result-card {
-        padding: 28px;
+        padding: 24px;
+        border-radius: var(--radius-lg);
     }
 
     .hero-stats {
@@ -1343,7 +1447,55 @@ input[type=number] {
 }
 
 @media (max-width: 480px) {
+    .section-container,
+    .nav-container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .estimator-section {
+        padding-top: 72px;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+    }
+
+    .form-card,
+    .result-card {
+        padding: 20px;
+    }
+
+    .form-row {
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .select-wrapper select,
+    .input-wrapper input {
+        min-height: 54px;
+        font-size: 1rem;
+    }
+
+    .color-options {
+        gap: 8px;
+    }
+
+    .color-option {
+        width: 36px;
+        height: 36px;
+    }
+
+    .color-dot {
+        width: 20px;
+        height: 20px;
+    }
+
     .trust-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .market-insights-preview {
         grid-template-columns: 1fr;
     }
 
@@ -1362,5 +1514,15 @@ input[type=number] {
 
     .result-price .amount {
         font-size: 2rem;
+    }
+
+    .range-labels {
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 0.66rem;
+    }
+
+    .range-mid-label {
+        display: none;
     }
 }

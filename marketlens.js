@@ -1,5 +1,5 @@
 /* ======================================================
-   AutoValue — Application Logic
+   AutoInsight — Application Logic
    ====================================================== */
 
 // ---- DOM Elements ----
