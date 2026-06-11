@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing a 48-hour deadline: DNA forensics simulation for West Yorkshire Police — Taimoor Ali</title>
+<meta name="description" content="Discrete-event simulation of a police DNA forensics operation: six operating scenarios, 5,000 trials each, Monte Carlo ROI in arrests per £m, and the queueing bottlenecks that drove the recommendation.">
+<link rel="canonical" href="https://taimoorali.online/projects/forensics-simulation.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#F4F6F9; --paper-2:#EBEFF4; --ink:#0B1626; --ink-2:#33415C; --muted:#5B6B7F;
+  --line:#D4DCE6; --blue:#1E40E8; --blue-soft:#E4E9FD; --green:#0E9F6E; --green-soft:#E0F3EC;
+  --gold:#B7791F; --gold-soft:#FBF0DC; --violet:#7C3AED; --violet-soft:#F0E9FD; --red:#DC4B3E;
+  --display:'Archivo',sans-serif; --serif:'Source Serif 4',serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,246,249,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.back{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none}
+.back:hover{color:var(--blue)}
+.tb-label{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.art-hero{border-bottom:1px solid var(--line);padding:64px 0 52px}
+.kicker{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-block;border-radius:6px;padding:5px 12px;margin-bottom:22px}
+.kicker.k-green{background:var(--green-soft);color:var(--green)}
+.kicker.k-blue{background:var(--blue-soft);color:var(--blue)}
+.kicker.k-violet{background:var(--violet-soft);color:var(--violet)}
+.kicker.k-gold{background:var(--gold-soft);color:var(--gold)}
+h1.art-title{font-family:var(--display);font-weight:900;font-size:clamp(34px,5.2vw,58px);letter-spacing:-.025em;line-height:1.06;max-width:21ch}
+.dek{margin-top:22px;max-width:62ch;font-size:19px;color:var(--ink-2)}
+.stat-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.stat-chip{border:1px solid var(--line);border-radius:9px;background:#fff;padding:11px 18px;min-width:108px}
+.stat-chip b{font-family:var(--display);font-weight:800;font-size:21px;display:block;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat-chip span{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.hero-links{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:700;font-size:14.5px;text-decoration:none;border-radius:8px;padding:11px 19px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:var(--blue)}
+.btn-ghost{border:1px solid var(--line);background:#fff}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.art-body{max-width:780px;margin:0 auto;padding:56px 24px 40px}
+.art-body h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.2vw,32px);letter-spacing:-.02em;margin:56px 0 18px;line-height:1.15}
+.art-body h2:first-child{margin-top:0}
+.art-body h2 .num{font-family:var(--mono);font-weight:600;font-size:.55em;color:var(--blue);letter-spacing:.1em;display:block;margin-bottom:8px}
+.art-body p{color:var(--ink-2);margin-bottom:18px}
+.art-body p strong{color:var(--ink);font-weight:600}
+.art-body ul{margin:0 0 18px 2px;list-style:none}
+.art-body ul li{color:var(--ink-2);padding:4px 0 4px 22px;position:relative}
+.art-body ul li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:2px;background:var(--blue-soft);border:1px solid var(--blue)}
+.fig{background:#fff;border:1px solid var(--line);border-radius:13px;padding:22px 22px 16px;margin:28px 0}
+.fig-title{font-family:var(--display);font-weight:700;font-size:15.5px;margin-bottom:4px}
+.fig-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
+.chart-box{position:relative;width:100%}
+figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+.callout{border:1px solid var(--line);border-left:3.5px solid var(--blue);background:#fff;border-radius:0 12px 12px 0;padding:20px 24px;margin:28px 0}
+.callout .c-tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;display:block;margin-bottom:8px}
+.callout p{margin-bottom:0;font-size:16px}
+.dtable{width:100%;border-collapse:collapse;margin:26px 0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+.dtable th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;background:var(--paper-2);border-bottom:1px solid var(--line);font-weight:600}
+.dtable td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td b{font-family:var(--display);color:var(--ink);font-weight:700}
+.dtable .hl td{background:#F2F5FE}
+.mono-sm{font-family:var(--mono);font-size:12.5px}
+.tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:4px 9px;color:var(--ink-2);background:var(--paper);display:inline-block;margin:0 6px 8px 0}
+.foot-nav{border-top:1px solid var(--line);margin-top:64px;padding:44px 24px 26px;max-width:1120px;margin-left:auto;margin-right:auto}
+.fn-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fn-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:22px;text-decoration:none;transition:border-color .15s ease,transform .15s ease}
+.fn-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.fn-card .fn-dir{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:8px}
+.fn-card .fn-title{font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.fn-card.next{text-align:right}
+@media (max-width:640px){.fn-grid{grid-template-columns:1fr}.fn-card.next{text-align:left}}
+footer.site{padding:30px 0 44px}
+.foot{max-width:1120px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="back" href="../index.html">← TAIMOOR ALI</a>
+    <span class="tb-label">Case study</span>
+  </div>
+</header>
+
+<div class="art-hero">
+  <div class="wrap">
+    <span class="kicker k-gold">OPERATIONS &amp; CAPACITY DECISIONS · SIMULATION</span>
+    <h1 class="art-title">Pricing a 48-hour deadline: simulating DNA forensics for West Yorkshire Police</h1>
+    <p class="dek">DNA results delivered inside 48 hours materially raise the chance of an arrest. Machines, couriers and round-the-clock shifts all raise the bill. This project turned that operations argument into a number — six operating scenarios, modelled as discrete-event simulations, run 5,000 times each, and priced in arrests per £m spent.</p>
+    <div class="stat-strip">
+      <div class="stat-chip"><b>6</b><span>scenarios modelled</span></div>
+      <div class="stat-chip"><b>5,000</b><span>trials per scenario</span></div>
+      <div class="stat-chip"><b>48 hr</b><span>turnaround target</span></div>
+      <div class="stat-chip"><b>£/arrest</b><span>ROI metric</span></div>
+    </div>
+    <div class="hero-links">
+      <a class="btn btn-primary" href="https://github.com/Taimoor010/Operational_Analytics_Simulation_Project-West_Yorkshire_Police" target="_blank" rel="noopener">View the repo ↗</a>
+    </div>
+  </div>
+</div>
+
+<article class="art-body">
+
+<h2><span class="num">01 · THE DECISION</span>Which setup is worth paying for?</h2>
+<p>West Yorkshire Police wanted DNA forensics results inside a 48-hour window, because the probability of an arrest decays as the delay grows. Rapid DNA machines promised faster processing — but a machine alone is not a process. Should the force also pay for couriers? Extend crime-scene investigator (CSI) shifts to 24 hours? Run the lab around the clock? Each option costs real money, and intuition is a terrible guide to queueing systems.</p>
+<p>The question, framed properly: <strong>which configuration of equipment, staffing and shifts reliably hits 48 hours at the lowest cost per arrest?</strong> That's not an opinion question. It's a simulation question.</p>
+
+<h2><span class="num">02 · MEASURE</span>Modelling the lab as a queueing system</h2>
+<p>The forensics pipeline — scene attendance, evidence transport, lab processing, sequencing, validation — was modelled as a <strong>discrete-event simulation in Simul8</strong>. Every simulated sample was tracked at the individual level: time spent in each queue, time in each activity, total time in queues, total time in activities, and overall time in system. That granularity matters, because averages hide exactly the bottlenecks you're trying to find.</p>
+<p>Each scenario ran for <strong>5,000 trials</strong> to reach statistical convergence, with aggregated statistics — min, max, mean and 95% confidence intervals — exported to Excel for every run, and queue distributions visualised in Python with consistent axes so scenarios could be compared honestly, subplot to subplot.</p>
+
+<h2><span class="num">03 · SCENARIOS</span>Six ways to run a forensics operation</h2>
+
+<table class="dtable">
+  <tr><th>#</th><th>Scenario</th><th>What changes</th></tr>
+  <tr><td class="mono-sm">S1</td><td><b>Current process</b></td><td>The baseline — existing equipment, shifts and transport</td></tr>
+  <tr><td class="mono-sm">S2</td><td><b>Rapid DNA machine</b></td><td>Faster processing technology, everything else unchanged</td></tr>
+  <tr><td class="mono-sm">S3</td><td><b>Rapid DNA + courier</b></td><td>Adds dedicated evidence transport</td></tr>
+  <tr class="hl"><td class="mono-sm">S4</td><td><b>Rapid DNA + 24hr CSI</b></td><td>Extends crime-scene investigator coverage around the clock</td></tr>
+  <tr class="hl"><td class="mono-sm">S5</td><td><b>Rapid DNA + 24hr lab</b></td><td>Extends laboratory operation around the clock</td></tr>
+  <tr><td class="mono-sm">S6</td><td><b>Full 24/7 operation</b></td><td>Both CSI and lab run continuously — maximum capability, maximum cost</td></tr>
+</table>
+
+<h2><span class="num">04 · DIAGNOSE</span>The bottlenecks nobody suspected</h2>
+<p>The queue-distribution plots told a story the org chart couldn't. The dominant delays in the early scenarios weren't the headline processing steps at all — they were <strong>the batching schedule of the DNA sequencer</strong> (samples waiting for a batch to fill before anything runs) and <strong>limited CSI shift availability</strong> (evidence that can't be collected outside working hours can't be processed, however fast the lab is).</p>
+<p>This is the recurring lesson of queueing systems: buying a faster machine doesn't help if the queue forms before the machine. Scenario 2 — Rapid DNA alone — improves processing speed but inherits both upstream bottlenecks, which is exactly why the scenario comparison, not the technology pitch, had to drive the decision.</p>
+<p>Sensitivity analysis — correlation-based tornado plots plus parameter-sweep spider plots — ranked what actually moves total system time. Three factors dominated:</p>
+<ul>
+  <li><strong>Transport time</strong> — evidence sitting in transit is invisible dead time the lab can never recover.</li>
+  <li><strong>Validation availability</strong> — results queue for sign-off; a fast result that waits for validation isn't fast.</li>
+  <li><strong>CSI coverage</strong> — collection hours bound the entire downstream system.</li>
+</ul>
+
+<h2><span class="num">05 · DECIDE</span>ROI under uncertainty: arrests per £m</h2>
+<p>Hitting 48 hours is not the objective — it's a proxy. The real objective is arrests, so ROI was defined as <strong>arrests per £m spent</strong>, with arrest probability modelled as a function of delay using the supplied objective curve. Because processing times vary trial to trial, ROI was estimated by <strong>Monte Carlo simulation in AtRisk</strong>, producing a distribution of returns per scenario rather than a single misleading point.</p>
+<p>The pattern that emerged:</p>
+<ul>
+  <li><strong>Scenario 6</strong> (full 24/7) produced the highest arrest potential — and the highest cost. Maximum capability is not maximum efficiency.</li>
+  <li><strong>Scenarios 4 and 5</strong> offered the strongest cost-benefit trade-off, consistently delivering high probabilities of meeting the 48-hour deadline without paying for round-the-clock everything.</li>
+  <li><strong>Scenarios 1–3</strong> remained hostage to the upstream bottlenecks the sensitivity analysis exposed.</li>
+</ul>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>The recommendation was the mid-tier: pair Rapid DNA with extended coverage at the binding constraint (S4/S5), rather than buying the full 24/7 operation. The simulation's job was to stop the decision being framed as "fast machine: yes or no?" and reframe it as "which constraint is binding, and what does relaxing it return per pound?" That reframing is the deliverable.</p>
+</div>
+
+<h2><span class="num">06 · TRANSFER</span>Why this matters beyond forensics</h2>
+<p>Swap "DNA samples" for "support tickets", "seller onboarding applications" or "order fulfilment" and the method transfers untouched: model the flow, find where the queue actually forms, price each intervention by its return — under uncertainty, not under best-case assumptions. It's the same discipline I use on growth funnels: the stage with the worst conversion isn't always the stage worth fixing; the binding constraint is.</p>
+
+<p class="mono-sm" style="color:var(--muted)">Stack: Simul8 (discrete-event simulation) · Excel · AtRisk / Palisade (Monte Carlo ROI) · Python (pandas, matplotlib, seaborn) · University of Surrey, Operational Analytics</p>
+
+</article>
+
+<nav class="foot-nav" aria-label="More case studies">
+  <div class="fn-grid">
+    <a class="fn-card" href="bess-forecasting.html"><span class="fn-dir">← Previous</span><span class="fn-title">Store or sell? Forecast-driven battery trading</span></a>
+    <a class="fn-card next" href="asset-risk-modelling.html"><span class="fn-dir">Next case study →</span><span class="fn-title">How much could I lose tomorrow?</span></a>
+  </div>
+</nav>
+
+<footer class="site">
+  <div class="foot">
+    <span>© <span data-year>2026</span> Taimoor Ali · Measure. Model. Decide. Ship.</span>
+    <span><a href="../index.html">Home</a> · <a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn</a></span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#5B6B7F';
+Chart.defaults.borderColor = '#E3E9F0';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+const C = {blue:'#1E40E8', blueSoft:'rgba(30,64,232,.12)', green:'#0E9F6E', gold:'#B7791F', violet:'#7C3AED', muted:'#9AA8B8', ink:'#0B1626', red:'#DC4B3E'};
+// No data charts on this page by design: simulation outputs are presented
+// qualitatively to avoid implying false numeric precision from group artefacts.
+</script>
+<script src="../analytics.js"></script>
+</body>
+</html>

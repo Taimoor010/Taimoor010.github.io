@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store or sell? Forecast-driven battery trading in the UK power market — Taimoor Ali</title>
+<meta name="description" content="MSc dissertation: deep-learning forecasts of wind power and UK electricity prices feeding a MILP battery optimiser — +7.13% average revenue uplift, 161% at peak volatility, with the limitations stated plainly.">
+<link rel="canonical" href="https://taimoorali.online/projects/bess-forecasting.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#F4F6F9; --paper-2:#EBEFF4; --ink:#0B1626; --ink-2:#33415C; --muted:#5B6B7F;
+  --line:#D4DCE6; --blue:#1E40E8; --blue-soft:#E4E9FD; --green:#0E9F6E; --green-soft:#E0F3EC;
+  --gold:#B7791F; --gold-soft:#FBF0DC; --violet:#7C3AED; --violet-soft:#F0E9FD; --red:#DC4B3E;
+  --display:'Archivo',sans-serif; --serif:'Source Serif 4',serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,246,249,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.back{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none}
+.back:hover{color:var(--blue)}
+.tb-label{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.art-hero{border-bottom:1px solid var(--line);padding:64px 0 52px}
+.kicker{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-block;border-radius:6px;padding:5px 12px;margin-bottom:22px}
+.kicker.k-green{background:var(--green-soft);color:var(--green)}
+.kicker.k-blue{background:var(--blue-soft);color:var(--blue)}
+.kicker.k-violet{background:var(--violet-soft);color:var(--violet)}
+.kicker.k-gold{background:var(--gold-soft);color:var(--gold)}
+h1.art-title{font-family:var(--display);font-weight:900;font-size:clamp(34px,5.2vw,58px);letter-spacing:-.025em;line-height:1.06;max-width:21ch}
+.dek{margin-top:22px;max-width:62ch;font-size:19px;color:var(--ink-2)}
+.stat-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.stat-chip{border:1px solid var(--line);border-radius:9px;background:#fff;padding:11px 18px;min-width:108px}
+.stat-chip b{font-family:var(--display);font-weight:800;font-size:21px;display:block;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat-chip span{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.hero-links{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:700;font-size:14.5px;text-decoration:none;border-radius:8px;padding:11px 19px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:var(--blue)}
+.btn-ghost{border:1px solid var(--line);background:#fff}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.art-body{max-width:780px;margin:0 auto;padding:56px 24px 40px}
+.art-body h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.2vw,32px);letter-spacing:-.02em;margin:56px 0 18px;line-height:1.15}
+.art-body h2:first-child{margin-top:0}
+.art-body h2 .num{font-family:var(--mono);font-weight:600;font-size:.55em;color:var(--blue);letter-spacing:.1em;display:block;margin-bottom:8px}
+.art-body p{color:var(--ink-2);margin-bottom:18px}
+.art-body p strong{color:var(--ink);font-weight:600}
+.art-body ul{margin:0 0 18px 2px;list-style:none}
+.art-body ul li{color:var(--ink-2);padding:4px 0 4px 22px;position:relative}
+.art-body ul li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:2px;background:var(--blue-soft);border:1px solid var(--blue)}
+.fig{background:#fff;border:1px solid var(--line);border-radius:13px;padding:22px 22px 16px;margin:28px 0}
+.fig-title{font-family:var(--display);font-weight:700;font-size:15.5px;margin-bottom:4px}
+.fig-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
+.chart-box{position:relative;width:100%}
+figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+.callout{border:1px solid var(--line);border-left:3.5px solid var(--blue);background:#fff;border-radius:0 12px 12px 0;padding:20px 24px;margin:28px 0}
+.callout .c-tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;display:block;margin-bottom:8px}
+.callout p{margin-bottom:0;font-size:16px}
+.dtable{width:100%;border-collapse:collapse;margin:26px 0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+.dtable th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;background:var(--paper-2);border-bottom:1px solid var(--line);font-weight:600}
+.dtable td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td b{font-family:var(--display);color:var(--ink);font-weight:700}
+.dtable .hl td{background:#F2F5FE}
+.mono-sm{font-family:var(--mono);font-size:12.5px}
+.tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:4px 9px;color:var(--ink-2);background:var(--paper);display:inline-block;margin:0 6px 8px 0}
+.foot-nav{border-top:1px solid var(--line);margin-top:64px;padding:44px 24px 26px;max-width:1120px;margin-left:auto;margin-right:auto}
+.fn-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fn-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:22px;text-decoration:none;transition:border-color .15s ease,transform .15s ease}
+.fn-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.fn-card .fn-dir{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:8px}
+.fn-card .fn-title{font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.fn-card.next{text-align:right}
+@media (max-width:640px){.fn-grid{grid-template-columns:1fr}.fn-card.next{text-align:left}}
+footer.site{padding:30px 0 44px}
+.foot{max-width:1120px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="back" href="../index.html">← TAIMOOR ALI</a>
+    <span class="tb-label">Case study</span>
+  </div>
+</header>
+
+<div class="art-hero">
+  <div class="wrap">
+    <span class="kicker k-violet">TRADING &amp; DISPATCH DECISIONS · MSc DISSERTATION</span>
+    <h1 class="art-title">Store or sell? Forecast-driven battery trading in the UK power market</h1>
+    <p class="dek">Wind farms leave money on the table because output is variable and prices are volatile. My MSc dissertation built the full decision system: deep-learning forecasts of wind power and electricity prices, feeding a mixed-integer optimiser that decides — every hour — whether to sell, store, discharge or wait. The uplift is quantified, and so are the caveats.</p>
+    <div class="stat-strip">
+      <div class="stat-chip"><b>+7.13%</b><span>avg revenue uplift</span></div>
+      <div class="stat-chip"><b>161%</b><span>peak uplift</span></div>
+      <div class="stat-chip"><b>4 × 2</b><span>architectures × tasks</span></div>
+      <div class="stat-chip"><b>60 MWh</b><span>BESS · 10 MW · MILP</span></div>
+    </div>
+    <div class="hero-links">
+      <a class="btn btn-ghost" href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+</div>
+
+<article class="art-body">
+
+<h2><span class="num">01 · THE DECISION</span>Every hour, four options</h2>
+<p>A wind producer with a co-located battery faces the same decision every hour: <strong>sell the generation now, store it, discharge what's stored, or sit idle.</strong> Get it right and you arbitrage the spread between cheap, windy hours and expensive, scarce ones. Get it wrong and you've cycled an expensive battery for nothing — degradation is a real cost, charged per kWh.</p>
+<p>The decision is only as good as two forecasts: how much wind power will exist in the next six hours, and what electricity will be worth. So the project is really two forecasting problems welded to one optimisation problem, built on UK-specific data — ERA5 meteorological reanalysis for the weather, ENTSO-E day-ahead market prices for the money, a full year at hourly resolution.</p>
+
+<figure class="fig">
+  <div class="fig-title">The integrated framework</div>
+  <div class="fig-sub">Two forecasting models feed one optimiser; the optimiser makes the hourly call</div>
+  <div style="overflow-x:auto">
+  <svg viewBox="0 0 760 170" width="100%" style="min-width:560px" role="img" aria-label="Pipeline: data sources feed wind and price forecasting models, which feed a MILP battery optimiser, which outputs hourly store/sell decisions">
+    <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5B6B7F"/></marker></defs>
+    <g font-family="IBM Plex Mono, monospace" font-size="10.5">
+      <rect x="8" y="18" width="150" height="44" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="83" y="36" text-anchor="middle" fill="#0B1626" font-weight="600">ERA5 weather</text>
+      <text x="83" y="51" text-anchor="middle" fill="#5B6B7F">wind · temp · u*</text>
+      <rect x="8" y="106" width="150" height="44" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="83" y="124" text-anchor="middle" fill="#0B1626" font-weight="600">ENTSO-E prices</text>
+      <text x="83" y="139" text-anchor="middle" fill="#5B6B7F">UK day-ahead, hourly</text>
+      <rect x="218" y="18" width="166" height="44" rx="9" fill="#F0E9FD" stroke="#7C3AED"/>
+      <text x="301" y="36" text-anchor="middle" fill="#7C3AED" font-weight="600">Wind forecast (MLP)</text>
+      <text x="301" y="51" text-anchor="middle" fill="#5B6B7F">next 6 hours, kW</text>
+      <rect x="218" y="106" width="166" height="44" rx="9" fill="#F0E9FD" stroke="#7C3AED"/>
+      <text x="301" y="124" text-anchor="middle" fill="#7C3AED" font-weight="600">Price forecast (CNN-LSTM)</text>
+      <text x="301" y="139" text-anchor="middle" fill="#5B6B7F">next 6 hours, £/MWh</text>
+      <rect x="444" y="60" width="156" height="48" rx="9" fill="#E4E9FD" stroke="#1E40E8"/>
+      <text x="522" y="79" text-anchor="middle" fill="#1E40E8" font-weight="600">MILP optimiser</text>
+      <text x="522" y="94" text-anchor="middle" fill="#5B6B7F">PuLP · CBC solver</text>
+      <rect x="652" y="60" width="100" height="48" rx="9" fill="#E0F3EC" stroke="#0E9F6E"/>
+      <text x="702" y="79" text-anchor="middle" fill="#0E9F6E" font-weight="600">Decision</text>
+      <text x="702" y="94" text-anchor="middle" fill="#5B6B7F">store / sell</text>
+      <line x1="158" y1="40" x2="212" y2="40" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="158" y1="128" x2="212" y2="128" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="384" y1="40" x2="438" y2="74" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="384" y1="128" x2="438" y2="94" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="600" y1="84" x2="646" y2="84" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+    </g>
+  </svg>
+  </div>
+  <figcaption>Wind features are physics-grounded: power is derived from the wind-power equation (Betz), so the models learn outputs anchored to real turbine behaviour rather than free-floating curves.</figcaption>
+</figure>
+
+<h2><span class="num">02 · MODEL</span>Forecasting prices: the hybrid wins</h2>
+<p>Four architectures — MLP, 1D-CNN, LSTM and a CNN-LSTM hybrid — were trained to predict the next six hours of UK day-ahead prices from an 18-hour lookback, with hyperparameters tuned by Optuna (Bayesian search, up to 100 trials per model). Price signals mix sharp local spikes with longer daily cycles, and the hybrid's structure mirrors that: convolutions catch the spikes, recurrence catches the rhythm.</p>
+
+<figure class="fig">
+  <div class="fig-title">Electricity price forecasting — overall test performance</div>
+  <div class="fig-sub">Holdout R², higher is better · RMSE in tooltip (€/MWh)</div>
+  <div class="chart-box" style="height:230px"><canvas id="chPriceModels"></canvas></div>
+  <figcaption>CNN-LSTM wins on every headline metric: RMSE 21.75, MAE 16.17, R² 0.7255. The pure CNN trails — local features alone can't carry the temporal structure.</figcaption>
+</figure>
+
+<h2><span class="num">03 · MODEL</span>Forecasting wind: the plot twist</h2>
+<p>Same four architectures, same protocol, different winner. On wind power, the humble <strong>MLP beat every sequence model</strong> — lowest RMSE (1,285 kW), highest R² (0.7016), best at five of six horizons. With a rich ERA5 feature set, wind prediction behaves less like a sequence problem and more like nonlinear regression, and a well-tuned MLP is exactly that. Meanwhile the LSTM scored the highest Pearson correlation (0.862) — it tracks the <em>shape</em> of the series best even where its magnitudes miss.</p>
+
+<figure class="fig">
+  <div class="fig-title">Accuracy decays with horizon — differently per model</div>
+  <div class="fig-sub">Per-horizon R² on the wind power task, t+1 to t+6 hours ahead</div>
+  <div class="chart-box" style="height:300px"><canvas id="chWindHorizon"></canvas></div>
+  <figcaption>The MLP holds its lead across the window; the CNN-LSTM degrades fastest (R² 0.78 → 0.37). Stability over the horizon is a model property in its own right.</figcaption>
+</figure>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>No single architecture dominated both tasks — and that's the finding, not a failure. The price task rewarded the hybrid; the wind task rewarded a flexible function approximator; the "best" model even changes with the metric you care about (point accuracy vs shape tracking). A production system should run a portfolio of specialised models per data stream, not crown one architecture and force it everywhere.</p>
+</div>
+
+<h2><span class="num">04 · OPTIMISE</span>The optimiser: profit, with physics attached</h2>
+<p>Forecasts feed a mixed-integer linear programme (PuLP, CBC solver) that maximises revenue over each six-hour window while respecting how batteries actually work:</p>
+
+<table class="dtable">
+  <tr><th>Constraint</th><th>Value</th><th>Why it matters</th></tr>
+  <tr><td><b>Usable capacity</b></td><td>60 MWh</td><td>You can't arbitrage what you can't store</td></tr>
+  <tr><td><b>Charge / discharge power</b></td><td>10 MW</td><td>Caps how fast the battery can act on a price spike</td></tr>
+  <tr><td><b>Round-trip efficiency</b></td><td>86%</td><td>Every stored MWh comes back smaller — spreads must beat the loss</td></tr>
+  <tr><td><b>State of charge</b></td><td>5–95%</td><td>Protects battery life at the extremes</td></tr>
+  <tr><td><b>Degradation cost</b></td><td>€0.01 / kWh</td><td>Cycling isn't free; the optimiser won't trade thin spreads</td></tr>
+  <tr><td><b>Mutual exclusion</b></td><td>binary</td><td>No charging and discharging in the same hour</td></tr>
+</table>
+
+<p>The degradation term is the quiet hero: it makes the optimiser <strong>conservative in flat markets and aggressive in volatile ones</strong>, which is exactly the behaviour a real asset manager wants.</p>
+
+<h2><span class="num">05 · RESULTS</span>What the decision system earned</h2>
+<p>Against a baseline that sells all generation immediately, the forecast-driven optimiser averaged <strong>£858.85 per six-hour window vs £801.72 — a +7.13% uplift</strong> across the dataset. The average hides the texture, which three windows illustrate:</p>
+<ul>
+  <li><strong>Steady spread (+38.5%):</strong> prices climb gradually; the optimiser charges early, sells late, and beats the baseline comfortably.</li>
+  <li><strong>Price spike (+109.1%):</strong> the forecast sees a spike coming; the battery pre-charges and discharges aggressively into the peak. The baseline, selling as it generates, misses most of it.</li>
+  <li><strong>Spike, but no fuel (+2.4%):</strong> a late spike with little wind available — the optimiser anticipates correctly but has almost nothing stored to sell. Forecast quality can't conjure energy.</li>
+</ul>
+
+<figure class="fig">
+  <div class="fig-title">Optimiser vs sell-everything baseline</div>
+  <div class="fig-sub">Average revenue per 6-hour window (left) · uplift by market condition (right)</div>
+  <div class="chart-box" style="height:250px"><canvas id="chUplift"></canvas></div>
+  <figcaption>Most windows deliver modest 5–7% gains; rare high-volatility events deliver up to 161%. Volatility is the profit engine — forecasts are the key that unlocks it.</figcaption>
+</figure>
+
+<h2><span class="num">06 · HONESTY</span>The limitations, stated plainly</h2>
+<p>The framework treats point forecasts as if they were certain, so the reported uplift is an <strong>upper bound under that assumption</strong> — realised gains would be reduced by forecast error. The six-hour horizon can't hold charge for tomorrow's bigger spike. Degradation is modelled as a flat linear cost when real degradation is nonlinear in temperature, depth of discharge and C-rate. And one year of training data meets a market that policy and the generation mix keep reshaping.</p>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>I reported the 7.13% explicitly as an idealised ceiling rather than a promised return. An analysis that hides its assumptions gets one good meeting; an analysis that prices them in gets trusted with the next decision. The fix list is concrete: probabilistic forecasts feeding risk-aware (stochastic or robust) optimisation, longer or nested horizons, richer degradation models, rolling retraining.</p>
+</div>
+
+<h2><span class="num">07 · NEXT</span>Where this goes</h2>
+<p>The most interesting extension is <strong>economically-driven forecast training</strong>: stop optimising RMSE and start optimising the profit the downstream decision actually realises — the forecast exists only to serve the decision, so train it on the decision's objective. Beyond that: multi-market participation (day-ahead, intraday, balancing, ancillary services) and reinforcement-learning dispatch policies that learn the market directly.</p>
+
+<p class="mono-sm" style="color:var(--muted)">Stack: TensorFlow / Keras · MLP · 1D-CNN · LSTM · CNN-LSTM · Optuna · PuLP (MILP, CBC) · ERA5 · ENTSO-E · pandas</p>
+
+</article>
+
+<nav class="foot-nav" aria-label="More case studies">
+  <div class="fn-grid">
+    <a class="fn-card" href="marketlens.html"><span class="fn-dir">← Previous</span><span class="fn-title">CarGauge: pricing 58,000 used cars</span></a>
+    <a class="fn-card next" href="forensics-simulation.html"><span class="fn-dir">Next case study →</span><span class="fn-title">Pricing a 48-hour deadline</span></a>
+  </div>
+</nav>
+
+<footer class="site">
+  <div class="foot">
+    <span>© <span data-year>2026</span> Taimoor Ali · Measure. Model. Decide. Ship.</span>
+    <span><a href="../index.html">Home</a> · <a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn</a></span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#5B6B7F';
+Chart.defaults.borderColor = '#E3E9F0';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+const C = {blue:'#1E40E8', blueSoft:'rgba(30,64,232,.12)', green:'#0E9F6E', gold:'#B7791F', violet:'#7C3AED', muted:'#9AA8B8', ink:'#0B1626', red:'#DC4B3E'};
+new Chart(document.getElementById('chPriceModels'), {
+  type:'bar',
+  data:{labels:['CNN-LSTM','MLP','LSTM','1D-CNN'],
+    datasets:[{data:[0.7255,0.7191,0.6921,0.6795], backgroundColor:[C.violet,C.blue,C.muted,C.muted], borderRadius:5, barPercentage:.62}]},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>{
+      const rmse={'CNN-LSTM':21.75,'MLP':22.00,'LSTM':23.03,'1D-CNN':23.50}[c.label];
+      return 'R² '+c.parsed.x+' · RMSE '+rmse;
+    }}}},
+    scales:{x:{min:0.6, max:0.75, title:{display:true,text:'Holdout R²'}}, y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chWindHorizon'), {
+  type:'line',
+  data:{labels:['t+1','t+2','t+3','t+4','t+5','t+6'],
+    datasets:[
+      {label:'MLP', data:[0.894,0.797,0.704,0.648,0.628,0.644], borderColor:C.blue, backgroundColor:C.blue, tension:.3, pointRadius:3.5},
+      {label:'1D-CNN', data:[0.846,0.782,0.705,0.621,0.536,0.477], borderColor:C.green, backgroundColor:C.green, tension:.3, pointRadius:3.5},
+      {label:'LSTM', data:[0.827,0.771,0.689,0.605,0.526,0.454], borderColor:C.gold, backgroundColor:C.gold, tension:.3, pointRadius:3.5},
+      {label:'CNN-LSTM', data:[0.784,0.716,0.618,0.527,0.439,0.366], borderColor:C.muted, backgroundColor:C.muted, tension:.3, pointRadius:3.5}
+    ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{title:{display:true,text:'R² (wind power)'}}, x:{title:{display:true,text:'Forecast horizon (hours ahead)'}, grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chUplift'), {
+  type:'bar',
+  data:{labels:['Baseline (sell all)','Optimiser','Steady spread','Price spike','Spike, no fuel'],
+    datasets:[
+      {label:'Avg revenue (£ / 6h window)', yAxisID:'y',
+       data:[801.72,858.85,null,null,null],
+       backgroundColor:[C.muted,C.green], borderRadius:5, barPercentage:.62, skipNull:true},
+      {label:'Window uplift (%)', yAxisID:'y2',
+       data:[null,null,38.54,109.06,2.37],
+       backgroundColor:[C.blue,C.blue,C.blue,C.violet,C.gold], borderRadius:5, barPercentage:.62, skipNull:true}
+    ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:(c)=> c.datasetIndex===0 ? '£'+c.parsed.y.toFixed(2)+' avg / 6h window' : '+'+c.parsed.y+'% uplift vs baseline'}}},
+    scales:{
+      y:{position:'left', title:{display:true,text:'£ per 6h window'}, beginAtZero:true},
+      y2:{position:'right', title:{display:true,text:'Uplift (%)'}, beginAtZero:true, grid:{drawOnChartArea:false}},
+      x:{grid:{display:false}}}}
+});
+</script>
+<script src="../analytics.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarGauge: pricing 58,000 used cars in your browser — Taimoor Ali</title>
+<meta name="description" content="An end-to-end ML pricing system for the Pakistani used-car market: Playwright scraping, cleaning and canonicalisation, a LightGBM model at 7.31% MAPE, calibrated confidence ranges, and a static JavaScript deployment — live at motorguage.com.">
+<link rel="canonical" href="https://taimoorali.online/projects/marketlens.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#F4F6F9; --paper-2:#EBEFF4; --ink:#0B1626; --ink-2:#33415C; --muted:#5B6B7F;
+  --line:#D4DCE6; --blue:#1E40E8; --blue-soft:#E4E9FD; --green:#0E9F6E; --green-soft:#E0F3EC;
+  --gold:#B7791F; --gold-soft:#FBF0DC; --violet:#7C3AED; --violet-soft:#F0E9FD; --red:#DC4B3E;
+  --display:'Archivo',sans-serif; --serif:'Source Serif 4',serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,246,249,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.back{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none}
+.back:hover{color:var(--blue)}
+.tb-label{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.art-hero{border-bottom:1px solid var(--line);padding:64px 0 52px}
+.kicker{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-block;border-radius:6px;padding:5px 12px;margin-bottom:22px}
+.kicker.k-green{background:var(--green-soft);color:var(--green)}
+.kicker.k-blue{background:var(--blue-soft);color:var(--blue)}
+.kicker.k-violet{background:var(--violet-soft);color:var(--violet)}
+.kicker.k-gold{background:var(--gold-soft);color:var(--gold)}
+h1.art-title{font-family:var(--display);font-weight:900;font-size:clamp(34px,5.2vw,58px);letter-spacing:-.025em;line-height:1.06;max-width:21ch}
+.dek{margin-top:22px;max-width:62ch;font-size:19px;color:var(--ink-2)}
+.stat-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.stat-chip{border:1px solid var(--line);border-radius:9px;background:#fff;padding:11px 18px;min-width:108px}
+.stat-chip b{font-family:var(--display);font-weight:800;font-size:21px;display:block;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat-chip span{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.hero-links{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:700;font-size:14.5px;text-decoration:none;border-radius:8px;padding:11px 19px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:var(--blue)}
+.btn-ghost{border:1px solid var(--line);background:#fff}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.art-body{max-width:780px;margin:0 auto;padding:56px 24px 40px}
+.art-body h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.2vw,32px);letter-spacing:-.02em;margin:56px 0 18px;line-height:1.15}
+.art-body h2:first-child{margin-top:0}
+.art-body h2 .num{font-family:var(--mono);font-weight:600;font-size:.55em;color:var(--blue);letter-spacing:.1em;display:block;margin-bottom:8px}
+.art-body p{color:var(--ink-2);margin-bottom:18px}
+.art-body p strong{color:var(--ink);font-weight:600}
+.art-body ul{margin:0 0 18px 2px;list-style:none}
+.art-body ul li{color:var(--ink-2);padding:4px 0 4px 22px;position:relative}
+.art-body ul li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:2px;background:var(--blue-soft);border:1px solid var(--blue)}
+.fig{background:#fff;border:1px solid var(--line);border-radius:13px;padding:22px 22px 16px;margin:28px 0}
+.fig-title{font-family:var(--display);font-weight:700;font-size:15.5px;margin-bottom:4px}
+.fig-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
+.chart-box{position:relative;width:100%}
+figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+.callout{border:1px solid var(--line);border-left:3.5px solid var(--blue);background:#fff;border-radius:0 12px 12px 0;padding:20px 24px;margin:28px 0}
+.callout .c-tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;display:block;margin-bottom:8px}
+.callout p{margin-bottom:0;font-size:16px}
+.dtable{width:100%;border-collapse:collapse;margin:26px 0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+.dtable th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;background:var(--paper-2);border-bottom:1px solid var(--line);font-weight:600}
+.dtable td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td b{font-family:var(--display);color:var(--ink);font-weight:700}
+.dtable .hl td{background:#F2F5FE}
+.mono-sm{font-family:var(--mono);font-size:12.5px}
+.tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:4px 9px;color:var(--ink-2);background:var(--paper);display:inline-block;margin:0 6px 8px 0}
+.foot-nav{border-top:1px solid var(--line);margin-top:64px;padding:44px 24px 26px;max-width:1120px;margin-left:auto;margin-right:auto}
+.fn-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fn-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:22px;text-decoration:none;transition:border-color .15s ease,transform .15s ease}
+.fn-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.fn-card .fn-dir{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:8px}
+.fn-card .fn-title{font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.fn-card.next{text-align:right}
+@media (max-width:640px){.fn-grid{grid-template-columns:1fr}.fn-card.next{text-align:left}}
+footer.site{padding:30px 0 44px}
+.foot{max-width:1120px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="back" href="../index.html">← TAIMOOR ALI</a>
+    <span class="tb-label">Case study</span>
+  </div>
+</header>
+
+<div class="art-hero">
+  <div class="wrap">
+    <span class="kicker k-green">PRICING DECISIONS · LIVE PRODUCT</span>
+    <h1 class="art-title">CarGauge: pricing 58,000 used cars in your browser</h1>
+    <p class="dek">An end-to-end machine learning system that estimates used-car asking prices in Pakistan — from a scraper that respects the marketplace, through a cleaning layer that turned listings into vehicles, to a LightGBM model that ships as pure JavaScript. No backend. No API. Just a model, deployed.</p>
+    <div class="stat-strip">
+      <div class="stat-chip"><b>7.31%</b><span>holdout MAPE</span></div>
+      <div class="stat-chip"><b>0.9335</b><span>holdout R²</span></div>
+      <div class="stat-chip"><b>93.4%</b><span>within 20%</span></div>
+      <div class="stat-chip"><b>58,583</b><span>cleaned listings</span></div>
+    </div>
+    <div class="hero-links">
+      <a class="btn btn-primary" href="https://motorguage.com" target="_blank" rel="noopener">Try CarGauge live ↗</a>
+      <a class="btn btn-ghost" href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+</div>
+
+<article class="art-body">
+
+<h2><span class="num">01 · THE QUESTION</span>What is this car actually worth?</h2>
+<p>Pakistan's largest auto marketplace, PakWheels, hosts tens of thousands of live listings — and no public pricing intelligence on top of them. Buyers anchor on whatever the seller typed. Sellers guess. I wanted to know whether listing data alone could answer the pricing question with calibrated confidence, and whether the answer could run as a real product anyone can use.</p>
+<p>One framing decision shaped everything downstream: the model predicts <strong>advertised asking price</strong>, not transaction price, because asking price is what the data actually contains. Pretending otherwise would have baked an invisible error into every estimate. Instead, the product handles the gap explicitly — more on that in section 07.</p>
+
+<h2><span class="num">02 · MEASURE</span>Getting the data without getting blocked</h2>
+<p>The obvious scraping approach — visit every listing's detail page — is slow, brittle, and the fastest route to a rate limit. So the Playwright pipeline was built around <strong>search-result cards</strong> instead: title, exact numeric price, listing ID, city, year, mileage, fuel, engine, transmission, badges and photo count, all extracted from the search pages themselves.</p>
+<p>Two fields that matter for price — colour and registration — don't appear on cards. The fix: crawl <strong>filtered</strong> search pages (e.g. "white cars only") and join the labels back to the main dataset by listing ID. Hidden attributes recovered without touching a single detail page. Raw values were preserved untouched throughout; every cleaned field was written separately, so the dataset stays auditable.</p>
+
+<figure class="fig">
+  <div class="fig-title">From scrape to production model</div>
+  <div class="fig-sub">Rows surviving each stage of the pipeline</div>
+  <div class="chart-box" style="height:260px"><canvas id="chFunnel"></canvas></div>
+  <figcaption>The MVP scope excludes EVs, pre-2000 vehicles and make/model groups with ≤20 rows — accuracy you can't support is accuracy you shouldn't ship.</figcaption>
+</figure>
+
+<h2><span class="num">03 · CLEAN</span>The real work: making listings mean vehicles</h2>
+<p>The model algorithm was never the hard part. The hard part was that listings describe text, not vehicles. A sample of the battles:</p>
+<ul>
+  <li><strong>Honda Civic generations.</strong> A 2016 Civic can be two very different cars. Generation was separated from family and variant using deterministic year–engine–variant rules; ambiguous transition-year rows were excluded rather than guessed.</li>
+  <li><strong>Missing zeros.</strong> A car listed at 850,000 that should read 8,500,000 destroys a regression. High-confidence missing-zero cases were corrected in a separate model field — the raw price column was never touched.</li>
+  <li><strong>Mileage placeholders.</strong> Annualised mileage was sanity-checked against make/model/year cohorts; extreme values were imputed into a dedicated <span class="mono-sm">mileage_model_km</span> field.</li>
+  <li><strong>Rare vehicles.</strong> Variants with at least 5 rows train exactly; rarer trims fall back to model-level. Make/model groups with ≤20 rows were excluded from the public scope entirely.</li>
+  <li><strong>Leakage bans.</strong> Listing IDs, URLs, price cohorts and any target-derived field were explicitly banned from the feature schema.</li>
+</ul>
+
+<h2><span class="num">04 · EXPLORE</span>What the market data says</h2>
+<p>Exploration before modelling confirmed the structure the model would need. Log price correlates strongly with engine size (r ≈ 0.69) and model year (0.64); vehicle age is its mirror (−0.64); mileage matters (−0.33) but is noisy because vehicle class dominates it. Depreciation is steep and nonlinear — which is why the target is log price and the models are trees. And the market is concentrated: three Japanese makes account for over three quarters of supported listings.</p>
+
+<figure class="fig">
+  <div class="fig-title">Model-ready market coverage by make</div>
+  <div class="fig-sub">Listings in the MVP training scope (53,034 rows)</div>
+  <div class="chart-box" style="height:330px"><canvas id="chMakes"></canvas></div>
+  <figcaption>Toyota 28.4% · Suzuki 27.7% · Honda 21.5% — the long tail below Daihatsu is where segment-level accuracy starts to strain.</figcaption>
+</figure>
+
+<h2><span class="num">05 · MODEL</span>Choosing a model — and rejecting a better one</h2>
+<p>Ten model families were benchmarked on an 80/20 price-stratified holdout plus 6-fold stratified cross-validation, all on log price: gradient boosting in four flavours, random forest, extra trees, CatBoost, ridge, and MLP challengers. The gradient-boosted family clustered tightly at the top; the linear baseline trailed by 7 points of MAPE — a clean measure of how nonlinear this market is.</p>
+
+<figure class="fig">
+  <div class="fig-title">Production feature-set model benchmark</div>
+  <div class="fig-sub">Holdout MAPE, lower is better · identical features and validation protocol</div>
+  <div class="chart-box" style="height:340px"><canvas id="chModels"></canvas></div>
+  <figcaption>LightGBM selected: best holdout MAPE (7.31%), confirmed by 6-fold CV (7.37%), with the best within-20% rate (93.43%).</figcaption>
+</figure>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>A richer internal feature schema — scraping-quality flags, support counts — scored slightly better in one benchmark (7.17% MAPE). I rejected it. Those fields describe my dataset, not the user's car, and a public estimator can only use what a real person can type into a form. The support signals moved into confidence scoring instead, where they belong. Offline metrics are not the product.</p>
+</div>
+
+<h2><span class="num">06 · DIAGNOSE</span>Where the model struggles</h2>
+<p>A headline MAPE hides more than it reveals, so the holdout was cut by segment. The errors were not random — they concentrated exactly where economics says they should: thin support, cheap cars where small misses become large percentages, and luxury imports where condition and trim dominate price.</p>
+
+<figure class="fig">
+  <div class="fig-title">Holdout error by make</div>
+  <div class="fig-sub">MAPE (%) on holdout rows · sample size in tooltip</div>
+  <div class="chart-box" style="height:340px"><canvas id="chMakeErr"></canvas></div>
+  <figcaption>Mercedes at 15.5% (n=99) vs Honda at 6.1% (n=2,304): rare trims and condition-driven pricing are genuinely harder, and the product should say so.</figcaption>
+</figure>
+
+<figure class="fig">
+  <div class="fig-title">Variant support matters</div>
+  <div class="fig-sub">Holdout MAPE: exact-variant rows vs model-level fallback rows</div>
+  <div class="chart-box" style="height:220px"><canvas id="chVariant"></canvas></div>
+  <figcaption>Exact variants: 7.2% (n=10,440). Fallback rows: 13.6% (n=167) — nearly double the error. This single chart drives the confidence system.</figcaption>
+</figure>
+
+<h2><span class="num">07 · DECIDE</span>A price is not enough</h2>
+<p>The product never shows a lone number. Every estimate ships with a <strong>calibrated 90% range</strong> (built from holdout residuals; realised coverage 90.01%, median width 33.9% of the prediction) and a <strong>confidence label</strong> scored from interval width, training support, variant fallback, mileage risk, colour missingness and price band:</p>
+
+<table class="dtable">
+  <tr><th>Confidence level</th><th>Holdout rows</th><th>What it signals</th></tr>
+  <tr class="hl"><td><b>High</b></td><td>9,700</td><td>Well-supported vehicle, exact variant, tight interval</td></tr>
+  <tr><td><b>Medium</b></td><td>742</td><td>Some risk flags — wider range, read it as a band</td></tr>
+  <tr><td><b>Low</b></td><td>107</td><td>Thin support or fallback variant; treat as directional</td></tr>
+  <tr><td><b>Very Low</b></td><td>58</td><td>The honest answer is "we don't really know"</td></tr>
+</table>
+
+<p>And because the target is asking price, a separate deterministic post-processing rule estimates an <strong>expected deal price</strong> by applying a negotiation discount by price band. Keeping that rule outside the model means sale-price assumptions never contaminate training — and can be updated without retraining anything.</p>
+
+<h2><span class="num">08 · SHIP</span>Shipping without a backend</h2>
+<p>The selected LightGBM model and its metadata export to a static JavaScript bundle. The website loads the bundle, populates its form options from model metadata — users can only select supported make/model/variant combinations — and produces the estimate, deal price, range and confidence label <strong>entirely in the browser</strong>. Hosting is GitHub Pages on a personal domain. Zero servers, zero latency budget, zero monthly bill.</p>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>Static deployment is a deliberate architecture decision, not a shortcut. For an MVP, a backend adds cost, failure modes and maintenance for no user benefit. The trigger points for adding one are written down in the roadmap: model bundles outgrowing the browser, user accounts, or server-side retraining on live snapshots. Until one of those fires, simplest wins.</p>
+</div>
+
+<h2><span class="num">09 · NEXT</span>What I'd build next</h2>
+<p>The next quality jump isn't a fancier algorithm. It's <strong>data operations</strong>: archive every weekly scrape as an immutable snapshot, validate schema and drift before cleaning, add time-based validation once multiple snapshots exist, and monitor what users actually ask the live estimator for. EVs join the scope once battery and trim coverage can support them honestly. The model is the easy part to upgrade — the discipline around it is what makes the number trustworthy.</p>
+
+<p class="mono-sm" style="color:var(--muted)">Stack: Python · Playwright · pandas · LightGBM / XGBoost / CatBoost benchmarks · scikit-learn · static JS export · GitHub Pages</p>
+
+</article>
+
+<nav class="foot-nav" aria-label="More case studies">
+  <div class="fn-grid">
+    <a class="fn-card" href="../index.html#work"><span class="fn-dir">← Back</span><span class="fn-title">All work</span></a>
+    <a class="fn-card next" href="bess-forecasting.html"><span class="fn-dir">Next case study →</span><span class="fn-title">Store or sell? Forecast-driven battery trading</span></a>
+  </div>
+</nav>
+
+<footer class="site">
+  <div class="foot">
+    <span>© <span data-year>2026</span> Taimoor Ali · Measure. Model. Decide. Ship.</span>
+    <span><a href="../index.html">Home</a> · <a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn</a></span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#5B6B7F';
+Chart.defaults.borderColor = '#E3E9F0';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+const C = {blue:'#1E40E8', blueSoft:'rgba(30,64,232,.12)', green:'#0E9F6E', gold:'#B7791F', violet:'#7C3AED', muted:'#9AA8B8', ink:'#0B1626', red:'#DC4B3E'};
+const hbar = (id, labels, data, colors, xLabel, tooltipExtra) => new Chart(document.getElementById(id), {
+  type:'bar',
+  data:{labels, datasets:[{data, backgroundColor:colors, borderRadius:5, barPercentage:.72}]},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> (tooltipExtra?tooltipExtra(c):c.parsed.x)}}},
+    scales:{x:{title:{display:!!xLabel,text:xLabel}, grid:{drawTicks:false}}, y:{grid:{display:false}}}}
+});
+
+hbar('chFunnel',
+  ['Raw scraped rows','Training-ready rows','MVP supported scope','Train split','Holdout split'],
+  [59473,58583,53034,42427,10607],
+  [C.ink,C.blue,C.blue,C.green,C.muted],
+  'Rows', (c)=> c.parsed.x.toLocaleString()+' rows');
+
+hbar('chMakes',
+  ['Toyota','Suzuki','Honda','KIA','Hyundai','Daihatsu','Nissan','Changan','MG','Haval'],
+  [15085,14692,11406,2324,1936,1879,861,840,831,734],
+  ['#1E40E8','#3D5BF0','#5C76F4','#7B90F7','#93A5F8','#A9B7FA','#BCC7FB','#CBD3FC','#D8DEFD','#E2E7FE'],
+  'Listings in MVP training scope', (c)=> c.parsed.x.toLocaleString()+' listings');
+
+hbar('chModels',
+  ['LightGBM','XGBoost','Extra Trees','HGB deeper','Random Forest','CatBoost','HGB current','HGB abs-error','HGB regularised','Ridge baseline'],
+  [7.31,7.35,7.38,7.44,7.46,7.48,7.58,7.58,7.84,14.62],
+  [C.green,C.blue,C.blue,C.blue,C.blue,C.blue,C.muted,C.muted,C.muted,C.red],
+  'Holdout MAPE (%)', (c)=> c.parsed.x+'% MAPE');
+
+const makeErrN = {Toyota:2981,Suzuki:2958,Honda:2304,KIA:455,Hyundai:395,Daihatsu:380,Changan:174,Nissan:167,MG:163,Haval:133,Mercedes:99,Mitsubishi:68};
+hbar('chMakeErr',
+  ['MG','KIA','Haval','Changan','Hyundai','Honda','Toyota','Suzuki','Nissan','Mitsubishi','Daihatsu','Mercedes'],
+  [3.9,4.4,4.4,4.9,5.0,6.1,6.9,9.1,9.1,9.2,9.4,15.5],
+  [C.green,C.green,C.green,C.green,C.green,C.blue,C.blue,C.gold,C.gold,C.gold,C.gold,C.red],
+  'Holdout MAPE (%)', (c)=> c.parsed.x+'% · n='+(makeErrN[c.label]||'—'));
+
+hbar('chVariant',
+  ['Exact variant (n=10,440)','Model-level fallback (n=167)'],
+  [7.2,13.6],
+  [C.green,'#E8923F'],
+  'Holdout MAPE (%)', (c)=> c.parsed.x+'% MAPE');
+</script>
+<script src="../analytics.js"></script>
+</body>
+</html>

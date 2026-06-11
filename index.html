@@ -1,218 +1,732 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Taimoor Ali is a growth, marketplace, analytics, marketing analytics, and data science professional working across commercial growth, experimentation, and practical data products.">
-    <meta name="theme-color" content="#111827">
-    <meta property="og:title" content="Taimoor Ali | Growth, Marketplace & Analytics Professional">
-    <meta property="og:description" content="Marketplace growth, marketing analytics, experimentation, forecasting, and practical data products.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="http://taimoorali.online/">
-    <meta property="og:image" content="https://github.com/Taimoor010.png">
-    <title>Taimoor Ali | Growth, Marketplace & Analytics</title>
-    <link rel="preconnect" href="https://github.com">
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="index.html" aria-label="Taimoor Ali home">
-        <span class="brand-mark">TA</span>
-        <span>Taimoor Ali</span>
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="projects.html">Projects</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="marketlens.html">MarketLens</a>
-      </nav>
-    </header>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taimoor Ali — Measure. Model. Decide. Ship.</title>
+<meta name="description" content="Taimoor Ali — I build decision systems: growth and incentive strategy at TikTok Shop UK, a deployed ML pricing product, forecast-driven optimisation, simulation and risk modelling. London, UK.">
+<meta name="theme-color" content="#F4F6F9">
+<meta property="og:title" content="Taimoor Ali — Measure. Model. Decide. Ship.">
+<meta property="og:description" content="I build decision systems — analytics that find the lever, models that pull it, products that ship. Growth, strategy, data science. London, UK.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://taimoorali.online/">
+<meta property="og:image" content="https://github.com/Taimoor010.png">
+<link rel="canonical" href="https://taimoorali.online/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F9; --paper-2:#EBEFF4; --ink:#0B1626; --ink-2:#33415C; --muted:#5B6B7F;
+  --line:#D4DCE6; --blue:#1E40E8; --blue-soft:#E4E9FD; --green:#0E9F6E; --green-soft:#E0F3EC;
+  --gold:#B7791F; --gold-soft:#FBF0DC; --violet:#7C3AED; --violet-soft:#F0E9FD;
+  --display:'Archivo',sans-serif; --serif:'Source Serif 4',serif; --mono:'IBM Plex Mono',monospace;
+  --maxw:1120px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+a{color:inherit}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 
-    <main id="top">
-      <section class="hero professional-hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow">Growth, marketplace, analytics and data science</p>
-          <h1 id="hero-title">Growth, Marketplace & Analytics Professional</h1>
-          <p class="hero-subtitle">
-            I work at the intersection of marketplace growth, marketing analytics, experimentation,
-            and data science - turning ambiguous commercial problems into measurable growth initiatives,
-            analytical insights, and practical data products.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="projects.html">View Projects</a>
-            <a class="button secondary" href="#experience">View Experience</a>
-            <a class="button secondary" href="https://www.linkedin.com/in/taimoorali/" target="_blank" rel="noreferrer">LinkedIn</a>
-            <a class="button secondary" href="marketlens.html">Try Car Price Tool</a>
+/* topbar */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,246,249,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:var(--maxw);margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.08em;text-decoration:none;white-space:nowrap}
+.logo b{color:var(--blue)}
+.nav{display:flex;gap:20px;align-items:center}
+.nav a{font-family:var(--mono);font-size:12.5px;text-decoration:none;color:var(--ink-2);letter-spacing:.04em}
+.nav a:hover{color:var(--blue)}
+.status-chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;font-weight:500;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:#fff;white-space:nowrap}
+.status-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.status-chip .dot{animation:none}}
+@media (max-width:880px){.nav{display:none}}
+@media (max-width:480px){.status-chip{display:none}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-inner{position:relative;z-index:2;padding:72px 24px 84px;max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.55fr 1fr;gap:48px;align-items:center}
+.eyebrow{font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:26px}
+.eyebrow span::before{content:"//";color:var(--blue);margin-right:8px}
+h1.display{font-family:var(--display);font-weight:900;font-size:clamp(44px,6.4vw,84px);line-height:1.04;letter-spacing:-.025em}
+h1.display .w{display:inline-block}
+h1.display .w em{font-style:normal;color:var(--blue)}
+.hero-sub{margin-top:26px;max-width:56ch;font-size:18px;color:var(--ink-2)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:20px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.hero-roles{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+.role-chip{font-family:var(--mono);font-size:11.5px;font-weight:500;border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 11px;color:var(--ink-2)}
+.role-chip.hot{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.hero-cta{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.01em;text-decoration:none;border-radius:8px;padding:13px 22px;display:inline-flex;align-items:center;gap:9px;transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:var(--blue)}
+.btn-ghost{border:1px solid var(--line);background:#fff;color:var(--ink)}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+/* CarGauge live card */
+.live-card{
+  background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;
+  box-shadow:0 18px 44px -22px rgba(11,22,38,.25);position:relative;
+}
+.live-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;color:var(--green);background:var(--green-soft);border-radius:99px;padding:4px 11px}
+.live-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2.2s ease-in-out infinite}
+.live-card .gauge{margin:20px 0 14px}
+.live-card h3{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.015em}
+.live-card .lc-sub{font-size:14.5px;color:var(--muted);margin-top:7px;line-height:1.55}
+.lc-stats{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap}
+.lc-stat b{font-family:var(--display);font-weight:800;font-size:18px;display:block;letter-spacing:-.01em}
+.lc-stat span{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.lc-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.lc-actions .btn{padding:11px 18px;font-size:14px}
+.gauge-needle{transform-origin:60px 64px;animation:sweep 3.2s cubic-bezier(.45,0,.25,1) .4s both}
+@keyframes sweep{0%{transform:rotate(-72deg)}60%{transform:rotate(38deg)}80%{transform:rotate(22deg)}100%{transform:rotate(28deg)}}
+@media (prefers-reduced-motion:reduce){.gauge-needle{animation:none;transform:rotate(28deg)}}
+@media (max-width:920px){
+  .hero-inner{grid-template-columns:1fr;gap:40px}
+  .live-card{max-width:480px}
+}
+
+/* growth line bg */
+.hero-chart{position:absolute;inset:auto 0 0 0;height:46%;z-index:1;pointer-events:none;opacity:.55}
+.hero-chart svg{width:100%;height:100%;display:block}
+.gline{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-dasharray:2400;stroke-dashoffset:2400;animation:draw 2.6s cubic-bezier(.65,0,.35,1) .3s forwards}
+.garea{fill:url(#fade);opacity:0;animation:fadein 1.2s ease 1.6s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fadein{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.gline{animation:none;stroke-dashoffset:0}.garea{animation:none;opacity:1}}
+
+/* proof strip */
+.proof{border-bottom:1px solid var(--line);background:var(--paper-2)}
+.proof-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(4,1fr)}
+.proof-cell{padding:26px 18px;border-left:1px solid var(--line)}
+.proof-cell:first-child{border-left:none;padding-left:0}
+.proof-num{font-family:var(--display);font-weight:800;font-size:29px;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.proof-num .accent{color:var(--blue)}
+.proof-label{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:9px;letter-spacing:.04em;text-transform:uppercase;line-height:1.5}
+@media (max-width:760px){
+  .proof-inner{grid-template-columns:1fr 1fr}
+  .proof-cell{border-left:none;border-top:1px solid var(--line);padding-left:0}
+  .proof-cell:nth-child(-n+2){border-top:none}
+}
+
+/* sections */
+section{padding:88px 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:14px;flex-wrap:wrap}
+.sec-title{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,42px);letter-spacing:-.02em}
+.sec-kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:14px}
+.sec-note{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.sec-intro{max-width:64ch;color:var(--ink-2);margin-bottom:42px}
+.prose p{max-width:70ch;color:var(--ink-2);margin-bottom:18px;font-size:17.5px}
+.prose p:last-child{margin-bottom:0}
+.prose strong{color:var(--ink);font-weight:600}
+
+/* loop diagram */
+.loop{display:flex;align-items:center;gap:0;margin:38px 0 8px;flex-wrap:wrap}
+.loop-step{display:flex;align-items:center}
+.loop-node{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.01em;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:13px 22px;position:relative}
+.loop-node small{display:block;font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.loop-node.n1{border-color:var(--blue);color:var(--blue)}
+.loop-node.n2{border-color:var(--violet);color:var(--violet)}
+.loop-node.n3{border-color:var(--gold);color:var(--gold)}
+.loop-node.n4{border-color:var(--green);color:var(--green)}
+.loop-arrow{font-family:var(--mono);color:var(--muted);padding:0 13px;font-size:16px}
+@media (max-width:760px){.loop{flex-direction:column;align-items:flex-start;gap:6px}.loop-arrow{padding:2px 0 2px 22px;transform:rotate(90deg);transform-origin:left center}}
+
+/* leaderboard */
+.board{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.board-head{display:grid;grid-template-columns:56px 1fr 230px 40px;gap:16px;align-items:center;padding:13px 22px;border-bottom:1px solid var(--line);background:var(--paper-2);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+details.row{border-bottom:1px solid var(--line)}
+details.row:last-child{border-bottom:none}
+details.row summary{display:grid;grid-template-columns:56px 1fr 230px 40px;gap:16px;align-items:center;padding:22px;cursor:pointer;list-style:none;transition:background .15s ease}
+details.row summary::-webkit-details-marker{display:none}
+details.row summary:hover{background:#FAFBFD}
+.rank{font-family:var(--mono);font-size:13px;color:var(--muted);font-weight:500}
+.row-main{min-width:0}
+.row-title{font-family:var(--display);font-weight:700;font-size:18.5px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tier{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;border-radius:5px;padding:2.5px 7px;white-space:nowrap}
+.tier.t1{background:var(--blue-soft);color:var(--blue)}
+.tier.t2{background:var(--green-soft);color:var(--green)}
+.tier.t3{background:var(--gold-soft);color:var(--gold)}
+.tier.t4{background:var(--violet-soft);color:var(--violet)}
+.row-sub{font-size:15px;color:var(--muted);margin-top:5px}
+.row-metric{text-align:right}
+.delta{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green);display:inline-flex;align-items:center;gap:5px;background:var(--green-soft);border-radius:6px;padding:4px 9px}
+.delta.blue{color:var(--blue);background:var(--blue-soft)}
+.metric-label{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px;letter-spacing:.05em;text-transform:uppercase}
+.chev{width:26px;height:26px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:transform .25s ease;font-size:13px;justify-self:end;flex:none}
+details.row[open] .chev{transform:rotate(180deg);border-color:var(--blue);color:var(--blue)}
+.case{padding:0 22px 28px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.case-block h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:9px;font-weight:600}
+.case-block p{font-size:15px;color:var(--ink-2);line-height:1.6}
+.case-foot{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:6px}
+.tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:4px 9px;color:var(--ink-2);background:var(--paper)}
+.case-link{font-family:var(--display);font-weight:700;font-size:14.5px;text-decoration:none;color:var(--blue);margin-left:auto;white-space:nowrap}
+.case-link:hover{text-decoration:underline}
+.case-link.alt{margin-left:0;color:var(--green)}
+@media (max-width:840px){
+  .board-head{display:none}
+  details.row summary{grid-template-columns:1fr 36px;grid-template-areas:"main chev" "metric chev";row-gap:12px}
+  .rank{display:none}
+  .row-main{grid-area:main}
+  .row-metric{grid-area:metric;text-align:left}
+  .chev{grid-area:chev}
+  .case{grid-template-columns:1fr}
+  .case-link{margin-left:0}
+}
+
+/* experience */
+.xp{border-top:1px solid var(--line)}
+.xp-row{display:grid;grid-template-columns:190px 1fr;gap:28px;padding:32px 0;border-bottom:1px solid var(--line)}
+.xp-when{font-family:var(--mono);font-size:12.5px;color:var(--muted);padding-top:4px}
+.xp-role{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.01em}
+.xp-org{font-family:var(--mono);font-size:12.5px;color:var(--blue);margin:5px 0 12px;font-weight:500}
+.xp-bullets{list-style:none;max-width:68ch}
+.xp-bullets li{font-size:15.5px;color:var(--ink-2);padding:5px 0 5px 20px;position:relative}
+.xp-bullets li::before{content:"";position:absolute;left:0;top:14px;width:7px;height:7px;border-radius:2px;background:var(--blue-soft);border:1px solid var(--blue)}
+.xp-badge{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;background:var(--violet-soft);color:var(--violet);border-radius:5px;padding:2.5px 7px;vertical-align:2px;margin-left:8px}
+@media (max-width:680px){.xp-row{grid-template-columns:1fr;gap:8px}}
+
+/* writing */
+.write-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.write-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:26px;display:flex;flex-direction:column;gap:12px;text-decoration:none;transition:transform .15s ease,border-color .15s ease}
+.write-card:hover{transform:translateY(-3px);border-color:var(--blue)}
+.write-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.write-card h3{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.3;letter-spacing:-.01em}
+.write-card p{font-size:14.5px;color:var(--muted);flex:1}
+.write-meta{font-family:var(--mono);font-size:11.5px;color:var(--blue);font-weight:500}
+@media (max-width:760px){.write-grid{grid-template-columns:1fr}}
+
+/* skills */
+.stack-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.stack-col{border:1px solid var(--line);border-radius:11px;background:#fff;padding:24px}
+.stack-col h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;font-weight:600}
+.stack-tags{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:640px){.stack-grid{grid-template-columns:1fr}}
+
+/* contact */
+.contact{background:var(--ink);color:#fff;border-radius:18px;padding:64px 48px;position:relative;overflow:hidden}
+.contact .sec-kicker{color:#8FA0FF}
+.contact h2{font-family:var(--display);font-weight:800;font-size:clamp(30px,4.5vw,52px);letter-spacing:-.02em;max-width:18ch}
+.contact p{color:#AAB7C9;max-width:56ch;margin-top:16px}
+.contact .btn-primary{background:#fff;color:var(--ink);margin-top:32px}
+.contact .btn-primary:hover{background:var(--blue);color:#fff}
+.contact-links{display:flex;gap:22px;margin-top:30px;flex-wrap:wrap}
+.contact-links a{font-family:var(--mono);font-size:13px;color:#8FA0FF;text-decoration:none}
+.contact-links a:hover{color:#fff}
+@media (max-width:560px){.contact{padding:44px 26px}}
+footer{padding:34px 0 44px}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--blue)}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="logo" href="#top">TAIMOOR ALI<b>·</b>DECISION SYSTEMS</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#work">Work</a>
+      <a href="#experience">Experience</a>
+      <a href="#writing">Writing</a>
+      <a href="#stack">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <span class="status-chip"><span class="dot"></span>Open to roles · London</span>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<div class="hero" id="top">
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow">
+        <span>Growth &amp; Strategy</span>
+        <span>Analytics</span>
+        <span>Data Science &amp; ML</span>
+        <span>London, UK</span>
+      </div>
+      <h1 class="display">
+        <span class="w">Measure.</span> <span class="w">Model.</span><br>
+        <span class="w"><em>Decide.</em></span> <span class="w"><em>Ship.</em></span>
+      </h1>
+      <p class="hero-sub">
+        I'm Taimoor Ali. Every commercial question is a decision in disguise — and I build the
+        systems that make them. At TikTok Shop UK I decide where growth incentives go and measure
+        what they return. Outside work I build the full loop myself: a deployed car-pricing product,
+        a forecast-driven energy trading optimiser, an operations simulation for a police force.
+        Different domains, same discipline.
+      </p>
+      <div class="hero-meta">
+        <span>📍 London, United Kingdom</span>
+        <span>🎓 MSc Business Analytics, University of Surrey</span>
+      </div>
+      <div class="hero-roles" aria-label="Roles I'm targeting">
+        <span class="role-chip hot">Growth &amp; Marketing Analytics</span>
+        <span class="role-chip hot">Analytics Management</span>
+        <span class="role-chip">Data Science &amp; ML</span>
+        <span class="role-chip">Strategy &amp; Operations</span>
+        <span class="role-chip">Product &amp; Programme</span>
+      </div>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#work">View the work ↓</a>
+        <a class="btn btn-ghost" href="mailto:Taimooralikhan010@gmail.com">Get in touch</a>
+      </div>
+    </div>
+
+    <!-- CarGauge live product card -->
+    <aside class="live-card reveal in" aria-label="CarGauge, a live product">
+      <span class="live-badge"><span class="dot"></span>LIVE PRODUCT</span>
+      <div class="gauge" aria-hidden="true">
+        <svg viewBox="0 0 120 78" width="118" height="76">
+          <path d="M14 64 A46 46 0 0 1 106 64" fill="none" stroke="#EBEFF4" stroke-width="10" stroke-linecap="round"/>
+          <path d="M14 64 A46 46 0 0 1 60 18" fill="none" stroke="#0E9F6E" stroke-width="10" stroke-linecap="round"/>
+          <path d="M60 18 A46 46 0 0 1 99 41" fill="none" stroke="#1E40E8" stroke-width="10" stroke-linecap="round"/>
+          <line class="gauge-needle" x1="60" y1="64" x2="60" y2="26" stroke="#0B1626" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="60" cy="64" r="5.5" fill="#0B1626"/>
+        </svg>
+      </div>
+      <h3>CarGauge</h3>
+      <p class="lc-sub">A used-car price estimator for the Pakistani market — an ML model trained on 58K+ listings, running entirely in your browser. Enter a car, get a price, a range, and a confidence score.</p>
+      <div class="lc-stats">
+        <div class="lc-stat"><b>7.31%</b><span>holdout MAPE</span></div>
+        <div class="lc-stat"><b>0.93</b><span>R²</span></div>
+        <div class="lc-stat"><b>58K+</b><span>listings</span></div>
+      </div>
+      <div class="lc-actions">
+        <a class="btn btn-primary" href="https://motorguage.com" target="_blank" rel="noopener">Try it live ↗</a>
+        <a class="btn btn-ghost" href="projects/marketlens.html">Case study →</a>
+      </div>
+    </aside>
+  </div>
+  <div class="hero-chart" aria-hidden="true">
+    <svg viewBox="0 0 1200 300" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1E40E8" stop-opacity="0.10"/>
+          <stop offset="100%" stop-color="#1E40E8" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="garea" d="M0,260 L120,252 L240,256 L360,234 L480,238 L600,200 L720,206 L840,158 L960,140 L1080,92 L1200,46 L1200,300 L0,300 Z"/>
+      <path class="gline" d="M0,260 L120,252 L240,256 L360,234 L480,238 L600,200 L720,206 L840,158 L960,140 L1080,92 L1200,46"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ================= PROOF ================= -->
+<div class="proof">
+  <div class="proof-inner">
+    <div class="proof-cell reveal">
+      <div class="proof-num"><span class="accent">£</span><span data-count="5.2" data-decimals="1">0</span>M</div>
+      <div class="proof-label">Record ads month I contributed to, at a 10.2% take rate</div>
+    </div>
+    <div class="proof-cell reveal">
+      <div class="proof-num">15<span class="accent">→</span><span data-count="30">0</span>%</div>
+      <div class="proof-label">Programme registration doubled via targeting &amp; incentive design</div>
+    </div>
+    <div class="proof-cell reveal">
+      <div class="proof-num"><span data-count="7.31" data-decimals="2">0</span><span class="accent">%</span></div>
+      <div class="proof-label">MAPE of my deployed pricing product, live in the browser</div>
+    </div>
+    <div class="proof-cell reveal">
+      <div class="proof-num"><span class="accent">+</span><span data-count="7.13" data-decimals="2">0</span>%</div>
+      <div class="proof-label">Avg revenue uplift from my forecast-driven trading optimiser</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="wrap">
+    <p class="sec-kicker">About</p>
+    <div class="sec-head"><h2 class="sec-title">One loop, many domains.</h2></div>
+    <div class="prose" style="margin-top:26px">
+      <p>I work at the intersection of commercial strategy and applied data science. Currently I'm a <strong>Strategic Growth Manager at TikTok Shop UK</strong>, where my job is, at its core, a stream of decisions: which segments get incentive budget, which incentive design moves them, whether ads adoption pays back, where to spend next quarter. Before that I spent four years in growth and e-commerce analytics across fintech and marketplace clients, building the SQL, Python and BI layers those decisions sit on.</p>
+      <p>What makes me unusual is that I don't stop at the recommendation. I build the whole loop — <strong>measure the problem, model it, make the decision, ship the system that keeps making it</strong>. Sometimes the shipped thing is a standing growth programme. Sometimes it's a deployed ML product, an optimiser trading against a power market, or a simulation that settles an operations debate. The leaderboard below ranks that work — each row is the same loop applied to a different decision.</p>
+    </div>
+    <div class="loop" aria-label="My working loop">
+      <div class="loop-step"><div class="loop-node n1">Measure<small>data · funnels · EDA</small></div></div>
+      <span class="loop-arrow">→</span>
+      <div class="loop-step"><div class="loop-node n2">Model<small>ML · simulation · optimisation</small></div></div>
+      <span class="loop-arrow">→</span>
+      <div class="loop-step"><div class="loop-node n3">Decide<small>strategy · trade-offs · ROI</small></div></div>
+      <span class="loop-arrow">→</span>
+      <div class="loop-step"><div class="loop-node n4">Ship<small>programmes · products · tools</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WORK / LEADERBOARD ================= -->
+<section id="work" style="padding-top:0">
+  <div class="wrap">
+    <p class="sec-kicker">Selected work</p>
+    <div class="sec-head">
+      <h2 class="sec-title">The leaderboard.</h2>
+      <span class="sec-note">// ranked by impact · tap a row to expand</span>
+    </div>
+    <p class="sec-intro">
+      I run leaderboard programmes for a living, so my work is presented as one. Each row is a
+      decision system — tagged by the decision it powers — and opens into the problem, the approach
+      and the result. Four link to full case studies with the charts, numbers and trade-offs.
+    </p>
+
+    <div class="board reveal">
+      <div class="board-head">
+        <span>Rank</span><span>Decision system</span><span style="text-align:right">Headline result</span><span></span>
+      </div>
+
+      <!-- 01 CarGauge -->
+      <details class="row" open>
+        <summary>
+          <span class="rank">#01</span>
+          <span class="row-main">
+            <span class="row-title">CarGauge <span class="tier t2">PRICING · LIVE PRODUCT</span></span>
+            <span class="row-sub">"What is this car worth?" — answered by a deployed ML system trained on 58K+ marketplace listings</span>
+          </span>
+          <span class="row-metric"><span class="delta blue">7.31% MAPE · 0.93 R²</span><div class="metric-label">Live at motorguage.com</div></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="case">
+          <div class="case-block"><h4>Measure</h4><p>Scraped 59,473 PakWheels listings with a Python/Playwright pipeline built around search cards rather than detail pages, then ran a structured cleaning and canonicalisation layer — Civic generations, missing-zero prices, mileage placeholders — down to 58,583 training-ready rows.</p></div>
+          <div class="case-block"><h4>Model &amp; decide</h4><p>Benchmarked ten model families against a ridge baseline on a stratified holdout plus 6-fold CV. LightGBM on log price won at 7.31% MAPE — and I deliberately rejected a higher-scoring feature set because its extra signal wasn't something a real user could enter.</p></div>
+          <div class="case-block"><h4>Ship</h4><p>Exported the model to a static JavaScript bundle that runs fully in the browser — no backend — returning an estimate, an expected deal price, a calibrated 90% range, and a confidence label. Live and public.</p></div>
+          <div class="case-foot">
+            <span class="tag">Python</span><span class="tag">Playwright</span><span class="tag">LightGBM</span><span class="tag">Confidence calibration</span><span class="tag">JS deployment</span>
+            <a class="case-link alt" href="https://motorguage.com" target="_blank" rel="noopener">Try it live ↗</a>
+            <a class="case-link" href="projects/marketlens.html">Read the full case study →</a>
           </div>
         </div>
+      </details>
 
-        <aside class="signal-panel" aria-label="Professional focus">
-          <p class="panel-label">Commercial focus</p>
-          <h2>Growth systems backed by measurement.</h2>
-          <ul class="focus-list">
-            <li>Marketplace strategy</li>
-            <li>Seller growth</li>
-            <li>Marketing analytics</li>
-            <li>Experimentation</li>
-            <li>Forecasting</li>
-            <li>Data products</li>
+      <!-- 02 Incentive targeting -->
+      <details class="row">
+        <summary>
+          <span class="rank">#02</span>
+          <span class="row-main">
+            <span class="row-title">Incentive Targeting &amp; Growth Programmes <span class="tier t1">TARGETING &amp; INCENTIVES · TIKTOK SHOP UK</span></span>
+            <span class="row-sub">Deciding who gets incentive budget, and what incentive actually moves them</span>
+          </span>
+          <span class="row-metric"><span class="delta">▲ Registration 15% → 30%</span><div class="metric-label">~2× via targeting &amp; design</div></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="case">
+          <div class="case-block"><h4>Measure</h4><p>A large merchant base, flat engagement, and incentive budget spread thin across the wrong cohorts. I built segmentation frameworks on revenue, content adoption, ads usage and growth potential to find where a pound of incentive returns the most.</p></div>
+          <div class="case-block"><h4>Model &amp; decide</h4><p>Redesigned the programme mechanics — leaderboard competition, tiered progression rewards — around the priority segments, with eligibility logic, tracking and weekly reporting built in SQL so the targeting decision renews itself every cycle.</p></div>
+          <div class="case-block"><h4>Ship</h4><p>Programme registration roughly doubled, from ~15% to ~30%, and the initiative became a standing programme reviewed at quarterly business review level — an incentive engine, not a one-off campaign.</p></div>
+          <div class="case-foot">
+            <span class="tag">Segmentation</span><span class="tag">Incentive design</span><span class="tag">SQL</span><span class="tag">Cohort analysis</span><span class="tag">Programme delivery</span>
+          </div>
+        </div>
+      </details>
+
+      <!-- 03 Monetisation -->
+      <details class="row">
+        <summary>
+          <span class="rank">#03</span>
+          <span class="row-main">
+            <span class="row-title">Ads Monetisation Strategy <span class="tier t1">MONETISATION · TIKTOK SHOP UK</span></span>
+            <span class="row-sub">Deciding who to push toward advertising products — and proving it pays back</span>
+          </span>
+          <span class="row-metric"><span class="delta">▲ £5.2M record month</span><div class="metric-label">At a 10.2% take rate</div></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="case">
+          <div class="case-block"><h4>Measure</h4><p>Adoption of automated advertising lagged exactly where payback would be fastest. The open questions: which merchants to target, with what case, and whether adopters genuinely outperform.</p></div>
+          <div class="case-block"><h4>Model &amp; decide</h4><p>Owned the monetisation analysis end to end — segmented the base by adoption propensity, measured adopter vs non-adopter performance on revenue and take rate, and turned it into targeting and outreach priorities through the quarterly review.</p></div>
+          <div class="case-block"><h4>Ship</h4><p>Contributed to a record ~£5.2M ads month at a 10.2% take rate, with a recurring measurement framework now part of quarterly planning.</p></div>
+          <div class="case-foot">
+            <span class="tag">Monetisation</span><span class="tag">Segmentation</span><span class="tag">ROI analysis</span><span class="tag">SQL</span><span class="tag">Executive reporting</span>
+          </div>
+        </div>
+      </details>
+
+      <!-- 04 BESS -->
+      <details class="row">
+        <summary>
+          <span class="rank">#04</span>
+          <span class="row-main">
+            <span class="row-title">Forecast-Driven Battery Trading <span class="tier t4">TRADING &amp; DISPATCH · MSc DISSERTATION</span></span>
+            <span class="row-sub">"Store or sell this hour?" — deep-learning forecasts feeding a MILP optimiser in the UK power market</span>
+          </span>
+          <span class="row-metric"><span class="delta">▲ +7.13% avg revenue uplift</span><div class="metric-label">161% at peak volatility</div></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="case">
+          <div class="case-block"><h4>Measure</h4><p>Wind output is variable and UK power prices are volatile, so renewable assets leave money on the table. I built the data layer from ERA5 meteorology and ENTSO-E market prices, with physics-grounded wind-power features.</p></div>
+          <div class="case-block"><h4>Model &amp; decide</h4><p>Benchmarked four deep-learning architectures per task — CNN-LSTM won price forecasting, MLP won wind — then fed the forecasts into a mixed-integer optimiser deciding store / sell / discharge / idle each hour, with degradation costs and efficiency losses priced in.</p></div>
+          <div class="case-block"><h4>Ship</h4><p>+7.13% average revenue uplift over the sell-everything baseline, peaking at 161% in high-volatility windows — a quantified link from forecast quality to commercial value.</p></div>
+          <div class="case-foot">
+            <span class="tag">TensorFlow / Keras</span><span class="tag">LSTM · CNN-LSTM</span><span class="tag">MILP (PuLP)</span><span class="tag">Time series</span>
+            <a class="case-link" href="projects/bess-forecasting.html">Read the full case study →</a>
+          </div>
+        </div>
+      </details>
+
+      <!-- 05 Forensics -->
+      <details class="row">
+        <summary>
+          <span class="rank">#05</span>
+          <span class="row-main">
+            <span class="row-title">Forensics Ops Simulation <span class="tier t3">OPERATIONS &amp; CAPACITY · WEST YORKSHIRE POLICE</span></span>
+            <span class="row-sub">"Which operating setup hits 48 hours for the least money?" — answered with discrete-event simulation</span>
+          </span>
+          <span class="row-metric"><span class="delta blue">6 scenarios × 5,000 trials</span><div class="metric-label">ROI = arrests per £m</div></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="case">
+          <div class="case-block"><h4>Measure</h4><p>DNA results inside 48 hours materially raise arrest probability — but staffing, machines and shifts all cost money. I modelled the forensics pipeline as a queueing system, tracking every sample's time in each queue and activity.</p></div>
+          <div class="case-block"><h4>Model &amp; decide</h4><p>Built six operating scenarios in Simul8 — from current process to full 24/7 operation — ran 5,000 trials each, found the real bottlenecks (sequencer batching, CSI shift coverage), and priced each scenario with Monte Carlo ROI in arrests per £m.</p></div>
+          <div class="case-block"><h4>Ship</h4><p>A defensible recommendation: the mid-tier scenarios delivered the best cost-benefit trade-off while reliably hitting the 48-hour target — evidence in place of an operations argument.</p></div>
+          <div class="case-foot">
+            <span class="tag">Discrete-event simulation</span><span class="tag">Simul8</span><span class="tag">Monte Carlo (AtRisk)</span><span class="tag">Python</span>
+            <a class="case-link" href="projects/forensics-simulation.html">Read the full case study →</a>
+          </div>
+        </div>
+      </details>
+
+      <!-- 06 Risk -->
+      <details class="row">
+        <summary>
+          <span class="rank">#06</span>
+          <span class="row-main">
+            <span class="row-title">Portfolio Risk, Three Ways <span class="tier t3">RISK · QUANTITATIVE FINANCE</span></span>
+            <span class="row-sub">"How much could I lose tomorrow?" — Markowitz construction, then VaR by three competing methods</span>
+          </span>
+          <span class="row-metric"><span class="delta blue">VaR 7.6% – 10.6%</span><div class="metric-label">Normal vs GARCH vs Monte Carlo</div></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="case">
+          <div class="case-block"><h4>Measure</h4><p>Six assets of Bloomberg daily data — tech equities, a bank, a bond ETF, a currency-converted index — cleaned, FX-adjusted and resampled to monthly returns, plus a synthetic risk-free savings asset.</p></div>
+          <div class="case-block"><h4>Model &amp; decide</h4><p>Simulated 10,000 portfolios to trace the efficient frontier and select the max-Sharpe allocation, then estimated 1-month 95% VaR three ways: Normal (7.60%), GARCH(1,1) with time-varying volatility (7.74%), and Monte Carlo (10.56%).</p></div>
+          <div class="case-block"><h4>Ship</h4><p>The spread between methods is itself the finding: model choice changes the risk number by nearly 3 points of portfolio value — exactly the kind of assumption a decision-maker needs surfaced, not buried.</p></div>
+          <div class="case-foot">
+            <span class="tag">Python</span><span class="tag">GARCH(1,1)</span><span class="tag">Value-at-Risk</span><span class="tag">Efficient frontier</span><span class="tag">Monte Carlo</span>
+            <a class="case-link" href="projects/asset-risk-modelling.html">Read the full case study →</a>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EXPERIENCE ================= -->
+<section id="experience" style="padding-top:0">
+  <div class="wrap">
+    <p class="sec-kicker">Experience</p>
+    <div class="sec-head"><h2 class="sec-title">Where I've worked.</h2></div>
+    <div class="xp" style="margin-top:34px">
+
+      <div class="xp-row reveal">
+        <div class="xp-when">Nov 2025 — Present</div>
+        <div>
+          <div class="xp-role">Strategic Growth Manager — Seller Growth &amp; Monetisation</div>
+          <div class="xp-org">TikTok Shop · United Kingdom</div>
+          <ul class="xp-bullets">
+            <li>Own growth and monetisation strategy across activation, onboarding, retention and tier progression for the UK marketplace.</li>
+            <li>Built segmentation frameworks using revenue, content adoption, ads usage and growth potential to direct incentive budget at priority cohorts.</li>
+            <li>Led leaderboard initiatives that lifted programme registration from ~15% to ~30% through better targeting and incentive design.</li>
+            <li>Owned ads-monetisation analysis for Shop Ads / GMV Max, contributing to a record ~£5.2M ads month at a 10.2% take rate.</li>
           </ul>
-        </aside>
-      </section>
+        </div>
+      </div>
 
-      <section class="section positioning-section" aria-labelledby="positioning-title">
+      <div class="xp-row reveal">
+        <div class="xp-when">Sep 2023 — Nov 2025</div>
         <div>
-          <p class="eyebrow">Positioning</p>
-          <h2 id="positioning-title">Operating between business, data, product, and experimentation</h2>
+          <div class="xp-role">Growth Data Analyst</div>
+          <div class="xp-org">Anemoia · Remote, United States</div>
+          <ul class="xp-bullets">
+            <li>Analysed acquisition, retention and transaction behaviour for fintech and e-commerce clients to find growth opportunities.</li>
+            <li>Built SQL and Python analyses across user cohorts, revenue drivers and customer lifecycle movement.</li>
+            <li>Delivered dashboards and reporting packs that turned behavioural data into clear, action-led recommendations.</li>
+          </ul>
         </div>
-        <div class="positioning-copy">
-          <p>
-            I help e-commerce and marketplace teams grow sellers, improve monetisation, design incentives,
-            measure campaign impact, and build analytical tools that support better commercial decisions.
-          </p>
-          <p>
-            My work combines growth strategy, marketplace operations, marketing analytics, A/B testing,
-            SQL/Python analysis, forecasting, and machine learning.
-          </p>
-        </div>
-      </section>
+      </div>
 
-      <section class="section impact-section" aria-labelledby="impact-title">
-        <div class="section-heading">
-          <p class="eyebrow">Impact</p>
-          <h2 id="impact-title">Commercial, academic, and independent product outcomes kept distinct</h2>
-        </div>
-
-        <div class="impact-group">
-          <div class="impact-group-heading">
-            <span>01</span>
-            <h3>Professional Impact</h3>
-          </div>
-          <div class="metric-grid">
-            <article class="metric-card"><strong>£5.2M+</strong><span>monthly ads revenue peak led through marketplace ads growth strategy</span></article>
-            <article class="metric-card"><strong>10.2%</strong><span>ads take rate achieved through seller monetisation initiatives</span></article>
-            <article class="metric-card"><strong>1,500+</strong><span>sellers registered across growth campaigns and leaderboard programmes</span></article>
-            <article class="metric-card"><strong>17%</strong><span>video leaderboard registration rate reached from an early 6% baseline</span></article>
-            <article class="metric-card"><strong>20%</strong><span>holdout design used to measure campaign incrementality</span></article>
-            <article class="metric-card"><strong>A/B</strong><span>testing, control groups, pre/post analysis, and rollout measurement used across growth initiatives</span></article>
-          </div>
-        </div>
-
-        <div class="impact-group">
-          <div class="impact-group-heading">
-            <span>02</span>
-            <h3>Research & Academic Impact</h3>
-          </div>
-          <div class="metric-grid">
-            <article class="metric-card"><strong>R2 0.945</strong><span>electricity price forecasting model performance</span></article>
-            <article class="metric-card"><strong>NMAE 0.17</strong><span>electricity price forecast error</span></article>
-            <article class="metric-card"><strong>+7.3%</strong><span>annual battery arbitrage profit uplift from optimisation research</span></article>
-            <article class="metric-card"><strong>200+</strong><span>model tuning trials conducted during MSc dissertation research</span></article>
-            <article class="metric-card"><strong>Forecasting</strong><span>wind power forecasting and electricity market modelling research</span></article>
-          </div>
-        </div>
-
-        <div class="impact-group">
-          <div class="impact-group-heading">
-            <span>03</span>
-            <h3>Independent Product & Project Impact</h3>
-          </div>
-          <div class="metric-grid">
-            <article class="metric-card"><strong>Live</strong><span>built and deployed a car price prediction tool</span></article>
-            <article class="metric-card"><strong>Pipeline</strong><span>created a marketplace listing data pipeline for used car pricing</span></article>
-            <article class="metric-card"><strong>Models</strong><span>compared multiple machine learning models using MAE and R2</span></article>
-            <article class="metric-card"><strong>Interface</strong><span>converted raw marketplace data into a practical price estimation interface</span></article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section capability-section" aria-labelledby="capabilities-title">
-        <div class="section-heading">
-          <p class="eyebrow">Capabilities</p>
-          <h2 id="capabilities-title">Commercial growth judgement with analytical depth</h2>
-        </div>
-        <div class="capability-grid">
-          <article><h3>Growth & Marketplace Strategy</h3><p>Seller growth, marketplace incentives, campaign design, ads adoption, GMV growth, seller segmentation, monetisation strategy.</p></article>
-          <article><h3>Marketing & Commercial Analytics</h3><p>Campaign performance, funnel analysis, ROI measurement, take rate analysis, seller behaviour, activation and retention analysis.</p></article>
-          <article><h3>Experimentation & Rollouts</h3><p>A/B testing, holdout groups, control groups, pre/post analysis, incrementality measurement, rollout tracking, launch measurement.</p></article>
-          <article><h3>Data Science & Forecasting</h3><p>Machine learning, forecasting, price prediction, optimisation, model evaluation, feature engineering.</p></article>
-          <article><h3>Analytics & Decision Support</h3><p>SQL, Python, KPI design, dashboards, business cases, stakeholder reporting, insight generation.</p></article>
-        </div>
-      </section>
-
-      <section id="experience" class="section experience-section" aria-labelledby="experience-title">
+      <div class="xp-row reveal">
+        <div class="xp-when">Dec 2021 — Sep 2023</div>
         <div>
-          <p class="eyebrow">Experience</p>
-          <h2 id="experience-title">Marketplace growth, commercial analytics, and decision support</h2>
+          <div class="xp-role">E-commerce Analyst</div>
+          <div class="xp-org">Evuric · Remote, United States</div>
+          <ul class="xp-bullets">
+            <li>Led growth analytics across marketplace operations: product performance, pricing, promotions and listings.</li>
+            <li>Managed Amazon PPC and marketplace advertising, optimising spend, targeting and ROI.</li>
+            <li>Ran A/B tests on images, titles and pricing to improve conversion and marketplace performance.</li>
+          </ul>
         </div>
-        <div class="timeline">
-          <article>
-            <span>Current / recent</span>
-            <h3>E-commerce marketplace growth</h3>
-            <ul>
-              <li>Led seller growth and ads monetisation initiatives across marketplace campaigns.</li>
-              <li>Designed leaderboard, incentive, and registration mechanics to increase seller participation.</li>
-              <li>Built measurement frameworks using holdouts, pre/post analysis, and campaign performance tracking.</li>
-              <li>Worked across growth strategy, marketplace operations, analytics, and stakeholder management.</li>
-            </ul>
-          </article>
-          <article>
-            <span>Earlier work</span>
-            <h3>Analytics, marketing analytics, pricing, and forecasting</h3>
-            <p>
-              Previous roles and projects focused on commercial analysis, pricing logic, e-commerce performance,
-              forecasting, and practical data science workflows.
-            </p>
-          </article>
-        </div>
-      </section>
+      </div>
 
-      <section class="section projects-preview" aria-labelledby="featured-title">
-        <div class="section-heading">
-          <p class="eyebrow">Featured Projects</p>
-          <h2 id="featured-title">Work that connects strategy, analytics, and usable products</h2>
-        </div>
-        <div class="project-grid" id="featuredProjects" data-featured-only="true"></div>
-      </section>
-
-      <section class="section education-section" aria-labelledby="education-title">
+      <div class="xp-row reveal">
+        <div class="xp-when">Internship</div>
         <div>
-          <p class="eyebrow">Education</p>
-          <h2 id="education-title">Analytical and technical foundation</h2>
+          <div class="xp-role">Machine Learning Intern <span class="xp-badge">RESEARCH</span></div>
+          <div class="xp-org">Surrey Institute for People-Centred AI · United Kingdom</div>
+          <ul class="xp-bullets">
+            <li>Developed deep-learning forecasting models (MLP, CNN, LSTM) for UK electricity-price prediction.</li>
+            <li>Built optimisation pipelines linking forecasts with energy-storage scheduling.</li>
+          </ul>
         </div>
-        <div class="education-grid">
-          <article>
-            <h3>MSc Business Analytics</h3>
-            <p>University of Surrey</p>
-            <span>Business analytics, statistics, machine learning, forecasting, optimisation, and decision modelling.</span>
-          </article>
-          <article>
-            <h3>BS Computer Science</h3>
-            <p>COMSATS</p>
-            <span>Computer science, databases, programming, analytical systems, and data foundations.</span>
-          </article>
+      </div>
+
+      <div class="xp-row reveal">
+        <div class="xp-when">Internship</div>
+        <div>
+          <div class="xp-role">Data Science Intern <span class="xp-badge">RESEARCH</span></div>
+          <div class="xp-org">AirNode · United Kingdom</div>
+          <ul class="xp-bullets">
+            <li>Built time-series forecasting models on 8M+ environmental sensor readings to predict air-pollution levels.</li>
+            <li>Developed Python pipelines supporting statistical analysis and monitoring systems.</li>
+          </ul>
         </div>
-      </section>
+      </div>
 
-      <section class="contact-section" aria-labelledby="contact-title">
-        <p class="eyebrow">Contact</p>
-        <h2 id="contact-title">Interested in growth, marketplace, analytics, marketing analytics, or data science work?</h2>
-        <p>Let's connect around commercial growth problems, marketplace performance, experimentation, and practical data products.</p>
-        <div class="hero-actions">
-          <a class="button primary" href="contact.html">Contact</a>
-          <a class="button secondary on-dark" href="https://github.com/Taimoor010" target="_blank" rel="noreferrer">GitHub</a>
-          <a class="button secondary on-dark" href="https://www.linkedin.com/in/taimoorali/" target="_blank" rel="noreferrer">LinkedIn</a>
+      <div class="xp-row reveal">
+        <div class="xp-when">Education</div>
+        <div>
+          <div class="xp-role">MSc Business Analytics · BSc Computer Science</div>
+          <div class="xp-org">University of Surrey · COMSATS University Islamabad</div>
+          <ul class="xp-bullets">
+            <li>Graduate training in analytics, statistics, optimisation and machine learning on a computer science foundation.</li>
+          </ul>
         </div>
-      </section>
-    </main>
+      </div>
 
-    <footer>
-      <span>© <span id="year"></span> Taimoor Ali</span>
-      <a href="#top">Back to top</a>
-    </footer>
+    </div>
+  </div>
+</section>
 
-    <script src="analytics.js"></script>
-    <script src="site-data.js"></script>
-    <script src="script.js"></script>
-  </body>
+<!-- ================= WRITING ================= -->
+<section id="writing" style="padding-top:0">
+  <div class="wrap">
+    <p class="sec-kicker">Writing</p>
+    <div class="sec-head">
+      <h2 class="sec-title">Notes from the work.</h2>
+      <span class="sec-note">// the decisions, trade-offs &amp; what I'd do next</span>
+    </div>
+    <div class="write-grid" style="margin-top:34px">
+      <a class="write-card reveal" href="projects/marketlens.html">
+        <span class="write-tag">Pricing · Machine learning</span>
+        <h3>Building CarGauge: pricing 58,000 used cars without a backend</h3>
+        <p>The scraping strategy, the cleaning war stories, why I rejected a higher-scoring model, and how the estimator ships as pure JavaScript.</p>
+        <span class="write-meta">Read the case study →</span>
+      </a>
+      <a class="write-card reveal" href="projects/bess-forecasting.html">
+        <span class="write-tag">Trading · Deep learning</span>
+        <h3>Store or sell? When a 7% uplift is the whole story</h3>
+        <p>Four architectures, two forecasting tasks, one optimiser — and why no single model won both. With the full results.</p>
+        <span class="write-meta">Read the case study →</span>
+      </a>
+      <a class="write-card reveal" href="projects/forensics-simulation.html">
+        <span class="write-tag">Operations · Simulation</span>
+        <h3>Pricing a 48-hour deadline: simulating DNA forensics for a police force</h3>
+        <p>Six operating scenarios, 5,000 trials each, and how a queueing bottleneck nobody suspected drove the recommendation.</p>
+        <span class="write-meta">Read the case study →</span>
+      </a>
+      <a class="write-card reveal" href="projects/asset-risk-modelling.html">
+        <span class="write-tag">Risk · Quant finance</span>
+        <h3>How much could I lose tomorrow? Three answers to one question</h3>
+        <p>Normal VaR says 7.6%. GARCH says 7.7%. Monte Carlo says 10.6%. The gap between them is the real lesson.</p>
+        <span class="write-meta">Read the case study →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SKILLS ================= -->
+<section id="stack" style="padding-top:0">
+  <div class="wrap">
+    <p class="sec-kicker">Skills</p>
+    <div class="sec-head"><h2 class="sec-title">What I work in.</h2></div>
+    <div class="stack-grid" style="margin-top:34px">
+      <div class="stack-col reveal">
+        <h4>🧭 Growth &amp; Strategy</h4>
+        <div class="stack-tags">
+          <span class="tag">Incentive Design</span><span class="tag">Segmentation &amp; Targeting</span><span class="tag">GMV &amp; Revenue Growth</span><span class="tag">Monetisation Strategy</span><span class="tag">Marketing Analytics</span><span class="tag">Activation &amp; Retention</span><span class="tag">Marketplace Strategy</span><span class="tag">SMB Strategy</span>
+        </div>
+      </div>
+      <div class="stack-col reveal">
+        <h4>📊 Analytics &amp; Experimentation</h4>
+        <div class="stack-tags">
+          <span class="tag">SQL</span><span class="tag">Python</span><span class="tag">Hive</span><span class="tag">A/B Testing</span><span class="tag">Funnel Analysis</span><span class="tag">Cohort Analysis</span><span class="tag">Attribution</span><span class="tag">ROI Analysis</span><span class="tag">Statistical Inference</span>
+        </div>
+      </div>
+      <div class="stack-col reveal">
+        <h4>🤖 Data Science &amp; ML</h4>
+        <div class="stack-tags">
+          <span class="tag">LightGBM / XGBoost</span><span class="tag">Scikit-learn</span><span class="tag">TensorFlow / Keras</span><span class="tag">LSTM / CNN-LSTM</span><span class="tag">Time-Series Forecasting</span><span class="tag">MILP Optimisation (PuLP)</span><span class="tag">Simulation &amp; Monte Carlo</span><span class="tag">Risk Modelling (VaR · GARCH)</span><span class="tag">Web Scraping</span>
+        </div>
+      </div>
+      <div class="stack-col reveal">
+        <h4>🚀 Product, BI &amp; Delivery</h4>
+        <div class="stack-tags">
+          <span class="tag">Tableau</span><span class="tag">Power BI</span><span class="tag">Looker</span><span class="tag">Advanced Excel</span><span class="tag">Dashboard Development</span><span class="tag">WBR / MBR / QBR</span><span class="tag">Programme Delivery</span><span class="tag">Model Deployment (JS / GitHub Pages)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" style="padding-top:0">
+  <div class="wrap">
+    <div class="contact reveal">
+      <p class="sec-kicker">Contact</p>
+      <h2>Hiring someone who ships decisions, not just decks?</h2>
+      <p>Growth, marketing or product analytics; analytics management; strategy &amp; operations; data science — if the role sits anywhere on the loop from measurement to shipped decision, I'd like to hear about it. Based in London, open to hybrid and on-site.</p>
+      <a class="btn btn-primary" href="mailto:Taimooralikhan010@gmail.com">Taimooralikhan010@gmail.com</a>
+      <div class="contact-links">
+        <a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="https://motorguage.com" target="_blank" rel="noopener">CarGauge ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <span>© <span data-year>2026</span> Taimoor Ali · London, UK · Measure. Model. Decide. Ship.</span>
+    <span><a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn</a></span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = (v,d)=> d>0 ? v.toFixed(d) : Math.round(v).toString();
+const cio = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const el = e.target, end = parseFloat(el.dataset.count), dec = parseInt(el.dataset.decimals||'0',10);
+    cio.unobserve(el);
+    if(reduced){ el.textContent = fmt(end,dec); return; }
+    const t0 = performance.now(), dur = 1400;
+    const tick = (t)=>{
+      const p = Math.min((t-t0)/dur,1);
+      el.textContent = fmt(end * (1-Math.pow(1-p,3)), dec);
+      if(p<1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+},{threshold:0.5});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+</script>
+<script src="analytics.js"></script>
+</body>
 </html>

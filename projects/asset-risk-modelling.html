@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How much could I lose tomorrow? Portfolio risk, three ways — Taimoor Ali</title>
+<meta name="description" content="A quantitative finance case study: Markowitz portfolio construction over six Bloomberg assets, then 1-month 95% Value-at-Risk estimated by Normal, GARCH(1,1), and Monte Carlo methods.">
+<link rel="canonical" href="https://taimoorali.online/projects/asset-risk-modelling.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F9; --paper-2:#EBEFF4; --ink:#0B1626; --ink-2:#33415C; --muted:#5B6B7F;
+  --line:#D4DCE6; --blue:#1E40E8; --blue-soft:#E4E9FD; --green:#0E9F6E; --green-soft:#E0F3EC;
+  --gold:#B7791F; --gold-soft:#FBF0DC; --violet:#7C3AED; --violet-soft:#F0E9FD; --red:#DC4B3E;
+  --display:'Archivo',sans-serif; --serif:'Source Serif 4',serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,246,249,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.back{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none}
+.back:hover{color:var(--blue)}
+.tb-label{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.art-hero{border-bottom:1px solid var(--line);padding:64px 0 52px}
+.kicker{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-block;border-radius:6px;padding:5px 12px;margin-bottom:22px;background:var(--blue-soft);color:var(--blue)}
+h1.art-title{font-family:var(--display);font-weight:900;font-size:clamp(34px,5.2vw,58px);letter-spacing:-.025em;line-height:1.06;max-width:21ch}
+.dek{margin-top:22px;max-width:62ch;font-size:19px;color:var(--ink-2)}
+.stat-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.stat-chip{border:1px solid var(--line);border-radius:9px;background:#fff;padding:11px 18px;min-width:108px}
+.stat-chip b{font-family:var(--display);font-weight:800;font-size:21px;display:block;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat-chip span{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.art-body{max-width:780px;margin:0 auto;padding:56px 24px 40px}
+.art-body h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.2vw,32px);letter-spacing:-.02em;margin:56px 0 18px;line-height:1.15}
+.art-body h2:first-child{margin-top:0}
+.art-body h2 .num{font-family:var(--mono);font-weight:600;font-size:.55em;color:var(--blue);letter-spacing:.1em;display:block;margin-bottom:8px}
+.art-body p{color:var(--ink-2);margin-bottom:18px}
+.art-body p strong{color:var(--ink);font-weight:600}
+.art-body ul{margin:0 0 18px 2px;list-style:none}
+.art-body ul li{color:var(--ink-2);padding:4px 0 4px 22px;position:relative}
+.art-body ul li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:2px;background:var(--blue-soft);border:1px solid var(--blue)}
+.fig{background:#fff;border:1px solid var(--line);border-radius:13px;padding:22px 22px 16px;margin:28px 0}
+.fig-title{font-family:var(--display);font-weight:700;font-size:15.5px;margin-bottom:4px}
+.fig-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
+figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+.callout{border:1px solid var(--line);border-left:3.5px solid var(--blue);background:#fff;border-radius:0 12px 12px 0;padding:20px 24px;margin:28px 0}
+.callout .c-tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;display:block;margin-bottom:8px}
+.callout p{margin-bottom:0;font-size:16px}
+.dtable{width:100%;border-collapse:collapse;margin:26px 0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+.dtable th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;background:var(--paper-2);border-bottom:1px solid var(--line);font-weight:600}
+.dtable td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td b{font-family:var(--display);color:var(--ink);font-weight:700}
+.dtable .hl td{background:#F2F5FE}
+.mono-sm{font-family:var(--mono);font-size:12.5px}
+.tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:4px 9px;color:var(--ink-2);background:var(--paper);display:inline-block;margin:0 6px 8px 0}
+.foot-nav{border-top:1px solid var(--line);margin-top:64px;padding:44px 24px 26px;max-width:1120px;margin-left:auto;margin-right:auto}
+.fn-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fn-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:22px;text-decoration:none;transition:border-color .15s ease,transform .15s ease}
+.fn-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.fn-card .fn-dir{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:8px}
+.fn-card .fn-title{font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.fn-card.next{text-align:right}
+@media (max-width:640px){.fn-grid{grid-template-columns:1fr}.fn-card.next{text-align:left}}
+footer.site{padding:30px 0 44px}
+.foot{max-width:1120px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="back" href="../index.html">← TAIMOOR ALI</a>
+    <span class="tb-label">Case study</span>
+  </div>
+</header>
+
+<div class="art-hero">
+  <div class="wrap">
+    <span class="kicker">RISK DECISIONS · QUANTITATIVE FINANCE</span>
+    <h1 class="art-title">How much could I lose tomorrow? Portfolio risk, three ways</h1>
+    <p class="dek">A portfolio-risk pipeline that starts with Markowitz construction and then asks the uncomfortable question properly: how much downside do different model assumptions imply? Normal VaR says 7.60%. GARCH says 7.74%. Monte Carlo says 10.56%. The gap is the point.</p>
+    <div class="stat-strip">
+      <div class="stat-chip"><b>6</b><span>risky assets</span></div>
+      <div class="stat-chip"><b>10,000</b><span>random portfolios</span></div>
+      <div class="stat-chip"><b>95%</b><span>1-month VaR</span></div>
+      <div class="stat-chip"><b>3</b><span>risk methods</span></div>
+    </div>
+  </div>
+</div>
+
+<article class="art-body">
+
+<h2><span class="num">01 · THE DECISION</span>Risk is a model choice before it is a number</h2>
+<p>"How much could this portfolio lose?" sounds like one question. In practice it is three questions hiding inside one: how do you construct the portfolio, how do you model volatility, and how much tail uncertainty do you accept? I built the workflow to make those assumptions visible instead of letting a single clean number pretend to be truth.</p>
+<p>The project used six Bloomberg daily price series across equities, a bank, a bond ETF and a currency-converted index, then added a synthetic risk-free savings asset for comparison. The output is not an investment recommendation; it is a repeatable risk framework that turns modelling assumptions into decision-ready numbers.</p>
+
+<h2><span class="num">02 · MEASURE</span>Cleaning assets into comparable returns</h2>
+<p>Raw prices were aligned, FX-adjusted where needed, resampled to month-end observations and converted into monthly returns. That gave the portfolio construction stage inputs it could actually trust: expected return, volatility and a covariance matrix across assets.</p>
+<p>The correlation matrix mattered because diversification is the whole point of portfolio construction. High-return assets dominated the eventual max-Sharpe allocation, but lower-correlation assets still had a job: reducing portfolio-level volatility rather than winning on standalone return.</p>
+
+<figure class="fig">
+  <div class="fig-title">From market data to risk decision</div>
+  <div class="fig-sub">The workflow separates construction from downside estimation</div>
+  <div style="overflow-x:auto">
+    <svg viewBox="0 0 760 170" width="100%" style="min-width:560px" role="img" aria-label="Pipeline from Bloomberg prices to monthly returns, Markowitz portfolio construction, and three Value-at-Risk methods">
+      <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5B6B7F"/></marker></defs>
+      <g font-family="IBM Plex Mono, monospace" font-size="10.5">
+        <rect x="8" y="62" width="130" height="46" rx="9" fill="#fff" stroke="#D4DCE6"/>
+        <text x="73" y="81" text-anchor="middle" fill="#0B1626" font-weight="600">Bloomberg data</text>
+        <text x="73" y="96" text-anchor="middle" fill="#5B6B7F">daily prices · FX</text>
+        <rect x="190" y="62" width="136" height="46" rx="9" fill="#F2F5FE" stroke="#1E40E8"/>
+        <text x="258" y="81" text-anchor="middle" fill="#1E40E8" font-weight="600">Monthly returns</text>
+        <text x="258" y="96" text-anchor="middle" fill="#5B6B7F">mean · vol · cov</text>
+        <rect x="378" y="62" width="144" height="46" rx="9" fill="#F0E9FD" stroke="#7C3AED"/>
+        <text x="450" y="81" text-anchor="middle" fill="#7C3AED" font-weight="600">Max-Sharpe</text>
+        <text x="450" y="96" text-anchor="middle" fill="#5B6B7F">10,000 portfolios</text>
+        <rect x="574" y="18" width="168" height="36" rx="9" fill="#fff" stroke="#D4DCE6"/>
+        <text x="658" y="41" text-anchor="middle" fill="#0B1626" font-weight="600">Normal VaR</text>
+        <rect x="574" y="68" width="168" height="36" rx="9" fill="#fff" stroke="#D4DCE6"/>
+        <text x="658" y="91" text-anchor="middle" fill="#0B1626" font-weight="600">GARCH(1,1) VaR</text>
+        <rect x="574" y="118" width="168" height="36" rx="9" fill="#fff" stroke="#D4DCE6"/>
+        <text x="658" y="141" text-anchor="middle" fill="#0B1626" font-weight="600">Monte Carlo VaR</text>
+        <line x1="138" y1="85" x2="184" y2="85" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+        <line x1="326" y1="85" x2="372" y2="85" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+        <line x1="522" y1="85" x2="568" y2="36" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+        <line x1="522" y1="85" x2="568" y2="86" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+        <line x1="522" y1="85" x2="568" y2="136" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
+      </g>
+    </svg>
+  </div>
+  <figcaption>The same portfolio gets three downside estimates. When the answers diverge, that divergence becomes a decision signal.</figcaption>
+</figure>
+
+<h2><span class="num">03 · CONSTRUCT</span>Find the portfolio, then interrogate it</h2>
+<p>Using Monte Carlo simulation, 10,000 random portfolios were generated across the risky assets. Each portfolio's expected return, volatility and Sharpe ratio were calculated from the monthly return series. The selected portfolio was the one with the highest Sharpe ratio, giving the risk stage a clear object to test.</p>
+<p>The optimal allocation concentrated in the highest-return assets, with smaller weights assigned where diversification improved the portfolio. That is exactly the trade-off Markowitz is designed to expose: not which asset is exciting, but which combination pays the most return per unit of risk.</p>
+
+<table class="dtable">
+  <tr><th>Stage</th><th>Method</th><th>Decision output</th></tr>
+  <tr><td><b>Construction</b></td><td>Mean-variance optimisation across 10,000 random portfolios</td><td>Max-Sharpe allocation on the efficient frontier</td></tr>
+  <tr><td><b>Baseline risk</b></td><td>Parametric Normal VaR</td><td>Simple 1-month 95% downside estimate</td></tr>
+  <tr><td><b>Time-varying risk</b></td><td>GARCH(1,1)</td><td>Volatility adjusts after market shocks and calm periods</td></tr>
+  <tr><td><b>Scenario risk</b></td><td>Monte Carlo simulation</td><td>Distribution-aware downside estimate from simulated paths</td></tr>
+</table>
+
+<h2><span class="num">04 · RISK</span>Three answers to the same loss question</h2>
+<p>The 1-month 95% VaR was estimated three ways. The Normal model assumes constant volatility and normally distributed returns. GARCH(1,1) allows volatility to move through time, responding to clustering around turbulent periods. Monte Carlo samples a wider distribution of possible outcomes, producing the most conservative estimate.</p>
+
+<figure class="fig">
+  <div class="fig-title">1-month 95% VaR by method</div>
+  <div class="fig-sub">Estimated loss threshold as a percentage of portfolio value</div>
+  <svg viewBox="0 0 760 260" width="100%" role="img" aria-label="Bar chart showing Normal VaR at 7.60%, GARCH VaR at 7.74%, and Monte Carlo VaR at 10.56%">
+    <g font-family="IBM Plex Mono, monospace" font-size="12">
+      <line x1="116" y1="218" x2="710" y2="218" stroke="#D4DCE6"/>
+      <g fill="#5B6B7F">
+        <text x="116" y="240" text-anchor="middle">0%</text>
+        <text x="314" y="240" text-anchor="middle">4%</text>
+        <text x="512" y="240" text-anchor="middle">8%</text>
+        <text x="710" y="240" text-anchor="middle">12%</text>
+      </g>
+      <text x="18" y="68" fill="#0B1626" font-weight="600">Normal</text>
+      <rect x="116" y="48" width="376" height="30" rx="6" fill="#E4E9FD"/>
+      <rect x="116" y="48" width="376" height="30" rx="6" fill="#1E40E8"/>
+      <text x="508" y="68" fill="#0B1626" font-weight="600">7.60%</text>
+      <text x="18" y="126" fill="#0B1626" font-weight="600">GARCH</text>
+      <rect x="116" y="106" width="383" height="30" rx="6" fill="#7C3AED"/>
+      <text x="515" y="126" fill="#0B1626" font-weight="600">7.74%</text>
+      <text x="18" y="184" fill="#0B1626" font-weight="600">Monte Carlo</text>
+      <rect x="116" y="164" width="523" height="30" rx="6" fill="#0E9F6E"/>
+      <text x="655" y="184" fill="#0B1626" font-weight="600">10.56%</text>
+    </g>
+  </svg>
+  <figcaption>Normal and GARCH agree closely here; Monte Carlo is nearly 3 points more conservative. That spread is not noise — it is model-risk made visible.</figcaption>
+</figure>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>The final answer should not be "the VaR is 7.6%" or "the VaR is 10.6%". The decision-ready answer is: under simple distribution assumptions, the downside threshold is around 7.6%; under simulation, it is materially wider. A manager can now decide how conservative the risk control needs to be.</p>
+</div>
+
+<h2><span class="num">05 · DECIDE</span>The assumption is the risk</h2>
+<p>The project made one lesson very explicit: portfolio risk is not just in the assets, it is in the modelling lens. If the decision is capital allocation, a 3-point gap in downside estimate is not academic. It changes position sizing, cash buffers and whether a portfolio feels acceptable under stress.</p>
+<p>GARCH adds realism around volatility clustering. Monte Carlo adds a more pessimistic view of tail behaviour. Normal VaR is useful because it is fast and explainable, but it should not be the only answer when the cost of underestimating loss is high.</p>
+
+<h2><span class="num">06 · TRANSFER</span>Why this belongs in a decision-systems portfolio</h2>
+<p>The same discipline transfers outside finance. Build the object you are deciding on, test it under multiple assumptions, and show the spread between answers. In growth analytics, that might be attribution models. In operations, it might be demand forecasts. In risk, it is VaR. The method is the same: surface the assumption before it silently makes the decision for you.</p>
+
+<p class="mono-sm" style="color:var(--muted)">Stack: Python · pandas · NumPy · Monte Carlo simulation · Markowitz optimisation · GARCH(1,1) · Value-at-Risk · Bloomberg price data</p>
+
+</article>
+
+<nav class="foot-nav" aria-label="More case studies">
+  <div class="fn-grid">
+    <a class="fn-card" href="forensics-simulation.html"><span class="fn-dir">← Previous</span><span class="fn-title">Pricing a 48-hour deadline</span></a>
+    <a class="fn-card next" href="../index.html#work"><span class="fn-dir">Back to work →</span><span class="fn-title">All selected work</span></a>
+  </div>
+</nav>
+
+<footer class="site">
+  <div class="foot">
+    <span>© <span data-year>2026</span> Taimoor Ali · Measure. Model. Decide. Ship.</span>
+    <span><a href="../index.html">Home</a> · <a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn</a></span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
+</script>
+<script src="../analytics.js"></script>
+</body>
+</html>
