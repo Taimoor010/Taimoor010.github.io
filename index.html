@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Taimoor Ali — Measure. Model. Decide. Ship.</title>
 <meta name="description" content="Taimoor Ali — I build decision systems: growth and incentive strategy at TikTok Shop UK, a deployed ML pricing product, forecast-driven optimisation, simulation and risk modelling. London, UK.">
-<meta name="theme-color" content="#F4F6F9">
 <meta property="og:title" content="Taimoor Ali — Measure. Model. Decide. Ship.">
 <meta property="og:description" content="I build decision systems — analytics that find the lever, models that pull it, products that ship. Growth, strategy, data science. London, UK.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://taimoorali.online/">
-<meta property="og:image" content="https://github.com/Taimoor010.png">
-<link rel="canonical" href="https://taimoorali.online/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,18 +46,20 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offs
 
 /* hero */
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
-.hero-inner{position:relative;z-index:2;padding:72px 24px 84px;max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.55fr 1fr;gap:48px;align-items:center}
-.eyebrow{font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:26px}
+.hero-inner{position:relative;z-index:2;padding:34px 24px 64px;max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.55fr 1fr;gap:48px;align-items:center}
+.eyebrow{font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:18px}
 .eyebrow span::before{content:"//";color:var(--blue);margin-right:8px}
 h1.display{font-family:var(--display);font-weight:900;font-size:clamp(44px,6.4vw,84px);line-height:1.04;letter-spacing:-.025em}
 h1.display .w{display:inline-block}
 h1.display .w em{font-style:normal;color:var(--blue)}
-.hero-sub{margin-top:26px;max-width:56ch;font-size:18px;color:var(--ink-2)}
-.hero-meta{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:20px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
-.hero-roles{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+.hero-sub{margin-top:22px;max-width:56ch;font-size:18px;color:var(--ink-2)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:20px;font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.hero-meta span{display:inline-flex;align-items:center;gap:8px}
+.mi{width:15px;height:15px;flex:none;color:var(--blue)}
+.hero-roles{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}
 .role-chip{font-family:var(--mono);font-size:11.5px;font-weight:500;border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 11px;color:var(--ink-2)}
 .role-chip.hot{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
-.hero-cta{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.hero-cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
 .btn{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.01em;text-decoration:none;border-radius:8px;padding:13px 22px;display:inline-flex;align-items:center;gap:9px;transition:transform .15s ease}
 .btn:hover{transform:translateY(-1px)}
 .btn-primary{background:var(--ink);color:#fff}
@@ -69,7 +67,7 @@ h1.display .w em{font-style:normal;color:var(--blue)}
 .btn-ghost{border:1px solid var(--line);background:#fff;color:var(--ink)}
 .btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
 
-/* CarGauge live card */
+/* MotorGauge live card */
 .live-card{
   background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;
   box-shadow:0 18px 44px -22px rgba(11,22,38,.25);position:relative;
@@ -79,9 +77,9 @@ h1.display .w em{font-style:normal;color:var(--blue)}
 .live-card .gauge{margin:20px 0 14px}
 .live-card h3{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.015em}
 .live-card .lc-sub{font-size:14.5px;color:var(--muted);margin-top:7px;line-height:1.55}
-.lc-stats{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap}
-.lc-stat b{font-family:var(--display);font-weight:800;font-size:18px;display:block;letter-spacing:-.01em}
-.lc-stat span{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.lc-stats{display:flex;gap:16px;margin-top:18px;flex-wrap:wrap}
+.lc-stat b{font-family:var(--display);font-weight:800;font-size:20px;display:block;letter-spacing:-.01em}
+.lc-stat span{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);letter-spacing:.01em;display:block;margin-top:2px;max-width:110px;line-height:1.35}
 .lc-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
 .lc-actions .btn{padding:11px 18px;font-size:14px}
 .gauge-needle{transform-origin:60px 64px;animation:sweep 3.2s cubic-bezier(.45,0,.25,1) .4s both}
@@ -93,7 +91,7 @@ h1.display .w em{font-style:normal;color:var(--blue)}
 }
 
 /* growth line bg */
-.hero-chart{position:absolute;inset:auto 0 0 0;height:46%;z-index:1;pointer-events:none;opacity:.55}
+.hero-chart{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.45}
 .hero-chart svg{width:100%;height:100%;display:block}
 .gline{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-dasharray:2400;stroke-dashoffset:2400;animation:draw 2.6s cubic-bezier(.65,0,.35,1) .3s forwards}
 .garea{fill:url(#fade);opacity:0;animation:fadein 1.2s ease 1.6s forwards}
@@ -244,7 +242,6 @@ footer{padding:34px 0 44px}
       <a href="#stack">Skills</a>
       <a href="#contact">Contact</a>
     </nav>
-    <span class="status-chip"><span class="dot"></span>Open to roles · London</span>
   </div>
 </header>
 
@@ -264,14 +261,14 @@ footer{padding:34px 0 44px}
       </h1>
       <p class="hero-sub">
         I'm Taimoor Ali. Every commercial question is a decision in disguise — and I build the
-        systems that make them. At TikTok Shop UK I decide where growth incentives go and measure
-        what they return. Outside work I build the full loop myself: a deployed car-pricing product,
-        a forecast-driven energy trading optimiser, an operations simulation for a police force.
-        Different domains, same discipline.
+        systems that make them: the analytics that find the lever, the models that pull it, and the
+        products that ship. A deployed car-pricing tool, a forecast-driven energy trading optimiser,
+        an operations simulation for a police force — different domains, same discipline.
       </p>
       <div class="hero-meta">
-        <span>📍 London, United Kingdom</span>
-        <span>🎓 MSc Business Analytics, University of Surrey</span>
+        <span><svg class="mi" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>London, United Kingdom</span>
+        <span><svg class="mi" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18V17c0 1.66 3.13 3 7 3s7-1.34 7-3v-3.82l-7 3.82-7-3.82z"/></svg>MSc Business Analytics, University of Surrey</span>
+        <span><svg class="mi" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>Growth Strategy &amp; Analytics, TikTok</span>
       </div>
       <div class="hero-roles" aria-label="Roles I'm targeting">
         <span class="role-chip hot">Growth &amp; Marketing Analytics</span>
@@ -286,8 +283,8 @@ footer{padding:34px 0 44px}
       </div>
     </div>
 
-    <!-- CarGauge live product card -->
-    <aside class="live-card reveal in" aria-label="CarGauge, a live product">
+    <!-- MotorGauge live product card -->
+    <aside class="live-card reveal in" aria-label="MotorGauge, a live product">
       <span class="live-badge"><span class="dot"></span>LIVE PRODUCT</span>
       <div class="gauge" aria-hidden="true">
         <svg viewBox="0 0 120 78" width="118" height="76">
@@ -298,12 +295,12 @@ footer{padding:34px 0 44px}
           <circle cx="60" cy="64" r="5.5" fill="#0B1626"/>
         </svg>
       </div>
-      <h3>CarGauge</h3>
+      <h3>MotorGauge</h3>
       <p class="lc-sub">A used-car price estimator for the Pakistani market — an ML model trained on 58K+ listings, running entirely in your browser. Enter a car, get a price, a range, and a confidence score.</p>
       <div class="lc-stats">
-        <div class="lc-stat"><b>7.31%</b><span>holdout MAPE</span></div>
-        <div class="lc-stat"><b>0.93</b><span>R²</span></div>
-        <div class="lc-stat"><b>58K+</b><span>listings</span></div>
+        <div class="lc-stat"><b>7.31%</b><span>Avg. price error (MAPE)</span></div>
+        <div class="lc-stat"><b>0.93</b><span>Accuracy (R-squared)</span></div>
+        <div class="lc-stat"><b>58K+</b><span>Cars trained on</span></div>
       </div>
       <div class="lc-actions">
         <a class="btn btn-primary" href="https://motorguage.com" target="_blank" rel="noopener">Try it live ↗</a>
@@ -312,15 +309,15 @@ footer{padding:34px 0 44px}
     </aside>
   </div>
   <div class="hero-chart" aria-hidden="true">
-    <svg viewBox="0 0 1200 300" preserveAspectRatio="none">
+    <svg viewBox="0 0 1200 600" preserveAspectRatio="none">
       <defs>
         <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#1E40E8" stop-opacity="0.10"/>
           <stop offset="100%" stop-color="#1E40E8" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <path class="garea" d="M0,260 L120,252 L240,256 L360,234 L480,238 L600,200 L720,206 L840,158 L960,140 L1080,92 L1200,46 L1200,300 L0,300 Z"/>
-      <path class="gline" d="M0,260 L120,252 L240,256 L360,234 L480,238 L600,200 L720,206 L840,158 L960,140 L1080,92 L1200,46"/>
+      <path class="garea" d="M0,520 L110,506 L220,512 L330,470 L440,478 L550,408 L660,420 L770,330 L880,300 L990,200 L1100,150 L1200,88 L1200,600 L0,600 Z"/>
+      <path class="gline" d="M0,520 L110,506 L220,512 L330,470 L440,478 L550,408 L660,420 L770,330 L880,300 L990,200 L1100,150 L1200,88"/>
     </svg>
   </div>
 </div>
@@ -329,20 +326,20 @@ footer{padding:34px 0 44px}
 <div class="proof">
   <div class="proof-inner">
     <div class="proof-cell reveal">
-      <div class="proof-num"><span class="accent">£</span><span data-count="5.2" data-decimals="1">0</span>M</div>
-      <div class="proof-label">Record ads month I contributed to, at a 10.2% take rate</div>
+      <div class="proof-num">Record<span class="accent">↑</span></div>
+      <div class="proof-label">Highest ads-revenue month &amp; monthly take rate for TikTok Shop, driving GMV Max adoption</div>
     </div>
     <div class="proof-cell reveal">
-      <div class="proof-num">15<span class="accent">→</span><span data-count="30">0</span>%</div>
-      <div class="proof-label">Programme registration doubled via targeting &amp; incentive design</div>
+      <div class="proof-num">2<span class="accent">×</span></div>
+      <div class="proof-label">Seller engagement doubled through the growth programmes I design &amp; run</div>
     </div>
     <div class="proof-cell reveal">
-      <div class="proof-num"><span data-count="7.31" data-decimals="2">0</span><span class="accent">%</span></div>
-      <div class="proof-label">MAPE of my deployed pricing product, live in the browser</div>
+      <div class="proof-num"><span data-count="300">0</span>K<span class="accent">+</span></div>
+      <div class="proof-label">Users acquired for a fintech client through marketing &amp; data analytics</div>
     </div>
     <div class="proof-cell reveal">
-      <div class="proof-num"><span class="accent">+</span><span data-count="7.13" data-decimals="2">0</span>%</div>
-      <div class="proof-label">Avg revenue uplift from my forecast-driven trading optimiser</div>
+      <div class="proof-num"><span data-count="33">0</span><span class="accent">%</span></div>
+      <div class="proof-label">Keyword conversion from A/B-testing product imagery &amp; titles — built on competitor review analysis</div>
     </div>
   </div>
 </div>
@@ -353,7 +350,7 @@ footer{padding:34px 0 44px}
     <p class="sec-kicker">About</p>
     <div class="sec-head"><h2 class="sec-title">One loop, many domains.</h2></div>
     <div class="prose" style="margin-top:26px">
-      <p>I work at the intersection of commercial strategy and applied data science. Currently I'm a <strong>Strategic Growth Manager at TikTok Shop UK</strong>, where my job is, at its core, a stream of decisions: which segments get incentive budget, which incentive design moves them, whether ads adoption pays back, where to spend next quarter. Before that I spent four years in growth and e-commerce analytics across fintech and marketplace clients, building the SQL, Python and BI layers those decisions sit on.</p>
+      <p>I work at the intersection of commercial strategy and applied data science — currently at <strong>TikTok</strong> in London, and before that four years in growth, marketing and e-commerce analytics across fintech and marketplace clients, building the SQL, Python and BI layers that good decisions sit on.</p>
       <p>What makes me unusual is that I don't stop at the recommendation. I build the whole loop — <strong>measure the problem, model it, make the decision, ship the system that keeps making it</strong>. Sometimes the shipped thing is a standing growth programme. Sometimes it's a deployed ML product, an optimiser trading against a power market, or a simulation that settles an operations debate. The leaderboard below ranks that work — each row is the same loop applied to a different decision.</p>
     </div>
     <div class="loop" aria-label="My working loop">
@@ -377,9 +374,9 @@ footer{padding:34px 0 44px}
       <span class="sec-note">// ranked by impact · tap a row to expand</span>
     </div>
     <p class="sec-intro">
-      I run leaderboard programmes for a living, so my work is presented as one. Each row is a
-      decision system — tagged by the decision it powers — and opens into the problem, the approach
-      and the result. Four link to full case studies with the charts, numbers and trade-offs.
+      My work, presented as a leaderboard — because ranked, expandable and slightly competitive is
+      how I like my information. Each row is a decision system, tagged by the decision it powers,
+      and every one opens into a full case study with the charts, numbers and trade-offs.
     </p>
 
     <div class="board reveal">
@@ -387,12 +384,12 @@ footer{padding:34px 0 44px}
         <span>Rank</span><span>Decision system</span><span style="text-align:right">Headline result</span><span></span>
       </div>
 
-      <!-- 01 CarGauge -->
+      <!-- 01 MotorGauge -->
       <details class="row" open>
         <summary>
           <span class="rank">#01</span>
           <span class="row-main">
-            <span class="row-title">CarGauge <span class="tier t2">PRICING · LIVE PRODUCT</span></span>
+            <span class="row-title">MotorGauge <span class="tier t2">PRICING · LIVE PRODUCT</span></span>
             <span class="row-sub">"What is this car worth?" — answered by a deployed ML system trained on 58K+ marketplace listings</span>
           </span>
           <span class="row-metric"><span class="delta blue">7.31% MAPE · 0.93 R²</span><div class="metric-label">Live at motorguage.com</div></span>
@@ -409,56 +406,13 @@ footer{padding:34px 0 44px}
           </div>
         </div>
       </details>
-
-      <!-- 02 Incentive targeting -->
+      <!-- 02 BESS -->
       <details class="row">
         <summary>
           <span class="rank">#02</span>
           <span class="row-main">
-            <span class="row-title">Incentive Targeting &amp; Growth Programmes <span class="tier t1">TARGETING &amp; INCENTIVES · TIKTOK SHOP UK</span></span>
-            <span class="row-sub">Deciding who gets incentive budget, and what incentive actually moves them</span>
-          </span>
-          <span class="row-metric"><span class="delta">▲ Registration 15% → 30%</span><div class="metric-label">~2× via targeting &amp; design</div></span>
-          <span class="chev">⌄</span>
-        </summary>
-        <div class="case">
-          <div class="case-block"><h4>Measure</h4><p>A large merchant base, flat engagement, and incentive budget spread thin across the wrong cohorts. I built segmentation frameworks on revenue, content adoption, ads usage and growth potential to find where a pound of incentive returns the most.</p></div>
-          <div class="case-block"><h4>Model &amp; decide</h4><p>Redesigned the programme mechanics — leaderboard competition, tiered progression rewards — around the priority segments, with eligibility logic, tracking and weekly reporting built in SQL so the targeting decision renews itself every cycle.</p></div>
-          <div class="case-block"><h4>Ship</h4><p>Programme registration roughly doubled, from ~15% to ~30%, and the initiative became a standing programme reviewed at quarterly business review level — an incentive engine, not a one-off campaign.</p></div>
-          <div class="case-foot">
-            <span class="tag">Segmentation</span><span class="tag">Incentive design</span><span class="tag">SQL</span><span class="tag">Cohort analysis</span><span class="tag">Programme delivery</span>
-          </div>
-        </div>
-      </details>
-
-      <!-- 03 Monetisation -->
-      <details class="row">
-        <summary>
-          <span class="rank">#03</span>
-          <span class="row-main">
-            <span class="row-title">Ads Monetisation Strategy <span class="tier t1">MONETISATION · TIKTOK SHOP UK</span></span>
-            <span class="row-sub">Deciding who to push toward advertising products — and proving it pays back</span>
-          </span>
-          <span class="row-metric"><span class="delta">▲ £5.2M record month</span><div class="metric-label">At a 10.2% take rate</div></span>
-          <span class="chev">⌄</span>
-        </summary>
-        <div class="case">
-          <div class="case-block"><h4>Measure</h4><p>Adoption of automated advertising lagged exactly where payback would be fastest. The open questions: which merchants to target, with what case, and whether adopters genuinely outperform.</p></div>
-          <div class="case-block"><h4>Model &amp; decide</h4><p>Owned the monetisation analysis end to end — segmented the base by adoption propensity, measured adopter vs non-adopter performance on revenue and take rate, and turned it into targeting and outreach priorities through the quarterly review.</p></div>
-          <div class="case-block"><h4>Ship</h4><p>Contributed to a record ~£5.2M ads month at a 10.2% take rate, with a recurring measurement framework now part of quarterly planning.</p></div>
-          <div class="case-foot">
-            <span class="tag">Monetisation</span><span class="tag">Segmentation</span><span class="tag">ROI analysis</span><span class="tag">SQL</span><span class="tag">Executive reporting</span>
-          </div>
-        </div>
-      </details>
-
-      <!-- 04 BESS -->
-      <details class="row">
-        <summary>
-          <span class="rank">#04</span>
-          <span class="row-main">
-            <span class="row-title">Forecast-Driven Battery Trading <span class="tier t4">TRADING &amp; DISPATCH · MSc DISSERTATION</span></span>
-            <span class="row-sub">"Store or sell this hour?" — deep-learning forecasts feeding a MILP optimiser in the UK power market</span>
+            <span class="row-title">Wind-Farm Electricity Arbitrage <span class="tier t4">TRADING &amp; DISPATCH · MSc DISSERTATION</span></span>
+            <span class="row-sub">Renewables made UK power prices volatile — this system turns that volatility into wind-farm profit</span>
           </span>
           <span class="row-metric"><span class="delta">▲ +7.13% avg revenue uplift</span><div class="metric-label">161% at peak volatility</div></span>
           <span class="chev">⌄</span>
@@ -477,7 +431,7 @@ footer{padding:34px 0 44px}
       <!-- 05 Forensics -->
       <details class="row">
         <summary>
-          <span class="rank">#05</span>
+          <span class="rank">#03</span>
           <span class="row-main">
             <span class="row-title">Forensics Ops Simulation <span class="tier t3">OPERATIONS &amp; CAPACITY · WEST YORKSHIRE POLICE</span></span>
             <span class="row-sub">"Which operating setup hits 48 hours for the least money?" — answered with discrete-event simulation</span>
@@ -499,7 +453,7 @@ footer{padding:34px 0 44px}
       <!-- 06 Risk -->
       <details class="row">
         <summary>
-          <span class="rank">#06</span>
+          <span class="rank">#04</span>
           <span class="row-main">
             <span class="row-title">Portfolio Risk, Three Ways <span class="tier t3">RISK · QUANTITATIVE FINANCE</span></span>
             <span class="row-sub">"How much could I lose tomorrow?" — Markowitz construction, then VaR by three competing methods</span>
@@ -517,6 +471,28 @@ footer{padding:34px 0 44px}
           </div>
         </div>
       </details>
+      <!-- 07 App revenue econometrics -->
+      <details class="row">
+        <summary>
+          <span class="rank">#05</span>
+          <span class="row-main">
+            <span class="row-title">App Revenue Econometrics <span class="tier t1">GROWTH &amp; MARKETING ANALYTICS</span></span>
+            <span class="row-sub">"Where should the next growth pound go?" — pricing acquisition, engagement, rank and updates against each other</span>
+          </span>
+          <span class="row-metric"><span class="delta blue">AU 0.32 vs DL 0.26</span><div class="metric-label">800 apps · R² 0.65</div></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="case">
+          <div class="case-block"><h4>Measure</h4><p>800 apps across Germany, the UK, China and Japan — revenue, downloads, active users, rank, update cadence and monetisation flags, log-transformed for clean elasticity readings. Caught a degenerate variable (100% IAP adoption) before it could fake a finding.</p></div>
+          <div class="case-block"><h4>Model &amp; decide</h4><p>OLS with robust standard errors (R² 0.65): engagement beats acquisition (0.32 vs 0.26 elasticity), a rank place costs ~0.7%, and an interaction model shows the engagement payoff is 3× larger in Germany than China. A wrong-looking updates coefficient resolved into an inverted U via a quadratic term.</p></div>
+          <div class="case-block"><h4>Ship</h4><p>Full diagnostics — Breusch–Pagan, VIF, residual analysis — plus a professional report and market-by-market recommendations. Original in Stata; every number independently reproduced in Python.</p></div>
+          <div class="case-foot">
+            <span class="tag">Econometrics</span><span class="tag">Stata</span><span class="tag">OLS · robust SE</span><span class="tag">Interaction effects</span><span class="tag">Marketing analytics</span>
+            <a class="case-link" href="projects/app-revenue-econometrics.html">Read the full case study →</a>
+          </div>
+        </div>
+      </details>
+
     </div>
   </div>
 </section>
@@ -533,22 +509,16 @@ footer{padding:34px 0 44px}
         <div>
           <div class="xp-role">Strategic Growth Manager — Seller Growth &amp; Monetisation</div>
           <div class="xp-org">TikTok Shop · United Kingdom</div>
-          <ul class="xp-bullets">
-            <li>Own growth and monetisation strategy across activation, onboarding, retention and tier progression for the UK marketplace.</li>
-            <li>Built segmentation frameworks using revenue, content adoption, ads usage and growth potential to direct incentive budget at priority cohorts.</li>
-            <li>Led leaderboard initiatives that lifted programme registration from ~15% to ~30% through better targeting and incentive design.</li>
-            <li>Owned ads-monetisation analysis for Shop Ads / GMV Max, contributing to a record ~£5.2M ads month at a 10.2% take rate.</li>
-          </ul>
         </div>
       </div>
 
       <div class="xp-row reveal">
         <div class="xp-when">Sep 2023 — Nov 2025</div>
         <div>
-          <div class="xp-role">Growth Data Analyst</div>
+          <div class="xp-role">Data Analyst</div>
           <div class="xp-org">Anemoia · Remote, United States</div>
           <ul class="xp-bullets">
-            <li>Analysed acquisition, retention and transaction behaviour for fintech and e-commerce clients to find growth opportunities.</li>
+            <li>Helped a fintech client acquire 300K+ users through marketing and data analytics across acquisition, retention and transaction behaviour.</li>
             <li>Built SQL and Python analyses across user cohorts, revenue drivers and customer lifecycle movement.</li>
             <li>Delivered dashboards and reporting packs that turned behavioural data into clear, action-led recommendations.</li>
           </ul>
@@ -556,14 +526,14 @@ footer{padding:34px 0 44px}
       </div>
 
       <div class="xp-row reveal">
-        <div class="xp-when">Dec 2021 — Sep 2023</div>
+        <div class="xp-when">Jan 2020 — Aug 2023</div>
         <div>
           <div class="xp-role">E-commerce Analyst</div>
           <div class="xp-org">Evuric · Remote, United States</div>
           <ul class="xp-bullets">
             <li>Led growth analytics across marketplace operations: product performance, pricing, promotions and listings.</li>
             <li>Managed Amazon PPC and marketplace advertising, optimising spend, targeting and ROI.</li>
-            <li>Ran A/B tests on images, titles and pricing to improve conversion and marketplace performance.</li>
+            <li>Ran A/B tests on images, titles and pricing, reaching 33% conversion on key search terms — and used competitor review analysis to make ours the best-reviewed product in its niche.</li>
           </ul>
         </div>
       </div>
@@ -618,14 +588,14 @@ footer{padding:34px 0 44px}
     <div class="write-grid" style="margin-top:34px">
       <a class="write-card reveal" href="projects/marketlens.html">
         <span class="write-tag">Pricing · Machine learning</span>
-        <h3>Building CarGauge: pricing 58,000 used cars without a backend</h3>
+        <h3>Building MotorGauge: pricing 58,000 used cars without a backend</h3>
         <p>The scraping strategy, the cleaning war stories, why I rejected a higher-scoring model, and how the estimator ships as pure JavaScript.</p>
         <span class="write-meta">Read the case study →</span>
       </a>
       <a class="write-card reveal" href="projects/bess-forecasting.html">
-        <span class="write-tag">Trading · Deep learning</span>
-        <h3>Store or sell? When a 7% uplift is the whole story</h3>
-        <p>Four architectures, two forecasting tasks, one optimiser — and why no single model won both. With the full results.</p>
+        <span class="write-tag">Energy · Deep learning</span>
+        <h3>Turning volatility into profit: electricity arbitrage for UK wind farms</h3>
+        <p>Renewables made prices wild. Deep-learning forecasts + a battery optimiser turn the volatility into revenue — with the physics, the models and the honest caveats.</p>
         <span class="write-meta">Read the case study →</span>
       </a>
       <a class="write-card reveal" href="projects/forensics-simulation.html">
@@ -638,6 +608,12 @@ footer{padding:34px 0 44px}
         <span class="write-tag">Risk · Quant finance</span>
         <h3>How much could I lose tomorrow? Three answers to one question</h3>
         <p>Normal VaR says 7.6%. GARCH says 7.7%. Monte Carlo says 10.6%. The gap between them is the real lesson.</p>
+        <span class="write-meta">Read the case study →</span>
+      </a>
+      <a class="write-card reveal" href="projects/app-revenue-econometrics.html">
+        <span class="write-tag">Growth · Econometrics</span>
+        <h3>Where should the next growth pound go? An answer from 800 apps</h3>
+        <p>Engagement vs acquisition, priced. Plus the coefficient that looked wrong, was wrong, and became the best finding in the project.</p>
         <span class="write-meta">Read the case study →</span>
       </a>
     </div>
@@ -689,7 +665,7 @@ footer{padding:34px 0 44px}
       <div class="contact-links">
         <a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub ↗</a>
         <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn ↗</a>
-        <a href="https://motorguage.com" target="_blank" rel="noopener">CarGauge ↗</a>
+        <a href="https://motorguage.com" target="_blank" rel="noopener">MotorGauge ↗</a>
       </div>
     </div>
   </div>
@@ -727,6 +703,5 @@ const cio = new IntersectionObserver((entries)=>{
 },{threshold:0.5});
 document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
 </script>
-<script src="analytics.js"></script>
 </body>
 </html>

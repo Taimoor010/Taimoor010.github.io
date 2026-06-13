@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where should the next growth pound go? App revenue econometrics — Taimoor Ali</title>
+<meta name="description" content="An econometric analysis of 800 apps across four markets: engagement elasticity 0.32 vs acquisition 0.26, country premiums, an inverted-U on updates, and the diagnostics (Breusch–Pagan, VIF, robust SEs) that make the coefficients trustworthy.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#F4F6F9; --paper-2:#EBEFF4; --ink:#0B1626; --ink-2:#33415C; --muted:#5B6B7F;
+  --line:#D4DCE6; --blue:#1E40E8; --blue-soft:#E4E9FD; --green:#0E9F6E; --green-soft:#E0F3EC;
+  --gold:#B7791F; --gold-soft:#FBF0DC; --violet:#7C3AED; --violet-soft:#F0E9FD; --red:#DC4B3E;
+  --display:'Archivo',sans-serif; --serif:'Source Serif 4',serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,246,249,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.back{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none}
+.back:hover{color:var(--blue)}
+.tb-label{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.art-hero{border-bottom:1px solid var(--line);padding:64px 0 52px}
+.kicker{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-block;border-radius:6px;padding:5px 12px;margin-bottom:22px}
+.kicker.k-green{background:var(--green-soft);color:var(--green)}
+.kicker.k-blue{background:var(--blue-soft);color:var(--blue)}
+.kicker.k-violet{background:var(--violet-soft);color:var(--violet)}
+.kicker.k-gold{background:var(--gold-soft);color:var(--gold)}
+h1.art-title{font-family:var(--display);font-weight:900;font-size:clamp(34px,5.2vw,58px);letter-spacing:-.025em;line-height:1.06;max-width:21ch}
+.dek{margin-top:22px;max-width:62ch;font-size:19px;color:var(--ink-2)}
+.stat-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.stat-chip{border:1px solid var(--line);border-radius:9px;background:#fff;padding:11px 18px;min-width:108px}
+.stat-chip b{font-family:var(--display);font-weight:800;font-size:21px;display:block;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat-chip span{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.hero-links{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:700;font-size:14.5px;text-decoration:none;border-radius:8px;padding:11px 19px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:var(--blue)}
+.btn-ghost{border:1px solid var(--line);background:#fff}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.art-body{max-width:780px;margin:0 auto;padding:56px 24px 40px}
+.art-body h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.2vw,32px);letter-spacing:-.02em;margin:56px 0 18px;line-height:1.15}
+.art-body h2:first-child{margin-top:0}
+.art-body h2 .num{font-family:var(--mono);font-weight:600;font-size:.55em;color:var(--blue);letter-spacing:.1em;display:block;margin-bottom:8px}
+.art-body p{color:var(--ink-2);margin-bottom:18px}
+.art-body p strong{color:var(--ink);font-weight:600}
+.art-body ul{margin:0 0 18px 2px;list-style:none}
+.art-body ul li{color:var(--ink-2);padding:4px 0 4px 22px;position:relative}
+.art-body ul li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:2px;background:var(--blue-soft);border:1px solid var(--blue)}
+.fig{background:#fff;border:1px solid var(--line);border-radius:13px;padding:22px 22px 16px;margin:28px 0}
+.fig-title{font-family:var(--display);font-weight:700;font-size:15.5px;margin-bottom:4px}
+.fig-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
+.chart-box{position:relative;width:100%}
+figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+.callout{border:1px solid var(--line);border-left:3.5px solid var(--blue);background:#fff;border-radius:0 12px 12px 0;padding:20px 24px;margin:28px 0}
+.callout .c-tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;display:block;margin-bottom:8px}
+.callout p{margin-bottom:0;font-size:16px}
+.dtable{width:100%;border-collapse:collapse;margin:26px 0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+.dtable th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 14px;background:var(--paper-2);border-bottom:1px solid var(--line);font-weight:600}
+.dtable td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td b{font-family:var(--display);color:var(--ink);font-weight:700}
+.dtable .hl td{background:#F2F5FE}
+.mono-sm{font-family:var(--mono);font-size:12.5px}
+.tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:4px 9px;color:var(--ink-2);background:var(--paper);display:inline-block;margin:0 6px 8px 0}
+.foot-nav{border-top:1px solid var(--line);margin-top:64px;padding:44px 24px 26px;max-width:1120px;margin-left:auto;margin-right:auto}
+.fn-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fn-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:22px;text-decoration:none;transition:border-color .15s ease,transform .15s ease}
+.fn-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.fn-card .fn-dir{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:8px}
+.fn-card .fn-title{font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.fn-card.next{text-align:right}
+@media (max-width:640px){.fn-grid{grid-template-columns:1fr}.fn-card.next{text-align:left}}
+footer.site{padding:30px 0 44px}
+.foot{max-width:1120px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="back" href="../index.html">← TAIMOOR ALI</a>
+    <span class="tb-label">Case study</span>
+  </div>
+</header>
+
+<div class="art-hero">
+  <div class="wrap">
+    <span class="kicker k-blue">GROWTH &amp; MARKETING ANALYTICS · ECONOMETRICS</span>
+    <h1 class="art-title">Where should the next growth pound go? An econometric answer from 800 apps</h1>
+    <p class="dek">Acquisition, engagement, rankings, update cadence, ads &mdash; every growth lever has a champion in the room. This project prices them against each other: an OLS analysis of 800 apps across Germany, the UK, China and Japan, with the diagnostics that make the coefficients trustworthy. Built in Stata, independently reproduced in Python.</p>
+    <div class="stat-strip">
+      <div class="stat-chip"><b>800</b><span>apps &middot; 4 markets</span></div>
+      <div class="stat-chip"><b>0.649</b><span>model R&sup2;</span></div>
+      <div class="stat-chip"><b>0.32 vs 0.26</b><span>engagement vs acquisition</span></div>
+      <div class="stat-chip"><b>3&times;</b><span>same lever, by market</span></div>
+    </div>
+    <div class="hero-links">
+      <a class="btn btn-primary" href="https://github.com/Taimoor010/App_Store_revenue_Anaysis" target="_blank" rel="noopener">View the repo &#8599;</a>
+    </div>
+  </div>
+</div>
+
+<article class="art-body">
+
+<h2><span class="num">01 · THE DECISION</span>Every lever has a champion. None has a price.</h2>
+<p>Growth meetings run on competing convictions: the performance marketer wants install budget, the product lead wants retention work, someone insists rankings are everything, someone else wants to ship updates faster. All plausible. None priced. The point of this analysis is to put a number on each lever &mdash; <strong>holding the others constant</strong> &mdash; which is precisely what intuition can't do and a multivariate regression can.</p>
+<p>The questions: which factors significantly determine monthly app revenue? Does engagement (active users) matter more than acquisition (downloads)? And do the answers change by market in ways that should change strategy?</p>
+
+<h2><span class="num">02 · MEASURE</span>The data &mdash; and a degenerate variable caught early</h2>
+<p>The dataset covers <strong>800 apps, 200 in each of Germany, the UK, China and Japan</strong>, with monthly revenue, downloads, active users, marketplace rank (1&ndash;200), update activity, monetisation flags and 21 app categories (games dominate at 54%). Revenue, downloads and active users are heavily right-skewed, so all three enter in natural logs &mdash; which also makes the coefficients read as clean elasticities.</p>
+<p>One audit finding worth flagging before any model: <strong>every single app in the sample monetises through in-app purchases.</strong> The IAP flag has zero variance, identifies nothing, and was excluded &mdash; any claim about IAP from this data would be fiction. Checking your variables can ever vary is cheaper than retracting a finding.</p>
+
+<h2><span class="num">03 · EXPLORE</span>Four markets, visibly different before any model</h2>
+
+<figure class="fig">
+  <div class="fig-title">Country profiles</div>
+  <div class="fig-sub">Mean of logged revenue, downloads and active users &middot; n = 200 per country</div>
+  <div class="chart-box" style="height:280px"><canvas id="chCountry"></canvas></div>
+  <figcaption>The UK leads on everything; Germany trails on revenue despite engagement comparable to China &mdash; an early hint that markets convert attention to money at different rates. ANOVA confirms the differences: downloads F = 41.03, active users F = 17.21, both p &lt; 0.001.</figcaption>
+</figure>
+
+<figure class="fig">
+  <div class="fig-title">Distribution of logged monthly revenue</div>
+  <div class="fig-sub">26 bins across 800 apps</div>
+  <div class="chart-box" style="height:240px"><canvas id="chHist"></canvas></div>
+  <figcaption>Near-normal after the log transform, with a thin tail of under-performers below 10 log points &mdash; the shape that earns the parametric toolkit.</figcaption>
+</figure>
+
+<h2><span class="num">04 · CORRELATE</span>First relationships &mdash; and a collinearity flag</h2>
+<p>Revenue correlates with downloads at 0.54 and with active users at 0.63; rank correlates negatively (&minus;0.40 &mdash; better-ranked apps earn more). The flag: downloads and active users correlate at <strong>0.71 with each other</strong>, high enough to suspect multicollinearity. Suspicion isn't conviction &mdash; variance inflation factors settle it in section 07.</p>
+
+<figure class="fig">
+  <div class="fig-title">Correlation matrix</div>
+  <div class="fig-sub">Pearson pairwise correlations of model variables</div>
+  <table class='dtable' style='margin:0'><tr><th></th><th style='text-align:center'>ln revenue</th><th style='text-align:center'>ln downloads</th><th style='text-align:center'>ln active users</th><th style='text-align:center'>updates</th><th style='text-align:center'>rank</th><th style='text-align:center'>shows ads</th></tr><tr><td><b>ln revenue</b></td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.33);color:#0B1626;font-family:var(--mono);font-size:12px'>0.54</td><td style='text-align:center;background:rgba(30,64,232,0.38);color:#0B1626;font-family:var(--mono);font-size:12px'>0.63</td><td style='text-align:center;background:rgba(30,64,232,0.14);color:#0B1626;font-family:var(--mono);font-size:12px'>0.16</td><td style='text-align:center;background:rgba(220,75,62,0.26);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.40</td><td style='text-align:center;background:rgba(30,64,232,0.20);color:#0B1626;font-family:var(--mono);font-size:12px'>0.27</td></tr><tr><td><b>ln downloads</b></td><td style='text-align:center;background:rgba(30,64,232,0.33);color:#0B1626;font-family:var(--mono);font-size:12px'>0.54</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.41);color:#0B1626;font-family:var(--mono);font-size:12px'>0.71</td><td style='text-align:center;background:rgba(30,64,232,0.18);color:#0B1626;font-family:var(--mono);font-size:12px'>0.25</td><td style='text-align:center;background:rgba(220,75,62,0.20);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.29</td><td style='text-align:center;background:rgba(30,64,232,0.24);color:#0B1626;font-family:var(--mono);font-size:12px'>0.37</td></tr><tr><td><b>ln active users</b></td><td style='text-align:center;background:rgba(30,64,232,0.38);color:#0B1626;font-family:var(--mono);font-size:12px'>0.63</td><td style='text-align:center;background:rgba(30,64,232,0.41);color:#0B1626;font-family:var(--mono);font-size:12px'>0.71</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.29);color:#0B1626;font-family:var(--mono);font-size:12px'>0.45</td><td style='text-align:center;background:rgba(220,75,62,0.19);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.26</td><td style='text-align:center;background:rgba(30,64,232,0.30);color:#0B1626;font-family:var(--mono);font-size:12px'>0.49</td></tr><tr><td><b>updates</b></td><td style='text-align:center;background:rgba(30,64,232,0.14);color:#0B1626;font-family:var(--mono);font-size:12px'>0.16</td><td style='text-align:center;background:rgba(30,64,232,0.18);color:#0B1626;font-family:var(--mono);font-size:12px'>0.25</td><td style='text-align:center;background:rgba(30,64,232,0.29);color:#0B1626;font-family:var(--mono);font-size:12px'>0.45</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.08);color:#0B1626;font-family:var(--mono);font-size:12px'>0.04</td><td style='text-align:center;background:rgba(30,64,232,0.09);color:#0B1626;font-family:var(--mono);font-size:12px'>0.06</td></tr><tr><td><b>rank</b></td><td style='text-align:center;background:rgba(220,75,62,0.26);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.40</td><td style='text-align:center;background:rgba(220,75,62,0.20);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.29</td><td style='text-align:center;background:rgba(220,75,62,0.19);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.26</td><td style='text-align:center;background:rgba(30,64,232,0.08);color:#0B1626;font-family:var(--mono);font-size:12px'>0.04</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(220,75,62,0.11);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.11</td></tr><tr><td><b>shows ads</b></td><td style='text-align:center;background:rgba(30,64,232,0.20);color:#0B1626;font-family:var(--mono);font-size:12px'>0.27</td><td style='text-align:center;background:rgba(30,64,232,0.24);color:#0B1626;font-family:var(--mono);font-size:12px'>0.37</td><td style='text-align:center;background:rgba(30,64,232,0.30);color:#0B1626;font-family:var(--mono);font-size:12px'>0.49</td><td style='text-align:center;background:rgba(30,64,232,0.09);color:#0B1626;font-family:var(--mono);font-size:12px'>0.06</td><td style='text-align:center;background:rgba(220,75,62,0.11);color:#0B1626;font-family:var(--mono);font-size:12px'>-0.11</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td></tr></table>
+  <figcaption>Blue = positive, red = negative, intensity = strength. The 0.71 cell is the one to investigate, not panic about.</figcaption>
+</figure>
+
+<h2><span class="num">05 · MODEL</span>The baseline: pricing five levers at once</h2>
+<p>The central specification regresses logged revenue on downloads, active users and rank, with country dummies, category dummies, update activity and ad strategy as controls &mdash; OLS on 800 observations, <strong>R&sup2; = 0.649</strong>, all inference on heteroskedasticity-robust (HC1) standard errors.</p>
+
+<figure class="fig">
+  <div class="fig-title">What each lever is worth</div>
+  <div class="fig-sub">Robust coefficient estimates with 95% confidence intervals &middot; grey = not significant at 5%</div>
+  <div class="chart-box" style="height:330px"><canvas id="chCoef"></canvas></div>
+  <figcaption>A 1% rise in active users buys +0.32% revenue vs +0.26% for downloads; one rank place costs &asymp;0.7%. Ads read negative (&minus;0.115) but the interval crosses zero &mdash; not significant (p = 0.27). Country premiums vs Germany are large: Japan +1.18 log points (&asymp;225% in levels), UK +1.03, China +0.80.</figcaption>
+</figure>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>Engagement beats acquisition &mdash; 0.32 vs 0.26 &mdash; and both are precisely estimated (the confidence intervals don't overlap zero or trivially overlap each other). For budget allocation that means retention and engagement work outranks raw install campaigns when they compete: installs only pay when they become active users, and the data says the conversion step is where the value sits.</p>
+</div>
+
+<figure class="fig">
+  <div class="fig-title">Category effects relative to games</div>
+  <div class="fig-sub">Coefficients vs the All-games reference &middot; grey = not significant &middot; n per category in tooltip</div>
+  <div class="chart-box" style="height:340px"><canvas id="chCats"></canvas></div>
+  <figcaption>Most categories under-earn games conditionally; Finance and Sports read worst &mdash; but several cells are tiny (Finance n = 5), so these are controls deserving humility, not strategy findings.</figcaption>
+</figure>
+
+<h2><span class="num">06 · HETEROGENEITY</span>The same lever pays 3&times; more in one market</h2>
+<p>Country dummies say markets differ in <em>level</em>. The strategically interesting question is whether the <em>slope</em> differs: does an extra unit of engagement pay differently by market? Interacting ln(active users) with country answers it &mdash; all three interaction terms are highly significant.</p>
+
+<figure class="fig">
+  <div class="fig-title">Revenue vs active users, by country</div>
+  <div class="fig-sub">75 sampled apps per country with per-country OLS fits &middot; slopes in the legend</div>
+  <div class="chart-box" style="height:360px"><canvas id="chScatterAU"></canvas></div>
+  <figcaption>Germany's line is steepest; China's is flattest. Same x-axis, same lever, very different payoff.</figcaption>
+</figure>
+
+<figure class="fig">
+  <div class="fig-title">The engagement elasticity, market by market</div>
+  <div class="fig-sub">Implied ln(active users) elasticity from the interaction model</div>
+  <div class="chart-box" style="height:230px"><canvas id="chSlopes"></canvas></div>
+  <figcaption>Germany 0.54, Japan 0.32, UK 0.20, China 0.18 &mdash; a 3&times; spread on the identical lever.</figcaption>
+</figure>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>Germany has the lowest revenue <em>level</em> but the steepest engagement <em>slope</em> &mdash; an under-monetised market where engagement growth pays best. China is the mirror image. A single global playbook misallocates in both directions: engagement-led growth belongs in Germany and Japan, while in the UK and China the marginal return on another active user is materially lower. Averages would have hidden all of this.</p>
+</div>
+
+<h2><span class="num">07 · DIAGNOSE</span>Making the numbers trustworthy</h2>
+<p>Three diagnostics separate a regression from a defensible one. <strong>Heteroskedasticity:</strong> the Breusch&ndash;Pagan test rejects constant variance emphatically (LM = 118.9, p &lt; 0.001), and the residual plot shows the classic funnel &mdash; so all inference uses robust standard errors; coefficients are unchanged, every key predictor stays significant. <strong>Multicollinearity:</strong> despite the 0.71 correlation, VIFs top out at 2.86 &mdash; both user metrics are separately identified, so the engagement-vs-acquisition contrast is real. <strong>Specification:</strong> see the updates puzzle below.</p>
+
+<figure class="fig">
+  <div class="fig-title">Residuals vs fitted values</div>
+  <div class="fig-sub">320-observation sample from the baseline model</div>
+  <div class="chart-box" style="height:280px"><canvas id="chResid"></canvas></div>
+  <figcaption>Variance grows with fitted values &mdash; the funnel that mandates robust standard errors. Found, named, fixed.</figcaption>
+</figure>
+
+<h2><span class="num">08 · THE PUZZLE</span>The coefficient that looked wrong &mdash; and was</h2>
+<p>The baseline model says each unit of update activity cuts revenue by 0.47 log points. Taken literally: stop updating your app. That's implausible enough to investigate rather than report. Adding a quadratic term resolves it &mdash; the linear term flips to <strong>+2.50</strong> and the squared term comes in at <strong>&minus;0.39</strong> (both p &lt; 0.001): an <strong>inverted U</strong> with a turning point around 3.2 on the updates scale. Updates help, then hurt. The linear model was averaging over a curve and reporting the average as a slope.</p>
+
+<figure class="fig">
+  <div class="fig-title">Updates and revenue: an inverted U</div>
+  <div class="fig-sub">300 sampled apps with the fitted quadratic partial effect &middot; turning point &asymp; 3.2</div>
+  <div class="chart-box" style="height:300px"><canvas id="chQuad"></canvas></div>
+  <figcaption>Maintenance and improvement add value; high-frequency churn disrupts users. Cadence beats volume.</figcaption>
+</figure>
+
+<div class="callout">
+  <span class="c-tag">The call</span>
+  <p>When a coefficient contradicts common sense, the options are: report it anyway (wrong), delete it quietly (worse), or treat it as a specification question (right). The wrong-looking sign was the model telling me its functional form was too rigid &mdash; the most useful finding in the project came from refusing to accept a number that didn't make sense.</p>
+</div>
+
+<h2><span class="num">09 · HONESTY</span>What these coefficients are not</h2>
+<p>They are conditional associations, not causal effects. Revenue funds acquisition and improves rank, so reverse causality runs through the model; app quality and marketing spend are unobserved and bias what they touch; the sample is 54% games with some tiny category cells; and rank is only observed to 200, so findings describe ranked apps, not the long tail. The credible upgrade path isn't a fancier estimator on this cross-section &mdash; it's <strong>panel data</strong>: app fixed effects to absorb time-invariant quality, lagged regressors against reverse causality, time effects for seasonality.</p>
+
+<h2><span class="num">10 · TRANSFER</span>This is the day job</h2>
+<p>Strip the academic framing and this is marketing analytics as practised: estimate the return on each growth lever, conditional on the others; check whether the headline elasticity survives diagnostics; localise the playbook where heterogeneity is real; and refuse numbers that don't make sense until the specification explains them. It's the same discipline behind incentive-ROI analysis at a marketplace &mdash; only the dataset changes.</p>
+
+<p class="mono-sm" style="color:var(--muted)">Stack: Stata MP (original analysis) &middot; Python reproduction: pandas &middot; statsmodels &middot; SciPy &middot; OLS + HC1 robust SEs &middot; Breusch&ndash;Pagan &middot; VIF &middot; interaction &amp; quadratic specifications &middot; University of Surrey (MANM526)</p>
+
+</article>
+
+<nav class="foot-nav" aria-label="More case studies">
+  <div class="fn-grid">
+    <a class="fn-card" href="asset-risk-modelling.html"><span class="fn-dir">&larr; Previous</span><span class="fn-title">How much could I lose tomorrow?</span></a>
+    <a class="fn-card next" href="marketlens.html"><span class="fn-dir">Next case study &rarr;</span><span class="fn-title">MotorGauge: pricing 58,000 used cars</span></a>
+  </div>
+</nav>
+
+<footer class="site">
+  <div class="foot">
+    <span>© <span data-year>2026</span> Taimoor Ali · Measure. Model. Decide. Ship.</span>
+    <span><a href="../index.html">Home</a> · <a href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/Taimoor010" target="_blank" rel="noopener">LinkedIn</a></span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#5B6B7F';
+Chart.defaults.borderColor = '#E3E9F0';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+const C = {blue:'#1E40E8', blueSoft:'rgba(30,64,232,.12)', green:'#0E9F6E', gold:'#B7791F', violet:'#7C3AED', muted:'#9AA8B8', ink:'#0B1626', red:'#DC4B3E'};
+const CC = {Germany:C.blue, UK:C.green, China:C.red, Japan:C.gold};
+
+new Chart(document.getElementById('chCountry'), {
+  type:'bar',
+  data:{labels:['Germany','UK','China','Japan'],
+    datasets:[
+      {label:'ln(revenue)', data:[13.41,15.02,14.50,14.48], backgroundColor:C.blue, borderRadius:4, barPercentage:.78},
+      {label:'ln(downloads)', data:[12.01,12.53,11.92,10.53], backgroundColor:C.green, borderRadius:4, barPercentage:.78},
+      {label:'ln(active users)', data:[11.99,13.08,11.85,11.52], backgroundColor:C.gold, borderRadius:4, barPercentage:.78}
+    ]},
+  options:{maintainAspectRatio:false, plugins:{legend:{position:'bottom'}},
+    scales:{y:{min:9,max:16,title:{display:true,text:'Mean (log scale)'}}, x:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chHist'), {
+  type:'bar',
+  data:{labels:["7.1","7.6","8.1","8.5","9.0","9.4","9.9","10.3","10.8","11.2","11.7","12.2","12.6","13.1","13.5","14.0","14.4","14.9","15.4","15.8","16.3","16.7","17.2","17.6","18.1","18.6"], datasets:[{data:[6,0,0,3,3,7,7,4,10,11,9,15,24,44,108,91,117,57,90,78,39,48,12,10,6,1], backgroundColor:'rgba(30,64,232,.6)', borderRadius:2, barPercentage:1, categoryPercentage:.95}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{title:(c)=>'ln(revenue) ≈ '+c[0].label, label:(c)=> c.parsed.y+' apps'}}},
+    scales:{y:{title:{display:true,text:'Apps'}}, x:{title:{display:true,text:'ln(monthly revenue)'}, ticks:{maxTicksLimit:8}, grid:{display:false}}}}
+});
+
+const coefLabels = ["ln(downloads)","ln(active users)","rank","updates","shows ads","UK (vs Germany)","China (vs Germany)","Japan (vs Germany)"];
+const coefRanges = [[0.207,0.322],[0.262,0.381],[-0.008,-0.005],[-0.734,-0.21],[-0.319,0.088],[0.785,1.282],[0.532,1.061],[0.91,1.445]];
+const coefSig = [true,true,true,true,false,true,true,true];
+new Chart(document.getElementById('chCoef'), {
+  data:{labels:coefLabels,
+    datasets:[
+      {type:'bar', label:'95% CI', data:coefRanges, indexAxis:'y',
+       backgroundColor:coefLabels.map((_,i)=> coefSig[i] ? 'rgba(30,64,232,.30)' : 'rgba(154,168,184,.35)'),
+       borderRadius:4, barPercentage:.5, borderSkipped:false},
+      {type:'scatter', label:'Coefficient', data:[{"x":0.265,"y":"ln(downloads)"},{"x":0.322,"y":"ln(active users)"},{"x":-0.007,"y":"rank"},{"x":-0.472,"y":"updates"},{"x":-0.115,"y":"shows ads"},{"x":1.033,"y":"UK (vs Germany)"},{"x":0.796,"y":"China (vs Germany)"},{"x":1.178,"y":"Japan (vs Germany)"}],
+       backgroundColor:coefLabels.map((_,i)=> coefSig[i] ? C.blue : C.muted), pointRadius:5, pointStyle:'rectRot'}
+    ]},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:(c)=> c.datasetIndex===0 ? 'CI ['+c.raw[0]+', '+c.raw[1]+']' : 'coef '+c.parsed.x}}},
+    scales:{x:{title:{display:true,text:'Coefficient (log points)'}, grid:{color:(ctx)=> ctx.tick.value===0 ? '#DC4B3E':'#E3E9F0'}},
+      y:{grid:{display:false}}}}
+});
+
+const catData = [{"cat":"Sports","coef":-1.882,"p":0.0,"n":12},{"cat":"Finance","coef":-1.875,"p":0.0,"n":5},{"cat":"Enterainment","coef":-1.279,"p":0.0,"n":61},{"cat":"Photo & Video","coef":-1.104,"p":0.0,"n":39},{"cat":"Education","coef":-1.03,"p":0.0,"n":15},{"cat":"News","coef":-1.004,"p":0.001,"n":14},{"cat":"Music","coef":-0.978,"p":0.0,"n":24},{"cat":"Business","coef":-0.912,"p":0.003,"n":13},{"cat":"Lifestyle","coef":-0.832,"p":0.0,"n":29},{"cat":"Social networking","coef":-0.826,"p":0.0,"n":69},{"cat":"Productivity","coef":-0.672,"p":0.01,"n":19},{"cat":"Books","coef":-0.583,"p":0.004,"n":31},{"cat":"Health & fitness","coef":-0.522,"p":0.025,"n":24}];
+new Chart(document.getElementById('chCats'), {
+  type:'bar',
+  data:{labels:catData.map(d=>d.cat),
+    datasets:[{data:catData.map(d=>d.coef),
+      backgroundColor:catData.map(d=> d.p<0.05 ? C.blue : '#C2CCDA'), borderRadius:4, barPercentage:.7}]},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>{
+      const d=catData[c.dataIndex]; return d.coef+' log points · n='+d.n+' · p='+d.p;}}}},
+    scales:{x:{title:{display:true,text:'Coefficient vs All games (log points)'}, grid:{color:(ctx)=> ctx.tick.value===0 ? '#DC4B3E':'#E3E9F0'}},
+      y:{grid:{display:false}, ticks:{font:{size:9.5}}}}}
+});
+
+const auPts = {"Germany":[{"x":12.71,"y":13.3},{"x":8.13,"y":12.21},{"x":13.69,"y":13.82},{"x":10.19,"y":8.52},{"x":14.83,"y":16.52},{"x":9.5,"y":9.9},{"x":9.01,"y":12.61},{"x":8.9,"y":11.29},{"x":12.71,"y":13.3},{"x":11.57,"y":9.21},{"x":7.63,"y":9.21},{"x":9.5,"y":11.51},{"x":10.64,"y":14.91},{"x":15.16,"y":15.2},{"x":14.14,"y":15.89},{"x":9.76,"y":6.91},{"x":12.61,"y":11.16},{"x":7.6,"y":11.16},{"x":3.93,"y":10.6},{"x":10.49,"y":12.61},{"x":18.44,"y":18.33},{"x":15.3,"y":15.42},{"x":13.05,"y":14.91},{"x":9.75,"y":9.21},{"x":16.35,"y":13.82},{"x":12.19,"y":13.82},{"x":6.06,"y":9.1},{"x":13.1,"y":10.6},{"x":15.67,"y":12.61},{"x":14.68,"y":16.81},{"x":14.35,"y":16.12},{"x":9.13,"y":10.6},{"x":13.55,"y":15.61},{"x":11.44,"y":12.61},{"x":7.15,"y":12.21},{"x":15.77,"y":16.12},{"x":8.75,"y":9.9},{"x":14.84,"y":15.42},{"x":13.6,"y":15.61},{"x":9.35,"y":12.9},{"x":9.46,"y":14.51},{"x":10.9,"y":15.2},{"x":15.49,"y":16.52},{"x":13.21,"y":14.51},{"x":11.03,"y":15.42},{"x":12.86,"y":11.51},{"x":11.86,"y":16.21},{"x":10.05,"y":10.31},{"x":13.61,"y":14.51},{"x":8.2,"y":9.9},{"x":11.49,"y":15.61},{"x":8.57,"y":12.21},{"x":10.68,"y":12.61},{"x":13.67,"y":12.21},{"x":11.62,"y":14.51},{"x":9.62,"y":9.21},{"x":6.85,"y":8.85},{"x":7.31,"y":8.7},{"x":12.08,"y":16.45},{"x":10.53,"y":14.51},{"x":11.39,"y":15.2},{"x":8.19,"y":11.29},{"x":16.11,"y":14.91},{"x":15.81,"y":15.42},{"x":12.64,"y":15.2},{"x":15.86,"y":16.95},{"x":14.78,"y":15.89},{"x":11.29,"y":13.3},{"x":14.19,"y":14.91},{"x":15.99,"y":15.76},{"x":2.2,"y":9.9},{"x":15.53,"y":15.2},{"x":10.27,"y":12.21},{"x":13.02,"y":13.59},{"x":13.44,"y":13.46}],"UK":[{"x":9.39,"y":13.12},{"x":15.11,"y":15.61},{"x":10.55,"y":14.51},{"x":11.72,"y":15.76},{"x":15.75,"y":15.76},{"x":13.7,"y":16.01},{"x":11.83,"y":17.22},{"x":14.14,"y":15.89},{"x":15.09,"y":15.2},{"x":15.81,"y":15.42},{"x":15.54,"y":15.89},{"x":11.49,"y":15.61},{"x":14.74,"y":15.61},{"x":13.45,"y":15.2},{"x":14.09,"y":16.86},{"x":11.25,"y":13.82},{"x":13.95,"y":16.81},{"x":13.23,"y":13.71},{"x":12.27,"y":13.82},{"x":14.38,"y":17.79},{"x":17.39,"y":17.82},{"x":13.02,"y":16.21},{"x":10.66,"y":12.61},{"x":10.9,"y":15.2},{"x":15.09,"y":15.42},{"x":10.91,"y":13.82},{"x":10.74,"y":14.51},{"x":12.79,"y":15.61},{"x":7.23,"y":13.82},{"x":14.28,"y":16.86},{"x":13.25,"y":15.2},{"x":15.11,"y":16.52},{"x":14.83,"y":16.52},{"x":15.64,"y":16.65},{"x":13.34,"y":14.51},{"x":15.77,"y":16.12},{"x":9.02,"y":12.61},{"x":14.32,"y":14.51},{"x":11.83,"y":15.89},{"x":14.31,"y":14.51},{"x":14.11,"y":15.2},{"x":12.96,"y":13.82},{"x":13.78,"y":15.76},{"x":12.63,"y":15.42},{"x":11.55,"y":15.42},{"x":15.19,"y":16.12},{"x":12.67,"y":16.01},{"x":9.46,"y":14.51},{"x":12.82,"y":15.42},{"x":13.83,"y":16.52},{"x":13.14,"y":14.51},{"x":13.69,"y":13.82},{"x":13.75,"y":14.91},{"x":14.6,"y":13.82},{"x":9.05,"y":13.46},{"x":11.92,"y":14.51},{"x":15.53,"y":15.2},{"x":12.41,"y":12.61},{"x":13.66,"y":16.12},{"x":11.25,"y":16.45},{"x":13.14,"y":14.51},{"x":15.3,"y":15.42},{"x":15.29,"y":15.76},{"x":15.89,"y":15.42},{"x":13.0,"y":15.42},{"x":13.28,"y":14.51},{"x":13.1,"y":14.91},{"x":12.1,"y":14.51},{"x":14.27,"y":15.76},{"x":12.63,"y":15.42},{"x":15.61,"y":15.42},{"x":13.8,"y":15.42},{"x":11.03,"y":15.42},{"x":12.73,"y":14.51},{"x":11.94,"y":13.82}],"China":[{"x":9.81,"y":13.82},{"x":14.74,"y":16.12},{"x":9.61,"y":12.61},{"x":12.89,"y":13.12},{"x":11.18,"y":16.12},{"x":10.17,"y":14.91},{"x":11.65,"y":13.82},{"x":13.22,"y":15.42},{"x":12.2,"y":13.46},{"x":10.39,"y":13.82},{"x":14.53,"y":14.91},{"x":12.24,"y":14.51},{"x":12.77,"y":13.71},{"x":12.05,"y":15.2},{"x":14.19,"y":16.38},{"x":10.18,"y":14.91},{"x":16.46,"y":16.12},{"x":12.35,"y":14.91},{"x":8.51,"y":13.46},{"x":16.25,"y":18.79},{"x":16.45,"y":17.91},{"x":15.41,"y":15.61},{"x":10.81,"y":14.51},{"x":8.96,"y":14.91},{"x":11.47,"y":15.2},{"x":13.76,"y":13.59},{"x":13.18,"y":14.51},{"x":13.27,"y":14.51},{"x":10.72,"y":13.12},{"x":16.94,"y":17.37},{"x":8.61,"y":13.59},{"x":12.08,"y":16.01},{"x":13.14,"y":14.91},{"x":13.84,"y":15.42},{"x":11.73,"y":13.82},{"x":11.53,"y":15.42},{"x":10.06,"y":14.51},{"x":5.06,"y":13.59},{"x":9.24,"y":13.46},{"x":12.02,"y":13.82},{"x":6.55,"y":12.61},{"x":14.8,"y":13.82},{"x":14.52,"y":15.61},{"x":14.92,"y":13.82},{"x":7.87,"y":13.82},{"x":16.15,"y":16.38},{"x":11.39,"y":14.91},{"x":11.71,"y":13.82},{"x":12.97,"y":13.46},{"x":13.96,"y":15.42},{"x":11.65,"y":15.89},{"x":8.24,"y":13.59},{"x":13.94,"y":13.82},{"x":8.94,"y":13.59},{"x":14.66,"y":13.46},{"x":11.49,"y":12.61},{"x":10.88,"y":14.51},{"x":11.25,"y":13.82},{"x":13.47,"y":15.2},{"x":14.6,"y":14.51},{"x":12.44,"y":14.51},{"x":10.41,"y":14.51},{"x":12.44,"y":14.51},{"x":12.44,"y":13.71},{"x":8.28,"y":15.42},{"x":15.15,"y":15.2},{"x":16.33,"y":13.82},{"x":10.08,"y":14.51},{"x":10.71,"y":14.91},{"x":11.66,"y":13.82},{"x":9.6,"y":14.91},{"x":12.58,"y":13.82},{"x":7.86,"y":15.2},{"x":6.97,"y":13.12},{"x":12.26,"y":13.82}],"Japan":[{"x":10.5,"y":13.3},{"x":10.16,"y":14.91},{"x":9.87,"y":13.59},{"x":9.7,"y":13.71},{"x":14.38,"y":17.79},{"x":12.08,"y":16.45},{"x":14.72,"y":13.82},{"x":10.37,"y":13.3},{"x":12.82,"y":14.51},{"x":15.11,"y":16.52},{"x":10.29,"y":14.51},{"x":15.54,"y":15.89},{"x":12.79,"y":14.51},{"x":12.75,"y":14.91},{"x":11.26,"y":15.61},{"x":13.24,"y":15.61},{"x":13.16,"y":16.12},{"x":8.28,"y":14.51},{"x":13.04,"y":13.82},{"x":13.89,"y":17.03},{"x":12.25,"y":16.71},{"x":10.4,"y":15.61},{"x":9.47,"y":13.59},{"x":8.59,"y":13.82},{"x":8.9,"y":14.51},{"x":12.34,"y":13.3},{"x":14.75,"y":16.52},{"x":11.78,"y":12.9},{"x":9.94,"y":13.12},{"x":18.44,"y":18.33},{"x":12.27,"y":13.82},{"x":11.58,"y":14.91},{"x":12.17,"y":15.2},{"x":13.15,"y":15.2},{"x":7.33,"y":13.82},{"x":13.0,"y":15.42},{"x":10.82,"y":13.82},{"x":10.03,"y":13.3},{"x":8.37,"y":13.3},{"x":9.93,"y":13.82},{"x":10.75,"y":13.3},{"x":13.31,"y":13.46},{"x":6.55,"y":11.51},{"x":14.83,"y":16.52},{"x":11.92,"y":13.59},{"x":12.72,"y":15.61},{"x":5.81,"y":14.91},{"x":11.75,"y":14.51},{"x":10.44,"y":13.46},{"x":8.09,"y":12.21},{"x":15.82,"y":16.91},{"x":7.73,"y":13.12},{"x":9.73,"y":14.51},{"x":10.23,"y":12.61},{"x":12.67,"y":16.01},{"x":9.67,"y":12.9},{"x":12.25,"y":16.12},{"x":11.75,"y":13.3},{"x":13.16,"y":15.89},{"x":10.73,"y":12.61},{"x":10.21,"y":13.3},{"x":11.02,"y":13.59},{"x":11.64,"y":13.82},{"x":10.62,"y":13.82},{"x":6.55,"y":6.91},{"x":13.48,"y":16.01},{"x":14.14,"y":15.89},{"x":9.32,"y":13.46},{"x":11.39,"y":14.51},{"x":10.91,"y":13.12},{"x":11.39,"y":15.2},{"x":8.03,"y":13.59},{"x":10.91,"y":13.82},{"x":11.64,"y":12.9},{"x":10.01,"y":14.91}]};
+const auLines = {"Germany":{"x0":2.2,"y0":7.06,"x1":18.44,"y1":17.59,"slope":0.648},"UK":{"x0":7.23,"y0":12.6,"x1":18.44,"y1":17.22,"slope":0.412},"China":{"x0":5.06,"y0":12.72,"x1":17.57,"y1":15.99,"slope":0.261},"Japan":{"x0":5.81,"y0":11.86,"x1":18.44,"y1":17.67,"slope":0.46}};
+new Chart(document.getElementById('chScatterAU'), {
+  data:{datasets:[
+    ...Object.keys(auPts).map(k=>({type:'scatter', label:k, data:auPts[k], backgroundColor:CC[k]+'55', pointRadius:2.6})),
+    ...Object.keys(auLines).map(k=>({type:'line', label:k+' fit (slope '+auLines[k].slope.toFixed(2)+')',
+      data:[{x:auLines[k].x0,y:auLines[k].y0},{x:auLines[k].x1,y:auLines[k].y1}],
+      borderColor:CC[k], borderWidth:2.4, pointRadius:0, fill:false}))
+  ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom', labels:{filter:(it)=> it.text.includes('fit')}}},
+    scales:{x:{type:'linear', title:{display:true,text:'ln(active users)'}},
+      y:{title:{display:true,text:'ln(monthly revenue)'}}}}
+});
+
+new Chart(document.getElementById('chSlopes'), {
+  type:'bar',
+  data:{labels:['Germany','Japan','UK','China'],
+    datasets:[{data:[0.536,0.318,0.202,0.183], backgroundColor:[C.blue,C.gold,C.green,C.red], borderRadius:5, barPercentage:.55}]},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> 'AU elasticity '+c.parsed.x}}},
+    scales:{x:{title:{display:true,text:'Revenue elasticity of active users'}, beginAtZero:true}, y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chResid'), {
+  type:'scatter',
+  data:{datasets:[{data:[{"x":15.18,"y":0.02},{"x":15.26,"y":0.35},{"x":14.52,"y":0.39},{"x":12.65,"y":0.94},{"x":13.78,"y":1.13},{"x":16.23,"y":0.22},{"x":11.66,"y":1.47},{"x":16.82,"y":-0.06},{"x":14.69,"y":0.92},{"x":14.17,"y":-0.86},{"x":14.95,"y":0.25},{"x":14.35,"y":0.56},{"x":15.54,"y":-0.34},{"x":15.51,"y":-1.0},{"x":15.67,"y":-0.47},{"x":14.3,"y":0.21},{"x":16.05,"y":-1.55},{"x":12.73,"y":1.09},{"x":17.11,"y":-0.35},{"x":13.59,"y":-0.69},{"x":15.62,"y":0.6},{"x":12.81,"y":-0.2},{"x":15.99,"y":-0.23},{"x":14.96,"y":0.24},{"x":14.64,"y":-0.83},{"x":16.21,"y":-0.6},{"x":11.8,"y":-0.64},{"x":15.43,"y":-0.52},{"x":14.35,"y":0.85},{"x":14.12,"y":-0.41},{"x":16.2,"y":0.76},{"x":15.18,"y":-0.67},{"x":13.23,"y":0.58},{"x":10.99,"y":-1.78},{"x":14.88,"y":0.54},{"x":16.3,"y":-0.18},{"x":15.2,"y":0.69},{"x":14.54,"y":-1.92},{"x":14.23,"y":-0.52},{"x":14.67,"y":-0.16},{"x":13.66,"y":-0.2},{"x":13.31,"y":-1.8},{"x":12.84,"y":0.98},{"x":13.04,"y":-0.43},{"x":12.42,"y":0.48},{"x":15.2,"y":-0.7},{"x":15.13,"y":0.07},{"x":15.78,"y":-0.02},{"x":17.59,"y":0.73},{"x":15.79,"y":-1.97},{"x":13.3,"y":-0.69},{"x":14.24,"y":-0.42},{"x":16.22,"y":-0.8},{"x":12.84,"y":-3.63},{"x":9.82,"y":-2.91},{"x":12.56,"y":1.26},{"x":14.61,"y":1.0},{"x":13.52,"y":-2.37},{"x":13.65,"y":-0.53},{"x":13.38,"y":-0.48},{"x":16.63,"y":-0.87},{"x":15.53,"y":-0.62},{"x":16.5,"y":-0.61},{"x":14.91,"y":0.7},{"x":15.96,"y":0.8},{"x":16.61,"y":1.17},{"x":13.76,"y":0.75},{"x":14.9,"y":-0.39},{"x":13.43,"y":-0.53},{"x":14.28,"y":0.23},{"x":13.14,"y":0.45},{"x":13.56,"y":-0.95},{"x":14.36,"y":0.84},{"x":16.51,"y":-0.39},{"x":13.95,"y":1.81},{"x":15.34,"y":-2.22},{"x":13.69,"y":1.52},{"x":13.11,"y":0.49},{"x":12.59,"y":0.02},{"x":13.82,"y":-0.0},{"x":16.04,"y":-0.14},{"x":14.78,"y":-0.96},{"x":15.16,"y":-0.65},{"x":14.83,"y":-0.32},{"x":15.9,"y":0.21},{"x":15.35,"y":-0.84},{"x":14.1,"y":1.66},{"x":16.4,"y":0.97},{"x":14.78,"y":-1.19},{"x":14.02,"y":-0.56},{"x":16.35,"y":-1.15},{"x":15.11,"y":-0.2},{"x":15.54,"y":1.32},{"x":12.53,"y":0.37},{"x":17.0,"y":-0.47},{"x":15.64,"y":1.17},{"x":16.65,"y":-0.89},{"x":15.46,"y":-1.65},{"x":14.5,"y":0.42},{"x":13.2,"y":0.26},{"x":13.92,"y":-0.46},{"x":12.65,"y":-5.74},{"x":14.35,"y":-0.53},{"x":14.61,"y":-0.79},{"x":14.8,"y":-0.3},{"x":15.42,"y":2.36},{"x":10.74,"y":-1.89},{"x":14.06,"y":0.45},{"x":15.93,"y":0.93},{"x":14.01,"y":2.2},{"x":14.96,"y":0.24},{"x":13.52,"y":0.29},{"x":15.62,"y":-1.11},{"x":16.32,"y":0.33},{"x":15.73,"y":-1.22},{"x":13.11,"y":0.7},{"x":15.45,"y":-0.54},{"x":14.49,"y":-0.67},{"x":15.46,"y":1.0},{"x":12.37,"y":1.22},{"x":14.08,"y":2.13},{"x":14.59,"y":0.84},{"x":13.39,"y":0.07},{"x":15.99,"y":-0.57},{"x":15.09,"y":1.72},{"x":15.04,"y":1.17},{"x":13.33,"y":-0.71},{"x":14.65,"y":1.36},{"x":10.85,"y":-0.95},{"x":15.57,"y":0.32},{"x":16.64,"y":0.61},{"x":13.97,"y":1.23},{"x":14.45,"y":-0.63},{"x":14.75,"y":0.45},{"x":13.03,"y":-2.43},{"x":14.01,"y":-0.3},{"x":13.65,"y":0.86},{"x":12.83,"y":1.68},{"x":13.58,"y":-0.46},{"x":15.18,"y":0.71},{"x":13.78,"y":-2.27},{"x":13.23,"y":1.28},{"x":13.62,"y":0.2},{"x":15.58,"y":-0.15},{"x":16.53,"y":1.35},{"x":13.14,"y":0.32},{"x":13.39,"y":0.07},{"x":13.91,"y":-3.32},{"x":16.02,"y":0.51},{"x":14.75,"y":-1.3},{"x":15.63,"y":-1.12},{"x":17.47,"y":0.44},{"x":15.36,"y":-0.16},{"x":13.68,"y":-1.07},{"x":14.07,"y":-0.48},{"x":12.76,"y":0.95},{"x":13.26,"y":0.55},{"x":12.87,"y":-1.35},{"x":16.25,"y":-0.49},{"x":15.63,"y":0.76},{"x":11.36,"y":-2.15},{"x":15.34,"y":-0.83},{"x":12.47,"y":1.24},{"x":12.25,"y":1.56},{"x":14.0,"y":-1.79},{"x":14.02,"y":0.49},{"x":12.76,"y":1.74},{"x":13.22,"y":1.29},{"x":12.3,"y":0.31},{"x":15.39,"y":-0.19},{"x":12.97,"y":-4.27},{"x":16.53,"y":-1.33},{"x":13.96,"y":-0.84},{"x":12.74,"y":0.72},{"x":13.55,"y":1.65},{"x":17.12,"y":-2.21},{"x":16.18,"y":-1.26},{"x":13.12,"y":0.69},{"x":16.33,"y":-0.21},{"x":16.22,"y":0.73},{"x":14.94,"y":0.66},{"x":12.79,"y":0.8},{"x":13.27,"y":0.18},{"x":14.3,"y":0.21},{"x":14.74,"y":0.68},{"x":14.86,"y":0.06},{"x":13.69,"y":-0.09},{"x":13.61,"y":-0.71},{"x":14.82,"y":0.09},{"x":16.75,"y":0.11},{"x":17.28,"y":-0.37},{"x":15.68,"y":-0.25},{"x":11.44,"y":-0.15},{"x":13.31,"y":0.4},{"x":14.1,"y":0.41},{"x":15.76,"y":-1.25},{"x":15.92,"y":-1.42},{"x":14.04,"y":-0.22},{"x":12.93,"y":1.58},{"x":12.45,"y":0.67},{"x":13.74,"y":0.77},{"x":12.74,"y":0.39},{"x":14.25,"y":0.67},{"x":13.42,"y":0.4},{"x":14.15,"y":-0.44},{"x":14.83,"y":0.08},{"x":14.46,"y":0.05},{"x":15.96,"y":-0.35},{"x":11.11,"y":1.1},{"x":15.34,"y":-0.83},{"x":14.76,"y":-0.25},{"x":13.26,"y":0.33},{"x":15.32,"y":-0.81},{"x":14.23,"y":0.28},{"x":13.81,"y":-0.35},{"x":15.33,"y":0.68},{"x":16.36,"y":-0.24},{"x":12.58,"y":1.13},{"x":16.08,"y":0.83},{"x":16.66,"y":-2.16},{"x":15.96,"y":-0.35},{"x":14.38,"y":-0.57},{"x":15.28,"y":-0.08},{"x":11.19,"y":-0.59},{"x":13.62,"y":0.2},{"x":16.63,"y":-0.74},{"x":15.51,"y":1.56},{"x":15.43,"y":-0.0},{"x":14.91,"y":0.0},{"x":14.86,"y":-0.35},{"x":12.9,"y":0.56},{"x":15.18,"y":0.71},{"x":14.58,"y":-0.99},{"x":12.2,"y":0.92},{"x":15.78,"y":-0.36},{"x":14.81,"y":1.31},{"x":17.1,"y":-0.57},{"x":13.24,"y":1.67},{"x":12.92,"y":0.68},{"x":10.79,"y":1.42},{"x":15.85,"y":0.8},{"x":15.35,"y":0.55},{"x":15.32,"y":-1.61},{"x":15.53,"y":-0.33},{"x":15.07,"y":0.13},{"x":14.19,"y":-0.37},{"x":14.8,"y":1.42},{"x":12.56,"y":-1.05},{"x":15.78,"y":-0.36},{"x":14.82,"y":0.61},{"x":13.8,"y":0.01},{"x":16.04,"y":0.48},{"x":12.98,"y":-0.78},{"x":13.15,"y":1.36},{"x":12.78,"y":0.12},{"x":12.68,"y":0.22},{"x":15.5,"y":-0.08},{"x":14.35,"y":0.57},{"x":14.17,"y":1.26},{"x":10.26,"y":-1.56},{"x":14.56,"y":0.64},{"x":14.83,"y":0.94},{"x":16.06,"y":-1.55},{"x":17.03,"y":-0.51},{"x":13.47,"y":-0.01},{"x":11.9,"y":0.71},{"x":11.33,"y":-2.12},{"x":15.72,"y":0.17},{"x":12.52,"y":0.94},{"x":15.33,"y":0.1},{"x":13.87,"y":0.64},{"x":15.08,"y":0.12},{"x":15.74,"y":-0.14},{"x":13.81,"y":1.95},{"x":15.08,"y":-0.16},{"x":14.24,"y":-0.78},{"x":12.89,"y":0.01},{"x":13.95,"y":-0.13},{"x":13.82,"y":-0.0},{"x":15.23,"y":0.38},{"x":13.59,"y":0.92},{"x":12.58,"y":0.72},{"x":15.49,"y":0.28},{"x":14.08,"y":0.84},{"x":12.8,"y":1.02},{"x":14.11,"y":-0.99},{"x":14.97,"y":-0.46},{"x":12.21,"y":2.3},{"x":12.54,"y":0.07},{"x":14.09,"y":0.42},{"x":12.41,"y":0.89},{"x":15.9,"y":-0.14},{"x":15.96,"y":0.15},{"x":14.86,"y":-1.4},{"x":16.16,"y":0.8},{"x":14.26,"y":0.25},{"x":14.63,"y":-0.12},{"x":13.16,"y":1.35},{"x":14.94,"y":-1.12},{"x":15.14,"y":0.47},{"x":14.44,"y":0.07},{"x":13.37,"y":-0.25},{"x":15.24,"y":1.98},{"x":15.45,"y":-0.25},{"x":14.2,"y":-0.39},{"x":14.48,"y":0.03},{"x":16.82,"y":-0.29},{"x":16.31,"y":0.07},{"x":14.4,"y":0.51},{"x":15.51,"y":-0.6},{"x":15.12,"y":0.78},{"x":12.86,"y":0.26},{"x":15.14,"y":0.28},{"x":16.26,"y":0.19},{"x":15.26,"y":1.12},{"x":13.83,"y":-0.37},{"x":15.27,"y":-0.76},{"x":12.56,"y":0.74},{"x":12.85,"y":0.61},{"x":12.18,"y":0.43}], backgroundColor:'rgba(14,159,110,.4)', pointRadius:2.6}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{x:{title:{display:true,text:'Fitted values'}},
+      y:{title:{display:true,text:'Residuals'}, grid:{color:(ctx)=> ctx.tick.value===0 ? '#DC4B3E':'#E3E9F0'}}}}
+});
+
+new Chart(document.getElementById('chQuad'), {
+  data:{datasets:[
+    {type:'scatter', label:'Apps (sample)', data:[{"x":3.94,"y":15.2},{"x":4.69,"y":14.51},{"x":4.66,"y":14.51},{"x":4.32,"y":13.82},{"x":4.69,"y":15.61},{"x":4.67,"y":13.82},{"x":4.47,"y":14.51},{"x":4.08,"y":13.46},{"x":3.28,"y":15.89},{"x":4.69,"y":14.51},{"x":4.56,"y":15.76},{"x":4.35,"y":9.9},{"x":4.21,"y":15.2},{"x":4.34,"y":14.91},{"x":4.6,"y":14.51},{"x":4.67,"y":14.51},{"x":4.52,"y":13.82},{"x":4.2,"y":11.29},{"x":4.74,"y":16.12},{"x":2.65,"y":9.1},{"x":4.77,"y":16.12},{"x":4.81,"y":13.46},{"x":4.52,"y":12.61},{"x":4.48,"y":16.52},{"x":4.66,"y":13.3},{"x":4.78,"y":12.61},{"x":4.18,"y":13.71},{"x":4.52,"y":13.3},{"x":3.87,"y":13.82},{"x":4.43,"y":16.01},{"x":4.63,"y":15.61},{"x":4.07,"y":9.21},{"x":4.5,"y":16.59},{"x":4.62,"y":15.76},{"x":3.62,"y":10.6},{"x":4.21,"y":13.82},{"x":4.37,"y":13.12},{"x":4.63,"y":12.61},{"x":3.2,"y":15.2},{"x":4.09,"y":13.12},{"x":4.78,"y":15.2},{"x":4.27,"y":10.6},{"x":3.72,"y":13.82},{"x":4.38,"y":15.42},{"x":3.64,"y":16.45},{"x":4.75,"y":15.2},{"x":4.71,"y":15.89},{"x":4.06,"y":13.46},{"x":3.93,"y":13.59},{"x":4.55,"y":13.82},{"x":4.61,"y":14.51},{"x":4.33,"y":16.12},{"x":4.32,"y":13.82},{"x":4.72,"y":14.91},{"x":4.21,"y":11.0},{"x":4.75,"y":14.91},{"x":3.91,"y":16.21},{"x":3.64,"y":16.65},{"x":4.75,"y":15.61},{"x":4.89,"y":13.82},{"x":4.48,"y":14.51},{"x":4.75,"y":14.91},{"x":4.48,"y":14.51},{"x":4.46,"y":16.21},{"x":4.79,"y":13.46},{"x":4.84,"y":15.2},{"x":4.75,"y":14.91},{"x":4.75,"y":13.46},{"x":4.61,"y":15.42},{"x":4.43,"y":14.91},{"x":4.07,"y":16.21},{"x":4.25,"y":12.61},{"x":4.52,"y":12.9},{"x":4.52,"y":15.42},{"x":4.25,"y":15.61},{"x":4.12,"y":13.82},{"x":4.59,"y":17.22},{"x":4.32,"y":15.2},{"x":3.45,"y":6.91},{"x":4.8,"y":15.42},{"x":4.36,"y":11.0},{"x":4.33,"y":11.51},{"x":4.57,"y":13.12},{"x":4.38,"y":14.91},{"x":4.68,"y":13.12},{"x":3.15,"y":15.61},{"x":4.11,"y":16.81},{"x":4.65,"y":13.82},{"x":4.09,"y":12.21},{"x":4.14,"y":14.91},{"x":4.59,"y":15.61},{"x":4.82,"y":14.51},{"x":4.73,"y":11.0},{"x":4.33,"y":16.71},{"x":4.04,"y":15.2},{"x":4.67,"y":14.91},{"x":4.59,"y":16.52},{"x":4.7,"y":16.21},{"x":4.81,"y":14.91},{"x":4.17,"y":15.61},{"x":4.55,"y":18.33},{"x":4.23,"y":14.91},{"x":3.77,"y":13.82},{"x":4.71,"y":12.21},{"x":3.88,"y":13.3},{"x":4.57,"y":13.71},{"x":4.45,"y":14.91},{"x":4.59,"y":13.71},{"x":3.71,"y":9.21},{"x":3.96,"y":15.2},{"x":4.8,"y":14.51},{"x":4.29,"y":16.21},{"x":4.33,"y":13.82},{"x":4.32,"y":13.46},{"x":4.34,"y":14.51},{"x":4.36,"y":17.25},{"x":3.87,"y":14.51},{"x":4.47,"y":15.2},{"x":4.49,"y":14.91},{"x":4.62,"y":11.51},{"x":4.74,"y":14.51},{"x":3.87,"y":16.45},{"x":4.55,"y":15.76},{"x":4.72,"y":15.42},{"x":3.87,"y":13.59},{"x":4.15,"y":13.3},{"x":4.82,"y":13.71},{"x":4.52,"y":17.37},{"x":4.4,"y":14.91},{"x":4.57,"y":13.82},{"x":4.81,"y":16.52},{"x":4.19,"y":11.51},{"x":4.75,"y":12.9},{"x":4.5,"y":13.82},{"x":4.67,"y":14.91},{"x":4.49,"y":15.2},{"x":4.02,"y":17.79},{"x":4.46,"y":13.71},{"x":4.65,"y":15.42},{"x":3.89,"y":15.42},{"x":4.63,"y":16.52},{"x":4.47,"y":16.91},{"x":4.44,"y":16.52},{"x":4.0,"y":14.51},{"x":4.33,"y":15.2},{"x":4.08,"y":9.9},{"x":3.56,"y":15.61},{"x":4.69,"y":16.01},{"x":4.75,"y":16.12},{"x":3.67,"y":12.61},{"x":4.84,"y":13.82},{"x":4.35,"y":12.9},{"x":3.87,"y":13.82},{"x":4.24,"y":14.91},{"x":4.19,"y":13.12},{"x":4.74,"y":13.82},{"x":4.25,"y":13.3},{"x":4.19,"y":12.21},{"x":4.38,"y":16.91},{"x":4.59,"y":10.6},{"x":4.93,"y":15.2},{"x":4.75,"y":15.42},{"x":4.53,"y":12.9},{"x":3.42,"y":13.82},{"x":3.77,"y":17.79},{"x":4.36,"y":15.76},{"x":4.59,"y":12.61},{"x":4.57,"y":14.91},{"x":4.43,"y":17.45},{"x":4.62,"y":14.91},{"x":4.43,"y":14.51},{"x":4.65,"y":14.91},{"x":4.8,"y":15.42},{"x":4.55,"y":13.59},{"x":3.86,"y":14.51},{"x":4.61,"y":15.42},{"x":4.61,"y":15.89},{"x":4.01,"y":13.46},{"x":4.57,"y":13.12},{"x":4.72,"y":13.71},{"x":4.53,"y":14.51},{"x":4.61,"y":6.91},{"x":4.1,"y":16.81},{"x":4.7,"y":13.12},{"x":4.59,"y":13.12},{"x":4.8,"y":14.51},{"x":3.38,"y":13.82},{"x":4.61,"y":13.82},{"x":4.5,"y":14.51},{"x":4.17,"y":16.12},{"x":4.69,"y":14.51},{"x":4.59,"y":16.52},{"x":4.41,"y":17.91},{"x":4.65,"y":14.51},{"x":3.91,"y":13.82},{"x":4.39,"y":16.12},{"x":4.66,"y":12.61},{"x":4.15,"y":13.3},{"x":4.4,"y":13.82},{"x":4.42,"y":13.82},{"x":4.56,"y":11.16},{"x":4.21,"y":16.45},{"x":4.44,"y":12.21},{"x":4.56,"y":15.2},{"x":3.82,"y":15.2},{"x":4.58,"y":15.2},{"x":4.63,"y":13.46},{"x":4.5,"y":14.51},{"x":4.82,"y":9.21},{"x":3.44,"y":6.91},{"x":4.5,"y":14.51},{"x":4.56,"y":12.9},{"x":4.51,"y":15.2},{"x":3.83,"y":15.76},{"x":4.44,"y":15.2},{"x":4.27,"y":13.46},{"x":4.76,"y":14.51},{"x":4.69,"y":17.45},{"x":4.3,"y":13.71},{"x":4.63,"y":15.89},{"x":4.27,"y":15.61},{"x":4.46,"y":13.82},{"x":4.6,"y":18.33},{"x":4.55,"y":17.71},{"x":4.64,"y":14.91},{"x":4.44,"y":15.89},{"x":4.23,"y":13.46},{"x":4.03,"y":13.59},{"x":4.55,"y":13.59},{"x":4.81,"y":11.51},{"x":3.76,"y":14.91},{"x":4.48,"y":14.91},{"x":4.43,"y":14.51},{"x":4.79,"y":15.61},{"x":3.73,"y":17.79},{"x":4.61,"y":14.51},{"x":4.04,"y":16.38},{"x":4.77,"y":13.82},{"x":4.24,"y":13.59},{"x":4.68,"y":16.52},{"x":4.24,"y":9.9},{"x":4.4,"y":13.82},{"x":4.58,"y":14.91},{"x":3.69,"y":13.82},{"x":4.81,"y":13.82},{"x":4.61,"y":13.59},{"x":4.57,"y":13.59},{"x":4.69,"y":13.71},{"x":4.22,"y":13.59},{"x":4.54,"y":14.91},{"x":4.78,"y":15.61},{"x":4.61,"y":14.51},{"x":4.46,"y":12.61},{"x":4.7,"y":14.91},{"x":4.78,"y":13.12},{"x":4.11,"y":12.61},{"x":4.72,"y":14.51},{"x":4.19,"y":12.9},{"x":4.52,"y":15.42},{"x":4.74,"y":12.21},{"x":3.5,"y":13.82},{"x":4.85,"y":13.82},{"x":4.38,"y":15.89},{"x":4.26,"y":15.61},{"x":4.62,"y":14.51},{"x":4.22,"y":10.31},{"x":4.74,"y":17.37},{"x":4.68,"y":14.51},{"x":4.21,"y":13.82},{"x":4.62,"y":15.2},{"x":4.76,"y":13.46},{"x":3.42,"y":11.16},{"x":4.48,"y":14.51},{"x":4.74,"y":14.91},{"x":4.78,"y":15.42},{"x":4.72,"y":15.76},{"x":4.73,"y":13.46},{"x":4.1,"y":16.86},{"x":4.61,"y":14.51},{"x":4.22,"y":17.25},{"x":4.18,"y":15.42},{"x":4.04,"y":14.51},{"x":3.99,"y":15.61},{"x":4.43,"y":15.42},{"x":4.79,"y":14.51},{"x":4.05,"y":13.59},{"x":4.06,"y":14.51},{"x":4.39,"y":14.51},{"x":4.43,"y":15.89},{"x":4.21,"y":15.61},{"x":4.74,"y":15.89},{"x":4.85,"y":13.82},{"x":3.9,"y":12.61},{"x":4.64,"y":13.3},{"x":4.68,"y":14.51},{"x":4.21,"y":15.2},{"x":4.26,"y":13.12},{"x":3.98,"y":14.51},{"x":4.59,"y":15.2},{"x":4.79,"y":12.61}], backgroundColor:'rgba(30,64,232,.28)', pointRadius:2.6},
+    {type:'line', label:'Fitted quadratic', data:[{"x":1.4,"y":13.63},{"x":1.49,"y":13.76},{"x":1.58,"y":13.88},{"x":1.67,"y":13.99},{"x":1.76,"y":14.1},{"x":1.85,"y":14.2},{"x":1.94,"y":14.29},{"x":2.03,"y":14.38},{"x":2.12,"y":14.46},{"x":2.21,"y":14.53},{"x":2.3,"y":14.6},{"x":2.4,"y":14.66},{"x":2.49,"y":14.72},{"x":2.58,"y":14.77},{"x":2.67,"y":14.81},{"x":2.76,"y":14.85},{"x":2.85,"y":14.88},{"x":2.94,"y":14.9},{"x":3.03,"y":14.92},{"x":3.12,"y":14.93},{"x":3.21,"y":14.93},{"x":3.3,"y":14.93},{"x":3.39,"y":14.92},{"x":3.48,"y":14.91},{"x":3.57,"y":14.89},{"x":3.67,"y":14.86},{"x":3.76,"y":14.83},{"x":3.85,"y":14.79},{"x":3.94,"y":14.74},{"x":4.03,"y":14.69},{"x":4.12,"y":14.63},{"x":4.21,"y":14.56},{"x":4.3,"y":14.49},{"x":4.39,"y":14.41},{"x":4.48,"y":14.33},{"x":4.57,"y":14.23},{"x":4.66,"y":14.14},{"x":4.75,"y":14.03},{"x":4.84,"y":13.92},{"x":4.93,"y":13.81}], borderColor:C.red, borderWidth:2.6, pointRadius:0, tension:.3}
+  ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{x:{type:'linear', title:{display:true,text:'Updates'}},
+      y:{title:{display:true,text:'ln(monthly revenue)'}}}}
+});
+</script>
+</body>
+</html>

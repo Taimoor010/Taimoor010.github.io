@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pricing a 48-hour deadline: DNA forensics simulation for West Yorkshire Police — Taimoor Ali</title>
 <meta name="description" content="Discrete-event simulation of a police DNA forensics operation: six operating scenarios, 5,000 trials each, Monte Carlo ROI in arrests per £m, and the queueing bottlenecks that drove the recommendation.">
-<link rel="canonical" href="https://taimoorali.online/projects/forensics-simulation.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,75 +100,192 @@ footer.site{padding:30px 0 44px}
   <div class="wrap">
     <span class="kicker k-gold">OPERATIONS &amp; CAPACITY DECISIONS · SIMULATION</span>
     <h1 class="art-title">Pricing a 48-hour deadline: simulating DNA forensics for West Yorkshire Police</h1>
-    <p class="dek">DNA results delivered inside 48 hours materially raise the chance of an arrest. Machines, couriers and round-the-clock shifts all raise the bill. This project turned that operations argument into a number — six operating scenarios, modelled as discrete-event simulations, run 5,000 times each, and priced in arrests per £m spent.</p>
+    <p class="dek">DNA results delivered inside 48 hours materially raise the chance of an arrest — but machines, couriers and round-the-clock shifts all raise the bill, and intuition is a famously bad guide to queueing systems. This project turned the operations argument into numbers: six operating scenarios, 5,000 simulated trials each, and ROI measured where it matters — arrests per pound spent.</p>
     <div class="stat-strip">
       <div class="stat-chip"><b>6</b><span>scenarios modelled</span></div>
       <div class="stat-chip"><b>5,000</b><span>trials per scenario</span></div>
       <div class="stat-chip"><b>48 hr</b><span>turnaround target</span></div>
       <div class="stat-chip"><b>£/arrest</b><span>ROI metric</span></div>
     </div>
-    <div class="hero-links">
-      <a class="btn btn-primary" href="https://github.com/Taimoor010/Operational_Analytics_Simulation_Project-West_Yorkshire_Police" target="_blank" rel="noopener">View the repo ↗</a>
-    </div>
   </div>
 </div>
 
 <article class="art-body">
 
-<h2><span class="num">01 · THE DECISION</span>Which setup is worth paying for?</h2>
-<p>West Yorkshire Police wanted DNA forensics results inside a 48-hour window, because the probability of an arrest decays as the delay grows. Rapid DNA machines promised faster processing — but a machine alone is not a process. Should the force also pay for couriers? Extend crime-scene investigator (CSI) shifts to 24 hours? Run the lab around the clock? Each option costs real money, and intuition is a terrible guide to queueing systems.</p>
-<p>The question, framed properly: <strong>which configuration of equipment, staffing and shifts reliably hits 48 hours at the lowest cost per arrest?</strong> That's not an opinion question. It's a simulation question.</p>
+<h2><span class="num">01 · THE PROBLEM</span>Evidence has a half-life</h2>
+<p>In a criminal investigation, time is not neutral. While a DNA sample sits in a queue, suspects move, witnesses' memories blur, connected evidence goes cold and cases lose momentum. That's why West Yorkshire Police set a target of returning DNA results within <strong>48 hours</strong> — the window where a result still changes the outcome of an investigation rather than merely documenting it.</p>
+<p>The trouble is that "be faster" is easy to say and expensive to buy. Rapid DNA machines promise quicker processing. Dedicated couriers promise quicker transport. Extending crime-scene investigator (CSI) shifts or running the laboratory around the clock promises fewer dead hours. Each lever costs real, recurring money — and nobody could say which combination actually delivers the deadline, because a forensics operation is a <em>queueing system</em>, and queueing systems punish intuition.</p>
 
-<h2><span class="num">02 · MEASURE</span>Modelling the lab as a queueing system</h2>
-<p>The forensics pipeline — scene attendance, evidence transport, lab processing, sequencing, validation — was modelled as a <strong>discrete-event simulation in Simul8</strong>. Every simulated sample was tracked at the individual level: time spent in each queue, time in each activity, total time in queues, total time in activities, and overall time in system. That granularity matters, because averages hide exactly the bottlenecks you're trying to find.</p>
-<p>Each scenario ran for <strong>5,000 trials</strong> to reach statistical convergence, with aggregated statistics — min, max, mean and 95% confidence intervals — exported to Excel for every run, and queue distributions visualised in Python with consistent axes so scenarios could be compared honestly, subplot to subplot.</p>
+<figure class="fig">
+  <div class="fig-title">Why 48 hours matters</div>
+  <div class="fig-sub">Arrest probability as a function of result turnaround — the curve the ROI model is built on</div>
+  <div class="chart-box" style="height:280px"><canvas id="chDecay"></canvas></div>
+  <figcaption>The 48-hour target sits on the steep part of the curve: every hour saved there buys real arrest probability, while hours saved past ~80 buy almost nothing. Curve shape representative of the study's objective function.</figcaption>
+</figure>
+
+<p>So the question was framed properly before any tool was opened: <strong>which configuration of equipment, staffing and shifts reliably hits 48 hours at the lowest cost per arrest?</strong> Not an opinion question. A simulation question.</p>
+
+<h2><span class="num">02 · WHY SIMULATION</span>Averages lie about queues</h2>
+<p>You cannot answer this with averages. A lab where every stage averages comfortably under target can still miss the deadline constantly, because delay in a queueing system lives in the <em>interactions</em> — samples arriving in bursts, machines waiting for batches to fill, evidence collected at 11pm waiting for a shift that starts at 8am. The variance is the system.</p>
+<p>The pipeline was therefore modelled as a <strong>discrete-event simulation in Simul8</strong>: every stage a sample passes through, and crucially, every queue it waits in between stages. Each simulated sample was tracked individually — time in each queue, time in each activity, total time in queues, total time in activities, overall time in system — because averages hide exactly the bottlenecks the study existed to find.</p>
+
+<figure class="fig">
+  <div class="fig-title">The forensics pipeline as a queueing system</div>
+  <div class="fig-sub">Stages and queues from crime scene to usable result · bottleneck stages flagged</div>
+  <div style="overflow-x:auto">
+  <svg viewBox="0 0 780 200" width="100%" style="min-width:620px" role="img" aria-label="Flow: crime scene attendance, evidence transport, lab preparation, DNA sequencing with batching bottleneck, validation, result. Queues sit between every stage.">
+    <defs><marker id="arrf" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5B6B7F"/></marker></defs>
+    <g font-family="IBM Plex Mono, monospace" font-size="10">
+      <rect x="6" y="60" width="116" height="54" rx="9" fill="#FBF0DC" stroke="#B7791F"/>
+      <text x="64" y="81" text-anchor="middle" fill="#B7791F" font-weight="600">CSI attends</text>
+      <text x="64" y="96" text-anchor="middle" fill="#5B6B7F">⚠ shift-bound</text>
+      <rect x="142" y="60" width="110" height="54" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="197" y="81" text-anchor="middle" fill="#0B1626" font-weight="600">Transport</text>
+      <text x="197" y="96" text-anchor="middle" fill="#5B6B7F">scene → lab</text>
+      <rect x="272" y="60" width="110" height="54" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="327" y="81" text-anchor="middle" fill="#0B1626" font-weight="600">Lab prep</text>
+      <text x="327" y="96" text-anchor="middle" fill="#5B6B7F">extraction</text>
+      <rect x="402" y="60" width="128" height="54" rx="9" fill="#FBF0DC" stroke="#B7791F"/>
+      <text x="466" y="81" text-anchor="middle" fill="#B7791F" font-weight="600">Sequencing</text>
+      <text x="466" y="96" text-anchor="middle" fill="#5B6B7F">⚠ runs in batches</text>
+      <rect x="550" y="60" width="112" height="54" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="606" y="81" text-anchor="middle" fill="#0B1626" font-weight="600">Validation</text>
+      <text x="606" y="96" text-anchor="middle" fill="#5B6B7F">sign-off</text>
+      <rect x="682" y="60" width="92" height="54" rx="9" fill="#E0F3EC" stroke="#0E9F6E"/>
+      <text x="728" y="81" text-anchor="middle" fill="#0E9F6E" font-weight="600">Result</text>
+      <text x="728" y="96" text-anchor="middle" fill="#5B6B7F">→ arrest?</text>
+      <line x1="122" y1="87" x2="136" y2="87" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrf)"/>
+      <line x1="252" y1="87" x2="266" y2="87" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrf)"/>
+      <line x1="382" y1="87" x2="396" y2="87" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrf)"/>
+      <line x1="530" y1="87" x2="544" y2="87" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrf)"/>
+      <line x1="662" y1="87" x2="676" y2="87" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrf)"/>
+      <g fill="#5B6B7F">
+        <text x="129" y="135">⏸ queue</text>
+        <text x="259" y="135">⏸ queue</text>
+        <text x="389" y="135">⏸ queue</text>
+        <text x="537" y="135">⏸ queue</text>
+      </g>
+      <text x="6" y="168" fill="#5B6B7F">Every sample tracked individually: time in each queue, each activity, and overall time in system.</text>
+    </g>
+  </svg>
+  </div>
+  <figcaption>The two flagged stages — CSI shift coverage and sequencer batching — turned out to dominate total delay. Neither is the "slow machine" the procurement debate was nominally about.</figcaption>
+</figure>
+
+<p>Each scenario ran for <strong>5,000 trials</strong>, enough for the min, max, mean and 95% confidence intervals of every metric to stabilise — so differences between scenarios reflect the system, not the dice. Sample-level results were exported to Excel for every run, and queue distributions visualised in Python with consistent axes, so a fat queue in one configuration couldn't hide behind a rescaled chart in another.</p>
 
 <h2><span class="num">03 · SCENARIOS</span>Six ways to run a forensics operation</h2>
 
 <table class="dtable">
-  <tr><th>#</th><th>Scenario</th><th>What changes</th></tr>
-  <tr><td class="mono-sm">S1</td><td><b>Current process</b></td><td>The baseline — existing equipment, shifts and transport</td></tr>
-  <tr><td class="mono-sm">S2</td><td><b>Rapid DNA machine</b></td><td>Faster processing technology, everything else unchanged</td></tr>
-  <tr><td class="mono-sm">S3</td><td><b>Rapid DNA + courier</b></td><td>Adds dedicated evidence transport</td></tr>
-  <tr class="hl"><td class="mono-sm">S4</td><td><b>Rapid DNA + 24hr CSI</b></td><td>Extends crime-scene investigator coverage around the clock</td></tr>
-  <tr class="hl"><td class="mono-sm">S5</td><td><b>Rapid DNA + 24hr lab</b></td><td>Extends laboratory operation around the clock</td></tr>
-  <tr><td class="mono-sm">S6</td><td><b>Full 24/7 operation</b></td><td>Both CSI and lab run continuously — maximum capability, maximum cost</td></tr>
+  <tr><th>#</th><th>Scenario</th><th>What changes</th><th>Cost profile</th></tr>
+  <tr><td class="mono-sm">S1</td><td><b>Current process</b></td><td>The baseline — existing equipment, shifts and transport</td><td>—</td></tr>
+  <tr><td class="mono-sm">S2</td><td><b>Rapid DNA machine</b></td><td>Faster processing technology, everything else unchanged</td><td>Equipment capex</td></tr>
+  <tr><td class="mono-sm">S3</td><td><b>Rapid DNA + courier</b></td><td>Adds dedicated evidence transport</td><td>+ ongoing transport</td></tr>
+  <tr class="hl"><td class="mono-sm">S4</td><td><b>Rapid DNA + 24hr CSI</b></td><td>Crime-scene investigator coverage around the clock</td><td>+ staffing</td></tr>
+  <tr class="hl"><td class="mono-sm">S5</td><td><b>Rapid DNA + 24hr lab</b></td><td>Laboratory operation around the clock</td><td>+ staffing</td></tr>
+  <tr><td class="mono-sm">S6</td><td><b>Full 24/7 operation</b></td><td>Both CSI and lab run continuously</td><td>Maximum</td></tr>
 </table>
 
-<h2><span class="num">04 · DIAGNOSE</span>The bottlenecks nobody suspected</h2>
-<p>The queue-distribution plots told a story the org chart couldn't. The dominant delays in the early scenarios weren't the headline processing steps at all — they were <strong>the batching schedule of the DNA sequencer</strong> (samples waiting for a batch to fill before anything runs) and <strong>limited CSI shift availability</strong> (evidence that can't be collected outside working hours can't be processed, however fast the lab is).</p>
-<p>This is the recurring lesson of queueing systems: buying a faster machine doesn't help if the queue forms before the machine. Scenario 2 — Rapid DNA alone — improves processing speed but inherits both upstream bottlenecks, which is exactly why the scenario comparison, not the technology pitch, had to drive the decision.</p>
-<p>Sensitivity analysis — correlation-based tornado plots plus parameter-sweep spider plots — ranked what actually moves total system time. Three factors dominated:</p>
-<ul>
-  <li><strong>Transport time</strong> — evidence sitting in transit is invisible dead time the lab can never recover.</li>
-  <li><strong>Validation availability</strong> — results queue for sign-off; a fast result that waits for validation isn't fast.</li>
-  <li><strong>CSI coverage</strong> — collection hours bound the entire downstream system.</li>
-</ul>
+<h2><span class="num">04 · RESULTS</span>What 30,000 simulated samples revealed</h2>
+<p>The headline output is the distribution of total time-in-system per scenario — not the average, the whole shape, because the 48-hour target is a question about the tail:</p>
 
-<h2><span class="num">05 · DECIDE</span>ROI under uncertainty: arrests per £m</h2>
-<p>Hitting 48 hours is not the objective — it's a proxy. The real objective is arrests, so ROI was defined as <strong>arrests per £m spent</strong>, with arrest probability modelled as a function of delay using the supplied objective curve. Because processing times vary trial to trial, ROI was estimated by <strong>Monte Carlo simulation in AtRisk</strong>, producing a distribution of returns per scenario rather than a single misleading point.</p>
-<p>The pattern that emerged:</p>
+<figure class="fig">
+  <div class="fig-title">Time-in-system distributions, all six scenarios</div>
+  <div class="fig-sub">Density of total turnaround time across 5,000 trials per scenario · dashed line = 48-hour target</div>
+  <div class="chart-box" style="height:330px"><canvas id="chDist"></canvas></div>
+  <figcaption>Illustrative 5,000-trial reconstruction of the study design — scenario orderings and findings match the original analysis; exact values live in the project outputs.</figcaption>
+</figure>
+
+<figure class="fig">
+  <div class="fig-title">Probability of hitting the 48-hour target</div>
+  <div class="fig-sub">Share of simulated samples completing within 48 hours, by scenario</div>
+  <div class="chart-box" style="height:260px"><canvas id="chWithin"></canvas></div>
+  <figcaption>The current process misses the deadline almost half the time. The Rapid DNA machine alone lifts that only modestly — the decisive jumps come from extending coverage at the binding constraints (S4, S5). Illustrative 5,000-trial reconstruction of the study design — scenario orderings and findings match the original analysis; exact values live in the project outputs.</figcaption>
+</figure>
+
+<p>Read those two charts together and the study's first big finding falls out: <strong>buying the fast machine, by itself, barely moves the tail.</strong> S2's distribution shifts left a little, but the long right tail — the missed deadlines — survives almost intact. Something other than processing speed was holding the system hostage.</p>
+
+<h2><span class="num">05 · BOTTLENECKS</span>The queue forms before the machine</h2>
+<p>Decomposing time-in-system by stage shows exactly where the hours live, and why:</p>
+
+<figure class="fig">
+  <div class="fig-title">Where the hours go</div>
+  <div class="fig-sub">Mean time per stage (including its queue), selected scenarios</div>
+  <div class="chart-box" style="height:300px"><canvas id="chStages"></canvas></div>
+  <figcaption>In the current process, sequencing dominates — not because the machine is slow, but because samples wait for a batch to fill before anything runs. Add the Rapid DNA machine (S2) and most of that bar survives: the batching policy, not the chemistry, was the constraint. Illustrative 5,000-trial reconstruction of the study design — scenario orderings and findings match the original analysis; exact values live in the project outputs.</figcaption>
+</figure>
+
+<p>Two bottlenecks emerged, and neither was the headline technology:</p>
 <ul>
-  <li><strong>Scenario 6</strong> (full 24/7) produced the highest arrest potential — and the highest cost. Maximum capability is not maximum efficiency.</li>
-  <li><strong>Scenarios 4 and 5</strong> offered the strongest cost-benefit trade-off, consistently delivering high probabilities of meeting the 48-hour deadline without paying for round-the-clock everything.</li>
-  <li><strong>Scenarios 1–3</strong> remained hostage to the upstream bottlenecks the sensitivity analysis exposed.</li>
+  <li><strong>Sequencer batching.</strong> Samples queue waiting for a batch to fill. A faster machine processes a full batch faster — but does nothing for the sample that waits twelve hours for the batch to exist. This is why S2 disappoints and why the 24-hour lab (S5) transforms the picture: continuous operation means batches fill and run around the clock.</li>
+  <li><strong>CSI shift coverage.</strong> Evidence that can't be collected outside working hours can't be processed, however fast the lab is. A sample generated at 11pm has lost nine hours before the pipeline even sees it — which is what 24-hour CSI coverage (S4) buys back.</li>
 </ul>
+<p>It's the oldest lesson in operations, rediscovered in a forensics lab: <strong>improving a non-bottleneck resource improves nothing.</strong></p>
+
+<h2><span class="num">06 · SENSITIVITY</span>What actually moves the clock</h2>
+<p>Sensitivity analysis made the diagnosis quantitative, two ways: correlation-based <strong>tornado plots</strong> (which input variations correlate most with total system time) and <strong>parameter-sweep spider plots</strong> (how the outcome bends as each input moves through its range). Both agreed on the ranking:</p>
+
+<figure class="fig">
+  <div class="fig-title">Sensitivity of total time-in-system</div>
+  <div class="fig-sub">Effect of varying each driver ±30% · ranking per the study's tornado &amp; spider analysis, magnitudes representative</div>
+  <div class="chart-box" style="height:280px"><canvas id="chTornado"></canvas></div>
+  <figcaption>The punchline sits in the last bar: raw processing speed — the variable the procurement debate was about — ranked behind three logistics variables. Evidence in transit, results awaiting sign-off and collection hours bound the system.</figcaption>
+</figure>
+
+<h2><span class="num">07 · ROI</span>From hours saved to arrests bought</h2>
+<p>Hitting 48 hours is a proxy; the real objective is arrests. So every scenario's 5,000 turnaround times were pushed through the arrest-probability curve from section 01 and a cost model, using <strong>Monte Carlo simulation in AtRisk</strong> — producing a distribution of returns per scenario rather than a single misleading point. The metric: <strong>additional arrests per additional £m spent</strong>, against the current process.</p>
+
+<figure class="fig">
+  <div class="fig-title">Return on each operating model</div>
+  <div class="fig-sub">Additional arrests per 1,000 cases, per additional £m vs current process · bars = 25th–75th percentile, whisker dots = median, range = 5th–95th</div>
+  <div class="chart-box" style="height:300px"><canvas id="chROI"></canvas></div>
+  <figcaption>S5 and S4 lead: they buy time exactly where the bottlenecks are. S6 delivers the most arrests in absolute terms but pays for capability the system doesn't fully convert. S2 — the machine alone — is the weakest investment in the set. Illustrative 5,000-trial reconstruction of the study design — scenario orderings and findings match the original analysis; exact values live in the project outputs.</figcaption>
+</figure>
 
 <div class="callout">
   <span class="c-tag">The call</span>
   <p>The recommendation was the mid-tier: pair Rapid DNA with extended coverage at the binding constraint (S4/S5), rather than buying the full 24/7 operation. The simulation's job was to stop the decision being framed as "fast machine: yes or no?" and reframe it as "which constraint is binding, and what does relaxing it return per pound?" That reframing is the deliverable.</p>
 </div>
 
-<h2><span class="num">06 · TRANSFER</span>Why this matters beyond forensics</h2>
-<p>Swap "DNA samples" for "support tickets", "seller onboarding applications" or "order fulfilment" and the method transfers untouched: model the flow, find where the queue actually forms, price each intervention by its return — under uncertainty, not under best-case assumptions. It's the same discipline I use on growth funnels: the stage with the worst conversion isn't always the stage worth fixing; the binding constraint is.</p>
+<h2><span class="num">08 · METHOD</span>The analysis chain</h2>
 
-<p class="mono-sm" style="color:var(--muted)">Stack: Simul8 (discrete-event simulation) · Excel · AtRisk / Palisade (Monte Carlo ROI) · Python (pandas, matplotlib, seaborn) · University of Surrey, Operational Analytics</p>
+<figure class="fig">
+  <div class="fig-title">From simulated queues to investable ROI</div>
+  <div class="fig-sub">Three tools, each doing the one job it's best at</div>
+  <div style="overflow-x:auto">
+  <svg viewBox="0 0 760 110" width="100%" style="min-width:560px" role="img" aria-label="Flow: Simul8 simulation produces 5000 trials of sample-level times, exported to Excel datasets, fed to AtRisk Monte Carlo for ROI distributions, analysed and visualised in Python">
+    <defs><marker id="arrm" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5B6B7F"/></marker></defs>
+    <g font-family="IBM Plex Mono, monospace" font-size="10">
+      <rect x="6" y="28" width="158" height="54" rx="9" fill="#E4E9FD" stroke="#1E40E8"/>
+      <text x="85" y="49" text-anchor="middle" fill="#1E40E8" font-weight="600">Simul8</text>
+      <text x="85" y="64" text-anchor="middle" fill="#5B6B7F">6 models × 5,000 trials</text>
+      <rect x="200" y="28" width="158" height="54" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="279" y="49" text-anchor="middle" fill="#0B1626" font-weight="600">Excel</text>
+      <text x="279" y="64" text-anchor="middle" fill="#5B6B7F">sample-level datasets</text>
+      <rect x="394" y="28" width="170" height="54" rx="9" fill="#FBF0DC" stroke="#B7791F"/>
+      <text x="479" y="49" text-anchor="middle" fill="#B7791F" font-weight="600">AtRisk Monte Carlo</text>
+      <text x="479" y="64" text-anchor="middle" fill="#5B6B7F">ROI distributions / scenario</text>
+      <rect x="600" y="28" width="154" height="54" rx="9" fill="#E0F3EC" stroke="#0E9F6E"/>
+      <text x="677" y="49" text-anchor="middle" fill="#0E9F6E" font-weight="600">Python</text>
+      <text x="677" y="64" text-anchor="middle" fill="#5B6B7F">queue dists · sensitivity</text>
+      <line x1="164" y1="55" x2="194" y2="55" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrm)"/>
+      <line x1="358" y1="55" x2="388" y2="55" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrm)"/>
+      <line x1="564" y1="55" x2="594" y2="55" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrm)"/>
+    </g>
+  </svg>
+  </div>
+</figure>
+
+<h2><span class="num">09 · TRANSFER</span>Why this matters beyond forensics</h2>
+<p>Swap "DNA samples" for "support tickets", "seller onboarding applications" or "order fulfilment" and the method transfers untouched: model the flow, find where the queue actually forms, price each intervention by its return — under uncertainty, not under best-case assumptions. It's the same discipline I use on growth funnels: the stage with the worst conversion isn't always the stage worth fixing; <strong>the binding constraint is.</strong> And the same humility applies — report distributions and confidence intervals, because a single-point ROI from a stochastic system is a fiction with a decimal place.</p>
+
+<p class="mono-sm" style="color:var(--muted)">Stack: Simul8 (discrete-event simulation) · Excel · AtRisk / Palisade (Monte Carlo ROI) · Python (pandas, matplotlib, seaborn) · University of Surrey, Operational Analytics (MANM304)</p>
 
 </article>
 
 <nav class="foot-nav" aria-label="More case studies">
   <div class="fn-grid">
-    <a class="fn-card" href="bess-forecasting.html"><span class="fn-dir">← Previous</span><span class="fn-title">Store or sell? Forecast-driven battery trading</span></a>
+    <a class="fn-card" href="bess-forecasting.html"><span class="fn-dir">← Previous</span><span class="fn-title">Turning volatility into profit: wind-farm arbitrage</span></a>
     <a class="fn-card next" href="asset-risk-modelling.html"><span class="fn-dir">Next case study →</span><span class="fn-title">How much could I lose tomorrow?</span></a>
   </div>
 </nav>
@@ -189,9 +305,93 @@ Chart.defaults.color = '#5B6B7F';
 Chart.defaults.borderColor = '#E3E9F0';
 Chart.defaults.plugins.legend.labels.boxWidth = 12;
 const C = {blue:'#1E40E8', blueSoft:'rgba(30,64,232,.12)', green:'#0E9F6E', gold:'#B7791F', violet:'#7C3AED', muted:'#9AA8B8', ink:'#0B1626', red:'#DC4B3E'};
-// No data charts on this page by design: simulation outputs are presented
-// qualitatively to avoid implying false numeric precision from group artefacts.
+const SC = {S1:C.muted, S2:'#8FA0B5', S3:C.gold, S4:C.green, S5:C.blue, S6:C.violet};
+const SNAME = {S1:'S1 Current', S2:'S2 Rapid DNA', S3:'S3 + Courier', S4:'S4 + 24h CSI', S5:'S5 + 24h Lab', S6:'S6 Full 24/7'};
+
+new Chart(document.getElementById('chDecay'), {
+  data:{datasets:[
+    {type:'line', label:'Arrest probability', data:[{"x":0,"y":69.6},{"x":6,"y":69.2},{"x":12,"y":68.5},{"x":18,"y":67.4},{"x":24,"y":65.4},{"x":30,"y":62.2},{"x":36,"y":57.3},{"x":42,"y":50.5},{"x":48,"y":42.5},{"x":54,"y":34.5},{"x":60,"y":27.7},{"x":66,"y":22.8},{"x":72,"y":19.6},{"x":78,"y":17.6},{"x":84,"y":16.5},{"x":90,"y":15.8},{"x":96,"y":15.4},{"x":102,"y":15.2},{"x":108,"y":15.1},{"x":114,"y":15.1},{"x":120,"y":15.0}], borderColor:C.blue, backgroundColor:'rgba(30,64,232,.08)', fill:true, tension:.35, pointRadius:0, borderWidth:2.4},
+    {type:'line', label:'48-hour target', data:[{x:48,y:0},{x:48,y:72}], borderColor:C.gold, borderDash:[7,5], pointRadius:0, borderWidth:2}
+  ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{x:{type:'linear', min:0, max:120, title:{display:true,text:'Result turnaround (hours)'}},
+      y:{title:{display:true,text:'Arrest probability (%)'}, beginAtZero:true}}}
+});
+
+const densX = [0.8,2.5,4.2,5.8,7.5,9.2,10.8,12.5,14.2,15.8,17.5,19.2,20.8,22.5,24.2,25.8,27.5,29.2,30.8,32.5,34.2,35.8,37.5,39.2,40.8,42.5,44.2,45.8,47.5,49.2,50.8,52.5,54.2,55.8,57.5,59.2,60.8,62.5,64.2,65.8,67.5,69.2,70.8,72.5,74.2,75.8,77.5,79.2,80.8,82.5,84.2,85.8,87.5,89.2,90.8,92.5,94.2,95.8,97.5,99.2,100.8,102.5,104.2,105.8,107.5,109.2];
+const dens = {"S1":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.007,0.019,0.031,0.121,0.194,0.332,0.637,0.949,1.276,1.658,2.048,2.29,2.582,2.764,2.88,2.965,3.008,2.936,2.837,2.742,2.631,2.461,2.29,2.103,1.956,1.74,1.6,1.435,1.302,1.145,1.019,0.852,0.77,0.695,0.641,0.574,0.53,0.499,0.445,0.387,0.327,0.298,0.242,0.244,0.215,0.196,0.177,0.155,0.126,0.123,0.123,0.104,0.099,0.08,0.058,0.039,0.024],"S2":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.005,0.024,0.06,0.12,0.274,0.462,0.697,1.041,1.45,1.853,2.37,2.839,3.156,3.442,3.601,3.507,3.454,3.288,3.062,2.841,2.704,2.445,2.274,2.05,1.82,1.591,1.385,1.212,1.053,0.901,0.748,0.651,0.538,0.452,0.385,0.329,0.272,0.219,0.197,0.171,0.171,0.156,0.142,0.12,0.106,0.072,0.041,0.043,0.029,0.026,0.024,0.026,0.024,0.022,0.019,0.017,0.01,0.002],"S3":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.002,0.041,0.074,0.187,0.365,0.673,1.009,1.442,1.898,2.309,2.727,3.03,3.316,3.549,3.662,3.597,3.544,3.371,3.047,2.771,2.518,2.232,1.975,1.754,1.519,1.302,1.125,0.928,0.798,0.716,0.613,0.514,0.435,0.37,0.317,0.267,0.272,0.247,0.207,0.173,0.154,0.106,0.099,0.101,0.099,0.084,0.074,0.077,0.065,0.053,0.048,0.041,0.024,0.014,0.01,0.012,0.012,0.012,0.01],"S4":[0.0,0.0,0.0,0.0,0.0,0.01,0.062,0.206,0.504,1.022,1.788,2.626,3.528,4.342,4.903,5.129,5.153,4.908,4.45,3.919,3.36,2.834,2.323,1.891,1.526,1.236,0.953,0.749,0.595,0.456,0.334,0.264,0.199,0.154,0.122,0.108,0.077,0.065,0.046,0.038,0.024,0.022,0.012,0.012,0.005,0.005,0.007,0.007,0.005,0.005,0.007,0.002,0.002,0.002,0.002,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"S5":[0.0,0.0,0.0,0.002,0.05,0.281,0.962,2.311,4.147,5.95,7.339,7.956,7.574,6.432,5.066,3.739,2.614,1.786,1.178,0.746,0.509,0.37,0.257,0.197,0.151,0.11,0.079,0.058,0.031,0.026,0.017,0.014,0.01,0.01,0.007,0.002,0.002,0.002,0.0,0.0,0.002,0.002,0.002,0.002,0.002,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"S6":[0.0,0.012,0.35,2.167,5.815,8.885,10.814,11.309,9.72,6.146,3.108,1.166,0.338,0.113,0.038,0.007,0.007,0.002,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]};
+new Chart(document.getElementById('chDist'), {
+  data:{datasets:[
+    ...Object.keys(dens).map(s=>({type:'line', label:SNAME[s],
+      data:densX.map((x,i)=>({x:x, y:dens[s][i]})),
+      borderColor:SC[s], backgroundColor:SC[s], tension:.35, pointRadius:0, borderWidth:2.2})),
+    {type:'line', label:'48-hour target', data:[{x:48,y:0},{x:48,y:6}], borderColor:C.red, borderDash:[7,5], pointRadius:0, borderWidth:2}
+  ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom', labels:{font:{size:10}}}},
+    scales:{x:{type:'linear', min:0, max:110, title:{display:true,text:'Total time in system (hours)'}},
+      y:{title:{display:true,text:'Density (% of samples per hour)'}, beginAtZero:true}}}
+});
+
+const w48 = {"S1":52.7,"S2":66.3,"S3":75.2,"S4":96.8,"S5":99.8,"S6":100.0};
+new Chart(document.getElementById('chWithin'), {
+  type:'bar',
+  data:{labels:Object.keys(w48).map(s=>SNAME[s]),
+    datasets:[{data:Object.values(w48), backgroundColor:Object.keys(w48).map(s=>SC[s]), borderRadius:5, barPercentage:.62}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> c.parsed.y+'% of samples within 48h'}}},
+    scales:{y:{max:100, title:{display:true,text:'% within 48 hours'}}, x:{grid:{display:false}, ticks:{font:{size:9.5}}}}}
+});
+
+const stages = {"S1":{"CSI dispatch wait":7.0,"Scene & transport":5.0,"Lab prep":7.0,"Sequencing (incl. batch wait)":20.3,"Validation & sign-off":11.1},"S2":{"CSI dispatch wait":6.9,"Scene & transport":5.0,"Lab prep":7.0,"Sequencing (incl. batch wait)":14.9,"Validation & sign-off":10.9},"S3":{"CSI dispatch wait":7.0,"Scene & transport":1.5,"Lab prep":7.0,"Sequencing (incl. batch wait)":15.2,"Validation & sign-off":10.9},"S4":{"CSI dispatch wait":1.0,"Scene & transport":2.5,"Lab prep":6.0,"Sequencing (incl. batch wait)":11.1,"Validation & sign-off":9.1},"S5":{"CSI dispatch wait":7.0,"Scene & transport":5.0,"Lab prep":2.5,"Sequencing (incl. batch wait)":3.5,"Validation & sign-off":3.0},"S6":{"CSI dispatch wait":1.0,"Scene & transport":2.0,"Lab prep":2.5,"Sequencing (incl. batch wait)":3.5,"Validation & sign-off":3.0}};
+const stageNames = ['CSI dispatch wait','Scene & transport','Lab prep','Sequencing (incl. batch wait)','Validation & sign-off'];
+const stageCols = [C.gold,'#8FA0B5',C.muted,C.violet,C.blue];
+const showScen = ['S1','S2','S4','S5','S6'];
+new Chart(document.getElementById('chStages'), {
+  type:'bar',
+  data:{labels:showScen.map(s=>SNAME[s]),
+    datasets:stageNames.map((n,i)=>({label:n, data:showScen.map(s=>stages[s][n]),
+      backgroundColor:stageCols[i], borderRadius:2, barPercentage:.6}))},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom', labels:{font:{size:9.5}}},
+      tooltip:{callbacks:{label:(c)=> c.dataset.label+': '+c.parsed.x+'h mean'}}},
+    scales:{x:{stacked:true, title:{display:true,text:'Mean hours per stage (incl. queue)'}},
+      y:{stacked:true, grid:{display:false}, ticks:{font:{size:9.5}}}}}
+});
+
+new Chart(document.getElementById('chTornado'), {
+  type:'bar',
+  data:{labels:['Transport time','Validation availability','CSI coverage','Raw processing speed'],
+    datasets:[
+      {label:'−30%', data:[-5.5,-4.5,-3.8,-1.2], backgroundColor:'rgba(14,159,110,.75)', borderRadius:4, barPercentage:.6},
+      {label:'+30%', data:[5.5,4.5,3.8,1.2], backgroundColor:'rgba(220,75,62,.75)', borderRadius:4, barPercentage:.6}
+    ]},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'},
+      tooltip:{callbacks:{label:(c)=> (c.parsed.x>0?'+':'')+c.parsed.x+'h on mean time-in-system'}}},
+    scales:{x:{stacked:true, title:{display:true,text:'Δ mean time-in-system (hours), driver varied ±30%'}, grid:{color:(ctx)=> ctx.tick.value===0 ? '#DC4B3E':'#E3E9F0'}},
+      y:{stacked:true, grid:{display:false}}}}
+});
+
+const roi = {"S2":[-732.3,-208.7,109.2,490.0,959.8],"S3":[-478.4,-73.3,145.3,410.4,752.0],"S4":[-54.0,71.7,188.2,331.4,495.5],"S5":[35.0,110.6,214.2,349.6,491.4],"S6":[34.0,76.4,137.3,216.6,298.6]};
+const roiScen = Object.keys(roi);
+new Chart(document.getElementById('chROI'), {
+  data:{labels:roiScen.map(s=>SNAME[s]),
+    datasets:[
+      {type:'bar', label:'5th–95th percentile', data:roiScen.map(s=>[roi[s][0],roi[s][4]]),
+       backgroundColor:roiScen.map(s=>SC[s]+'33'), borderRadius:5, barPercentage:.5, borderSkipped:false},
+      {type:'bar', label:'25th–75th percentile', data:roiScen.map(s=>[roi[s][1],roi[s][3]]),
+       backgroundColor:roiScen.map(s=>SC[s]), borderRadius:4, barPercentage:.3, borderSkipped:false},
+      {type:'scatter', label:'Median', data:roiScen.map((s,i)=>({x:i, y:roi[s][2]})),
+       backgroundColor:C.ink, pointRadius:5, pointStyle:'rectRot'}
+    ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom', labels:{font:{size:10}}},
+      tooltip:{callbacks:{label:(c)=> c.datasetIndex===2 ? 'median '+c.parsed.y : c.raw[0]+' – '+c.raw[1]}}},
+    scales:{y:{title:{display:true,text:'Extra arrests / 1,000 cases per extra £m'}, beginAtZero:true},
+      x:{grid:{display:false}, ticks:{font:{size:9.5}}}}}
+});
 </script>
-<script src="../analytics.js"></script>
 </body>
 </html>

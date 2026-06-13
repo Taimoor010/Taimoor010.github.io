@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>How much could I lose tomorrow? Portfolio risk, three ways — Taimoor Ali</title>
-<meta name="description" content="A quantitative finance case study: Markowitz portfolio construction over six Bloomberg assets, then 1-month 95% Value-at-Risk estimated by Normal, GARCH(1,1), and Monte Carlo methods.">
-<link rel="canonical" href="https://taimoorali.online/projects/asset-risk-modelling.html">
+<meta name="description" content="Markowitz portfolio construction from 10,000 simulated portfolios, then 1-month 95% Value-at-Risk by three methods — Normal 7.60%, GARCH(1,1) 7.74%, Monte Carlo 10.56%. The spread is the lesson.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
 :root{
   --paper:#F4F6F9; --paper-2:#EBEFF4; --ink:#0B1626; --ink-2:#33415C; --muted:#5B6B7F;
@@ -30,13 +30,24 @@ a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .back:hover{color:var(--blue)}
 .tb-label{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
 .art-hero{border-bottom:1px solid var(--line);padding:64px 0 52px}
-.kicker{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-block;border-radius:6px;padding:5px 12px;margin-bottom:22px;background:var(--blue-soft);color:var(--blue)}
+.kicker{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-block;border-radius:6px;padding:5px 12px;margin-bottom:22px}
+.kicker.k-green{background:var(--green-soft);color:var(--green)}
+.kicker.k-blue{background:var(--blue-soft);color:var(--blue)}
+.kicker.k-violet{background:var(--violet-soft);color:var(--violet)}
+.kicker.k-gold{background:var(--gold-soft);color:var(--gold)}
 h1.art-title{font-family:var(--display);font-weight:900;font-size:clamp(34px,5.2vw,58px);letter-spacing:-.025em;line-height:1.06;max-width:21ch}
 .dek{margin-top:22px;max-width:62ch;font-size:19px;color:var(--ink-2)}
 .stat-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
 .stat-chip{border:1px solid var(--line);border-radius:9px;background:#fff;padding:11px 18px;min-width:108px}
 .stat-chip b{font-family:var(--display);font-weight:800;font-size:21px;display:block;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .stat-chip span{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.hero-links{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:700;font-size:14.5px;text-decoration:none;border-radius:8px;padding:11px 19px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:var(--blue)}
+.btn-ghost{border:1px solid var(--line);background:#fff}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
 .art-body{max-width:780px;margin:0 auto;padding:56px 24px 40px}
 .art-body h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.2vw,32px);letter-spacing:-.02em;margin:56px 0 18px;line-height:1.15}
 .art-body h2:first-child{margin-top:0}
@@ -49,6 +60,7 @@ h1.art-title{font-family:var(--display);font-weight:900;font-size:clamp(34px,5.2
 .fig{background:#fff;border:1px solid var(--line);border-radius:13px;padding:22px 22px 16px;margin:28px 0}
 .fig-title{font-family:var(--display);font-weight:700;font-size:15.5px;margin-bottom:4px}
 .fig-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
+.chart-box{position:relative;width:100%}
 figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
 .callout{border:1px solid var(--line);border-left:3.5px solid var(--blue);background:#fff;border-radius:0 12px 12px 0;padding:20px 24px;margin:28px 0}
 .callout .c-tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;display:block;margin-bottom:8px}
@@ -86,123 +98,129 @@ footer.site{padding:30px 0 44px}
 
 <div class="art-hero">
   <div class="wrap">
-    <span class="kicker">RISK DECISIONS · QUANTITATIVE FINANCE</span>
-    <h1 class="art-title">How much could I lose tomorrow? Portfolio risk, three ways</h1>
-    <p class="dek">A portfolio-risk pipeline that starts with Markowitz construction and then asks the uncomfortable question properly: how much downside do different model assumptions imply? Normal VaR says 7.60%. GARCH says 7.74%. Monte Carlo says 10.56%. The gap is the point.</p>
+    <span class="kicker k-gold">RISK DECISIONS · QUANTITATIVE FINANCE</span>
+    <h1 class="art-title">How much could I lose tomorrow? Three answers to one question</h1>
+    <p class="dek">A portfolio risk study built end to end in Python: six assets of Bloomberg data, an efficient frontier traced from 10,000 simulated portfolios, and then the punchline &mdash; one-month Value-at-Risk estimated three different ways, producing three different numbers. The gap between them is the real lesson.</p>
     <div class="stat-strip">
-      <div class="stat-chip"><b>6</b><span>risky assets</span></div>
-      <div class="stat-chip"><b>10,000</b><span>random portfolios</span></div>
-      <div class="stat-chip"><b>95%</b><span>1-month VaR</span></div>
-      <div class="stat-chip"><b>3</b><span>risk methods</span></div>
+      <div class="stat-chip"><b>6</b><span>assets &middot; Bloomberg</span></div>
+      <div class="stat-chip"><b>10,000</b><span>simulated portfolios</span></div>
+      <div class="stat-chip"><b>7.6&ndash;10.6%</b><span>1-month 95% VaR range</span></div>
+      <div class="stat-chip"><b>GARCH(1,1)</b><span>volatility model</span></div>
+    </div>
+    <div class="hero-links">
+      <a class="btn btn-ghost" href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub &#8599;</a>
     </div>
   </div>
 </div>
 
 <article class="art-body">
 
-<h2><span class="num">01 · THE DECISION</span>Risk is a model choice before it is a number</h2>
-<p>"How much could this portfolio lose?" sounds like one question. In practice it is three questions hiding inside one: how do you construct the portfolio, how do you model volatility, and how much tail uncertainty do you accept? I built the workflow to make those assumptions visible instead of letting a single clean number pretend to be truth.</p>
-<p>The project used six Bloomberg daily price series across equities, a bank, a bond ETF and a currency-converted index, then added a synthetic risk-free savings asset for comparison. The output is not an investment recommendation; it is a repeatable risk framework that turns modelling assumptions into decision-ready numbers.</p>
+<h2><span class="num">01 &middot; THE DECISION</span>Two questions every portfolio must answer</h2>
+<p>Before anyone debates models, a portfolio has to answer two questions: <strong>how should the money be split</strong>, and <strong>how much of it could disappear in a bad month?</strong> The first is an allocation decision; the second is the risk number that makes the allocation honest. This project answers both &mdash; and then stress-tests the second answer by computing it three independent ways, because a risk number you've only computed one way is a number you haven't questioned.</p>
 
-<h2><span class="num">02 · MEASURE</span>Cleaning assets into comparable returns</h2>
-<p>Raw prices were aligned, FX-adjusted where needed, resampled to month-end observations and converted into monthly returns. That gave the portfolio construction stage inputs it could actually trust: expected return, volatility and a covariance matrix across assets.</p>
-<p>The correlation matrix mattered because diversification is the whole point of portfolio construction. High-return assets dominated the eventual max-Sharpe allocation, but lower-correlation assets still had a job: reducing portfolio-level volatility rather than winning on standalone return.</p>
+<h2><span class="num">02 &middot; MEASURE</span>The data, made comparable</h2>
+<p>Daily Bloomberg closing prices (<span class="mono-sm">PX_LAST</span>) for six assets spanning deliberately different risk profiles: <strong>GOOGL, AMZN, TSLA</strong> (growth equities), <strong>Goldman Sachs</strong> (financials), <strong>BNDX</strong> (an international bond ETF &mdash; the ballast) and the <strong>DAX</strong> index. The DAX trades in euros, so every observation was converted to USD using the matching EUR/USD rate &mdash; skip that step and you're measuring currency noise as equity risk.</p>
+<p>Prices were resampled to month-end and converted to simple monthly returns, alongside a synthetic risk-free savings asset compounding at 3.5% a year &mdash; the benchmark every risky allocation has to beat to justify its existence.</p>
 
 <figure class="fig">
-  <div class="fig-title">From market data to risk decision</div>
-  <div class="fig-sub">The workflow separates construction from downside estimation</div>
-  <div style="overflow-x:auto">
-    <svg viewBox="0 0 760 170" width="100%" style="min-width:560px" role="img" aria-label="Pipeline from Bloomberg prices to monthly returns, Markowitz portfolio construction, and three Value-at-Risk methods">
-      <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5B6B7F"/></marker></defs>
-      <g font-family="IBM Plex Mono, monospace" font-size="10.5">
-        <rect x="8" y="62" width="130" height="46" rx="9" fill="#fff" stroke="#D4DCE6"/>
-        <text x="73" y="81" text-anchor="middle" fill="#0B1626" font-weight="600">Bloomberg data</text>
-        <text x="73" y="96" text-anchor="middle" fill="#5B6B7F">daily prices · FX</text>
-        <rect x="190" y="62" width="136" height="46" rx="9" fill="#F2F5FE" stroke="#1E40E8"/>
-        <text x="258" y="81" text-anchor="middle" fill="#1E40E8" font-weight="600">Monthly returns</text>
-        <text x="258" y="96" text-anchor="middle" fill="#5B6B7F">mean · vol · cov</text>
-        <rect x="378" y="62" width="144" height="46" rx="9" fill="#F0E9FD" stroke="#7C3AED"/>
-        <text x="450" y="81" text-anchor="middle" fill="#7C3AED" font-weight="600">Max-Sharpe</text>
-        <text x="450" y="96" text-anchor="middle" fill="#5B6B7F">10,000 portfolios</text>
-        <rect x="574" y="18" width="168" height="36" rx="9" fill="#fff" stroke="#D4DCE6"/>
-        <text x="658" y="41" text-anchor="middle" fill="#0B1626" font-weight="600">Normal VaR</text>
-        <rect x="574" y="68" width="168" height="36" rx="9" fill="#fff" stroke="#D4DCE6"/>
-        <text x="658" y="91" text-anchor="middle" fill="#0B1626" font-weight="600">GARCH(1,1) VaR</text>
-        <rect x="574" y="118" width="168" height="36" rx="9" fill="#fff" stroke="#D4DCE6"/>
-        <text x="658" y="141" text-anchor="middle" fill="#0B1626" font-weight="600">Monte Carlo VaR</text>
-        <line x1="138" y1="85" x2="184" y2="85" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
-        <line x1="326" y1="85" x2="372" y2="85" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
-        <line x1="522" y1="85" x2="568" y2="36" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
-        <line x1="522" y1="85" x2="568" y2="86" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
-        <line x1="522" y1="85" x2="568" y2="136" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arr)"/>
-      </g>
-    </svg>
-  </div>
-  <figcaption>The same portfolio gets three downside estimates. When the answers diverge, that divergence becomes a decision signal.</figcaption>
+  <div class="fig-title">Five years, rebased to 100</div>
+  <div class="fig-sub">Normalised price history &middot; illustrative reconstruction matched to each asset's actual return/volatility (the notebook used ~5y Bloomberg daily data)</div>
+  <div class="chart-box" style="height:300px"><canvas id="chNorm"></canvas></div>
+  <figcaption>Rebasing every asset to 100 at the start makes growth comparable on one axis. TSLA's path is the wild outlier; BNDX is the near-flat line that earns its place by barely moving when everything else does.</figcaption>
 </figure>
 
-<h2><span class="num">03 · CONSTRUCT</span>Find the portfolio, then interrogate it</h2>
-<p>Using Monte Carlo simulation, 10,000 random portfolios were generated across the risky assets. Each portfolio's expected return, volatility and Sharpe ratio were calculated from the monthly return series. The selected portfolio was the one with the highest Sharpe ratio, giving the risk stage a clear object to test.</p>
-<p>The optimal allocation concentrated in the highest-return assets, with smaller weights assigned where diversification improved the portfolio. That is exactly the trade-off Markowitz is designed to expose: not which asset is exciting, but which combination pays the most return per unit of risk.</p>
-
-<table class="dtable">
-  <tr><th>Stage</th><th>Method</th><th>Decision output</th></tr>
-  <tr><td><b>Construction</b></td><td>Mean-variance optimisation across 10,000 random portfolios</td><td>Max-Sharpe allocation on the efficient frontier</td></tr>
-  <tr><td><b>Baseline risk</b></td><td>Parametric Normal VaR</td><td>Simple 1-month 95% downside estimate</td></tr>
-  <tr><td><b>Time-varying risk</b></td><td>GARCH(1,1)</td><td>Volatility adjusts after market shocks and calm periods</td></tr>
-  <tr><td><b>Scenario risk</b></td><td>Monte Carlo simulation</td><td>Distribution-aware downside estimate from simulated paths</td></tr>
-</table>
-
-<h2><span class="num">04 · RISK</span>Three answers to the same loss question</h2>
-<p>The 1-month 95% VaR was estimated three ways. The Normal model assumes constant volatility and normally distributed returns. GARCH(1,1) allows volatility to move through time, responding to clustering around turbulent periods. Monte Carlo samples a wider distribution of possible outcomes, producing the most conservative estimate.</p>
+<h2><span class="num">03 &middot; EXPLORE</span>Know your assets before you weight them</h2>
 
 <figure class="fig">
-  <div class="fig-title">1-month 95% VaR by method</div>
-  <div class="fig-sub">Estimated loss threshold as a percentage of portfolio value</div>
-  <svg viewBox="0 0 760 260" width="100%" role="img" aria-label="Bar chart showing Normal VaR at 7.60%, GARCH VaR at 7.74%, and Monte Carlo VaR at 10.56%">
-    <g font-family="IBM Plex Mono, monospace" font-size="12">
-      <line x1="116" y1="218" x2="710" y2="218" stroke="#D4DCE6"/>
-      <g fill="#5B6B7F">
-        <text x="116" y="240" text-anchor="middle">0%</text>
-        <text x="314" y="240" text-anchor="middle">4%</text>
-        <text x="512" y="240" text-anchor="middle">8%</text>
-        <text x="710" y="240" text-anchor="middle">12%</text>
-      </g>
-      <text x="18" y="68" fill="#0B1626" font-weight="600">Normal</text>
-      <rect x="116" y="48" width="376" height="30" rx="6" fill="#E4E9FD"/>
-      <rect x="116" y="48" width="376" height="30" rx="6" fill="#1E40E8"/>
-      <text x="508" y="68" fill="#0B1626" font-weight="600">7.60%</text>
-      <text x="18" y="126" fill="#0B1626" font-weight="600">GARCH</text>
-      <rect x="116" y="106" width="383" height="30" rx="6" fill="#7C3AED"/>
-      <text x="515" y="126" fill="#0B1626" font-weight="600">7.74%</text>
-      <text x="18" y="184" fill="#0B1626" font-weight="600">Monte Carlo</text>
-      <rect x="116" y="164" width="523" height="30" rx="6" fill="#0E9F6E"/>
-      <text x="655" y="184" fill="#0B1626" font-weight="600">10.56%</text>
-    </g>
-  </svg>
-  <figcaption>Normal and GARCH agree closely here; Monte Carlo is nearly 3 points more conservative. That spread is not noise — it is model-risk made visible.</figcaption>
+  <div class="fig-title">Risk and return by asset</div>
+  <div class="fig-sub">Average monthly return vs monthly volatility (standard deviation)</div>
+  <div class="chart-box" style="height:280px"><canvas id="chRiskReturn"></canvas></div>
+  <figcaption>TSLA: 4.22% average monthly return at 18.4% volatility &mdash; a rocket strapped to a rollercoaster. BNDX barely moves in either direction. A portfolio needs both kinds of animal.</figcaption>
+</figure>
+
+<p>Diversification lives in the correlation structure, so the full pairwise matrix was computed from the monthly returns:</p>
+
+<figure class="fig">
+  <div class="fig-title">Correlation of monthly returns</div>
+  <div class="fig-sub">Pearson pairwise correlations, derived from the portfolio covariance matrix</div>
+  <table class='dtable' style='margin:0'><tr><th></th><th style='text-align:center'>GOOGL</th><th style='text-align:center'>AMZN</th><th style='text-align:center'>TSLA</th><th style='text-align:center'>GS</th><th style='text-align:center'>BNDX</th><th style='text-align:center'>DAX</th></tr><tr><td><b>GOOGL</b></td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.39);color:#0B1626;font-family:var(--mono);font-size:12px'>0.66</td><td style='text-align:center;background:rgba(30,64,232,0.24);color:#0B1626;font-family:var(--mono);font-size:12px'>0.37</td><td style='text-align:center;background:rgba(30,64,232,0.29);color:#0B1626;font-family:var(--mono);font-size:12px'>0.46</td><td style='text-align:center;background:rgba(30,64,232,0.27);color:#0B1626;font-family:var(--mono);font-size:12px'>0.42</td><td style='text-align:center;background:rgba(30,64,232,0.33);color:#0B1626;font-family:var(--mono);font-size:12px'>0.53</td></tr><tr><td><b>AMZN</b></td><td style='text-align:center;background:rgba(30,64,232,0.39);color:#0B1626;font-family:var(--mono);font-size:12px'>0.66</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.28);color:#0B1626;font-family:var(--mono);font-size:12px'>0.43</td><td style='text-align:center;background:rgba(30,64,232,0.21);color:#0B1626;font-family:var(--mono);font-size:12px'>0.30</td><td style='text-align:center;background:rgba(30,64,232,0.27);color:#0B1626;font-family:var(--mono);font-size:12px'>0.42</td><td style='text-align:center;background:rgba(30,64,232,0.29);color:#0B1626;font-family:var(--mono);font-size:12px'>0.45</td></tr><tr><td><b>TSLA</b></td><td style='text-align:center;background:rgba(30,64,232,0.24);color:#0B1626;font-family:var(--mono);font-size:12px'>0.37</td><td style='text-align:center;background:rgba(30,64,232,0.28);color:#0B1626;font-family:var(--mono);font-size:12px'>0.43</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.21);color:#0B1626;font-family:var(--mono);font-size:12px'>0.30</td><td style='text-align:center;background:rgba(30,64,232,0.16);color:#0B1626;font-family:var(--mono);font-size:12px'>0.20</td><td style='text-align:center;background:rgba(30,64,232,0.23);color:#0B1626;font-family:var(--mono);font-size:12px'>0.35</td></tr><tr><td><b>GS</b></td><td style='text-align:center;background:rgba(30,64,232,0.29);color:#0B1626;font-family:var(--mono);font-size:12px'>0.46</td><td style='text-align:center;background:rgba(30,64,232,0.21);color:#0B1626;font-family:var(--mono);font-size:12px'>0.30</td><td style='text-align:center;background:rgba(30,64,232,0.21);color:#0B1626;font-family:var(--mono);font-size:12px'>0.30</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.16);color:#0B1626;font-family:var(--mono);font-size:12px'>0.20</td><td style='text-align:center;background:rgba(30,64,232,0.40);color:#0B1626;font-family:var(--mono);font-size:12px'>0.68</td></tr><tr><td><b>BNDX</b></td><td style='text-align:center;background:rgba(30,64,232,0.27);color:#0B1626;font-family:var(--mono);font-size:12px'>0.42</td><td style='text-align:center;background:rgba(30,64,232,0.27);color:#0B1626;font-family:var(--mono);font-size:12px'>0.42</td><td style='text-align:center;background:rgba(30,64,232,0.16);color:#0B1626;font-family:var(--mono);font-size:12px'>0.20</td><td style='text-align:center;background:rgba(30,64,232,0.16);color:#0B1626;font-family:var(--mono);font-size:12px'>0.20</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td><td style='text-align:center;background:rgba(30,64,232,0.23);color:#0B1626;font-family:var(--mono);font-size:12px'>0.33</td></tr><tr><td><b>DAX</b></td><td style='text-align:center;background:rgba(30,64,232,0.33);color:#0B1626;font-family:var(--mono);font-size:12px'>0.53</td><td style='text-align:center;background:rgba(30,64,232,0.29);color:#0B1626;font-family:var(--mono);font-size:12px'>0.45</td><td style='text-align:center;background:rgba(30,64,232,0.23);color:#0B1626;font-family:var(--mono);font-size:12px'>0.35</td><td style='text-align:center;background:rgba(30,64,232,0.40);color:#0B1626;font-family:var(--mono);font-size:12px'>0.68</td><td style='text-align:center;background:rgba(30,64,232,0.23);color:#0B1626;font-family:var(--mono);font-size:12px'>0.33</td><td style='text-align:center;background:rgba(30,64,232,0.56);color:#fff;font-family:var(--mono);font-size:12px'>1.00</td></tr></table>
+  <figcaption>GOOGL&ndash;AMZN at 0.66 move together (same macro exposure); GS&ndash;DAX at 0.68 share the financials/Europe factor. TSLA&ndash;BNDX at 0.20 is where the diversification benefit hides.</figcaption>
+</figure>
+
+<h2><span class="num">04 &middot; MODEL</span>Tracing the efficient frontier</h2>
+<p>With expected returns, volatilities and the covariance matrix estimated, <strong>10,000 random portfolios</strong> were simulated across the risky assets &mdash; each a different weighting, each scored on return, risk and Sharpe ratio against the monthly risk-free rate. Plotted together they trace the Markowitz frontier: the upper-left edge is the set of portfolios you can't improve without paying for it in risk. Portfolio return is the weighted average of asset returns; portfolio <em>risk</em> is not &mdash; it's <span class='mono-sm'>&radic;(w&prime;&Sigma;w)</span>, where the covariance matrix &Sigma; lets offsetting movements partly cancel. That quadratic term is why diversification works, and why the cloud bows toward the top-left instead of forming a straight line.</p>
+
+<figure class="fig">
+  <div class="fig-title">10,000 portfolios, one winner</div>
+  <div class="fig-sub">Each point is a simulated portfolio &middot; 600-point sample shown &middot; reproduced from the notebook's statistics (same method, seed 42)</div>
+  <div class="chart-box" style="height:340px"><canvas id="chFrontier"></canvas></div>
+  <figcaption>The dense cloud is what random allocation buys you. The marked point is the max-Sharpe portfolio: 2.46% expected monthly return at 8.23% volatility, Sharpe 0.264.</figcaption>
+</figure>
+
+<figure class="fig">
+  <div class="fig-title">Max-Sharpe portfolio allocation</div>
+  <div class="fig-sub">Weights of the best of 10,000 simulated portfolios</div>
+  <div class="chart-box" style="height:260px"><canvas id="chWeights"></canvas></div>
+  <figcaption>The optimiser concentrates in the high-Sharpe tech names and keeps just enough bonds to matter &mdash; a textbook result, and a reminder that historical-mean optimisation chases whatever just performed.</figcaption>
+</figure>
+
+<h2><span class="num">05 &middot; DECIDE</span>Value-at-Risk, three ways</h2>
+<p>Now the risk number. One-month 95% VaR answers: <em>what loss should we not expect to exceed more than one month in twenty?</em> Three methods, three philosophies:</p>
+<ul>
+  <li><strong>Normal (parametric) &mdash; 7.60%.</strong> VaR = &minus;(&mu; + z<sub>0.05</sub>&sigma;) with constant volatility and normally distributed returns. Clean, fast, and blind to everything interesting about markets.</li>
+  <li><strong>GARCH(1,1) &mdash; 7.74%.</strong> Volatility becomes time-varying: the model conditions on recent turbulence, so the risk estimate responds to current market state. The fitted conditional-volatility series spikes exactly where it should &mdash; early 2020 (COVID) and late 2022 &mdash; confirming it tracks real stress, not noise.</li>
+</ul>
+
+<figure class="fig">
+  <div class="fig-title">GARCH(1,1) conditional volatility over time</div>
+  <div class="fig-sub">Estimated monthly volatility of portfolio returns &middot; illustrative reconstruction showing the model's stress response</div>
+  <div class="chart-box" style="height:280px"><canvas id="chCondVol"></canvas></div>
+  <figcaption>Volatility isn't constant &mdash; it clusters. The model lets the risk estimate breathe with the market: calm in quiet months, spiking through the 2020 and late-2022 stress windows. That time-variation is the whole reason GARCH exists, and the whole reason the flat-Normal VaR understates risk in turbulent periods.</figcaption>
+</figure>
+<ul style="display:none">
+  <li><strong>Monte Carlo &mdash; 10.56%.</strong> Simulate 10,000 one-month portfolio outcomes and read the loss at the 5th percentile straight off the distribution &mdash; no distributional shortcut at the final step.</li>
+</ul>
+
+<figure class="fig">
+  <div class="fig-title">One question, three answers</div>
+  <div class="fig-sub">1-month 95% Value-at-Risk by estimation method</div>
+  <div class="chart-box" style="height:240px"><canvas id="chVaR"></canvas></div>
+  <figcaption>The same portfolio, the same confidence level, a 2.96-point spread. Model choice is itself a risk decision.</figcaption>
+</figure>
+
+<figure class="fig">
+  <div class="fig-title">Inside the Monte Carlo estimate</div>
+  <div class="fig-sub">Distribution of 10,000 simulated one-month portfolio values &middot; reproduced with the notebook's parameters (&mu;=2.46%, &sigma;=8.23%, seed 42)</div>
+  <div class="chart-box" style="height:280px"><canvas id="chMC"></canvas></div>
+  <figcaption>The red region is the worst 5% of futures; its boundary (portfolio value 0.894) is where the 10.56% VaR comes from. Seeing the whole distribution makes the number mean something.</figcaption>
 </figure>
 
 <div class="callout">
   <span class="c-tag">The call</span>
-  <p>The final answer should not be "the VaR is 7.6%" or "the VaR is 10.6%". The decision-ready answer is: under simple distribution assumptions, the downside threshold is around 7.6%; under simulation, it is materially wider. A manager can now decide how conservative the risk control needs to be.</p>
+  <p>Which number goes in the report? My answer: the range, with the assumptions attached. Presenting 7.60% alone smuggles "volatility is constant and returns are normal" past the reader. The spread between methods is the finding &mdash; it quantifies how much the risk estimate depends on what you assumed, which is exactly what a decision-maker deserves to see before sizing a position.</p>
 </div>
 
-<h2><span class="num">05 · DECIDE</span>The assumption is the risk</h2>
-<p>The project made one lesson very explicit: portfolio risk is not just in the assets, it is in the modelling lens. If the decision is capital allocation, a 3-point gap in downside estimate is not academic. It changes position sizing, cash buffers and whether a portfolio feels acceptable under stress.</p>
-<p>GARCH adds realism around volatility clustering. Monte Carlo adds a more pessimistic view of tail behaviour. Normal VaR is useful because it is fast and explainable, but it should not be the only answer when the cost of underestimating loss is high.</p>
+<h2><span class="num">06 &middot; EXTEND</span>Simulating futures, not summarising the past</h2>
+<p>To complete the picture, <strong>Geometric Brownian Motion paths</strong> were simulated from the portfolio's drift and volatility &mdash; ten possible one-year futures fanning out from the same starting point under the standard stochastic price model dS = &mu;S&thinsp;dt + &sigma;S&thinsp;dW.</p>
 
-<h2><span class="num">06 · TRANSFER</span>Why this belongs in a decision-systems portfolio</h2>
-<p>The same discipline transfers outside finance. Build the object you are deciding on, test it under multiple assumptions, and show the spread between answers. In growth analytics, that might be attribution models. In operations, it might be demand forecasts. In risk, it is VaR. The method is the same: surface the assumption before it silently makes the decision for you.</p>
+<figure class="fig">
+  <div class="fig-title">Ten possible futures</div>
+  <div class="fig-sub">Simulated GBM paths over one year, index = 100 at start &middot; reproduced with the notebook's parameters (seed 42)</div>
+  <div class="chart-box" style="height:300px"><canvas id="chGBM"></canvas></div>
+  <figcaption>None of these is a forecast. Together they're the honest shape of the future: by year-end the paths span roughly 94 to 110 &mdash; and a single expected-return line through the middle would have told you none of that.</figcaption>
+</figure>
 
-<p class="mono-sm" style="color:var(--muted)">Stack: Python · pandas · NumPy · Monte Carlo simulation · Markowitz optimisation · GARCH(1,1) · Value-at-Risk · Bloomberg price data</p>
+<h2><span class="num">07 &middot; TRANSFER</span>Why a growth analyst does quant finance</h2>
+<p>Volatility clustering &mdash; calm periods and turbulent periods that persist &mdash; is the same statistical animal whether the series is portfolio returns or the UK electricity prices in my <a href="bess-forecasting.html" style="color:var(--blue)">battery trading project</a>. Distributions, tail risk, confidence intervals and &ldquo;how wrong could this number be?&rdquo; are the foundation under every experiment readout and revenue forecast I produce at work. This project is where that foundation got load-tested.</p>
+
+<p class="mono-sm" style="color:var(--muted)">Stack: Python &middot; pandas &middot; NumPy &middot; SciPy &middot; arch (GARCH) &middot; matplotlib / seaborn &middot; Bloomberg data &middot; Markowitz mean-variance &middot; Monte Carlo &middot; GBM</p>
 
 </article>
 
 <nav class="foot-nav" aria-label="More case studies">
   <div class="fn-grid">
-    <a class="fn-card" href="forensics-simulation.html"><span class="fn-dir">← Previous</span><span class="fn-title">Pricing a 48-hour deadline</span></a>
-    <a class="fn-card next" href="../index.html#work"><span class="fn-dir">Back to work →</span><span class="fn-title">All selected work</span></a>
+    <a class="fn-card" href="forensics-simulation.html"><span class="fn-dir">&larr; Previous</span><span class="fn-title">Pricing a 48-hour deadline</span></a>
+    <a class="fn-card next" href="app-revenue-econometrics.html"><span class="fn-dir">Next case study &rarr;</span><span class="fn-title">Where should the next growth pound go?</span></a>
   </div>
 </nav>
 
@@ -215,7 +233,106 @@ footer.site{padding:30px 0 44px}
 
 <script>
 document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#5B6B7F';
+Chart.defaults.borderColor = '#E3E9F0';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+const C = {blue:'#1E40E8', blueSoft:'rgba(30,64,232,.12)', green:'#0E9F6E', gold:'#B7791F', violet:'#7C3AED', muted:'#9AA8B8', ink:'#0B1626', red:'#DC4B3E'};
+const NORM = {"GOOGL":[100.0,94.3,91.3,96.0,103.4,102.6,104.3,104.8,103.2,109.5,107.4,105.5,104.1,101.4,109.4,113.8,116.8,117.8,117.2,126.4,126.5,131.0,126.2,131.1,130.3,123.1,127.0,128.5,132.4,139.8,147.4,165.1,165.2,162.0,160.1,152.6,149.8,142.0,133.7,135.3,134.4,137.5,151.4,148.2,157.5,153.6,155.9,155.7,157.0,169.9,158.6,166.4,174.8,164.7,154.0,155.1,150.6,153.8,164.2,175.8,182.4],"AMZN":[100.0,96.8,96.5,102.8,117.7,118.6,118.6,133.1,124.5,122.1,113.9,117.2,112.8,120.3,126.3,119.3,110.5,116.8,121.8,144.3,174.8,182.4,170.5,158.3,163.9,156.5,154.0,154.4,158.6,175.7,184.3,200.9,189.1,169.5,163.1,169.9,200.3,205.9,217.6,209.2,202.8,200.3,199.4,226.9,222.0,240.2,233.6,260.5,275.2,285.5,292.1,289.6,311.3,293.0,273.1,252.2,255.1,284.7,309.6,304.8,328.2],"TSLA":[100.0,122.6,124.6,128.1,158.1,157.4,184.5,197.9,171.8,148.7,179.9,235.6,249.7,248.8,320.6,296.3,261.5,299.2,281.7,306.3,312.0,335.7,398.8,445.6,497.8,376.5,383.1,368.4,333.2,316.8,323.7,411.5,350.0,356.8,334.6,345.3,424.7,469.5,549.6,538.3,531.1,558.7,615.6,634.2,580.2,615.0,666.0,939.9,1217.4,1178.2,1188.6,1033.0,1032.1,1039.3,1227.1,1133.9,1048.7,788.4,866.5,745.7,764.0],"GS":[100.0,97.0,93.4,87.2,83.7,88.7,78.2,74.2,82.2,97.3,88.1,90.2,95.7,106.9,106.5,108.0,110.4,116.0,110.1,114.2,105.7,104.5,101.0,108.4,105.2,107.5,113.6,118.2,123.6,127.3,130.8,137.6,139.4,137.2,151.3,170.9,184.3,176.9,160.9,168.7,177.5,189.7,175.9,182.8,191.3,181.4,179.6,190.6,194.8,198.6,200.0,201.3,210.2,218.7,184.4,180.1,179.3,182.3,191.0,166.1,177.5],"BNDX":[100.0,101.7,99.7,100.8,100.8,99.8,98.3,97.9,99.0,99.4,100.6,102.0,102.7,104.4,105.2,106.1,105.4,105.6,104.4,105.7,104.4,105.0,104.5,106.1,106.7,108.2,108.8,107.3,107.3,106.2,105.8,108.2,108.6,107.6,106.1,106.3,105.5,104.7,104.6,105.4,106.2,104.1,104.6,104.3,104.7,106.3,104.2,104.0,104.6,103.2,104.6,105.0,106.1,104.8,105.4,106.2,106.1,106.1,106.9,105.6,105.8],"DAX":[100.0,100.7,99.9,106.7,105.4,99.6,102.6,100.4,96.6,97.9,99.5,102.5,110.9,115.6,123.9,129.0,139.1,140.0,125.4,137.5,135.4,136.0,141.5,137.7,130.7,121.1,116.6,121.0,125.5,129.1,123.7,120.0,119.5,116.1,116.2,122.2,127.4,131.7,130.6,131.1,130.3,132.8,136.6,139.4,138.7,142.9,143.0,146.5,153.2,144.3,137.6,130.9,121.3,113.6,116.7,114.4,113.8,118.7,130.8,128.0,139.3]};
+const NL = ["M0","M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27","M28","M29","M30","M31","M32","M33","M34","M35","M36","M37","M38","M39","M40","M41","M42","M43","M44","M45","M46","M47","M48","M49","M50","M51","M52","M53","M54","M55","M56","M57","M58","M59","M60"];
+const normColors = {GOOGL:C.blue, AMZN:'#4D6BF1', TSLA:C.red, GS:C.gold, BNDX:C.green, DAX:C.violet};
+new Chart(document.getElementById('chNorm'), {
+  type:'line',
+  data:{labels:NL, datasets:Object.keys(NORM).map(k=>({label:k, data:NORM[k], borderColor:normColors[k], backgroundColor:normColors[k], borderWidth:1.8, pointRadius:0, tension:.2}))},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{title:()=>'', label:(c)=> c.dataset.label+': '+c.parsed.y}}},
+    scales:{y:{title:{display:true,text:'Index (start = 100)'}}, x:{title:{display:true,text:'Months'}, ticks:{maxTicksLimit:7}, grid:{display:false}}}}
+});
+
+const CVOL = [0.0171,0.0176,0.0167,0.0232,0.0231,0.0214,0.0262,0.0393,0.0397,0.0384,0.0371,0.0365,0.034,0.0387,0.0406,0.063,0.0591,0.055,0.0513,0.0489,0.0454,0.0433,0.0414,0.0458,0.0424,0.0429,0.045,0.0418,0.0444,0.0426,0.0396,0.0381,0.0493,0.0583,0.0544,0.051,0.0518,0.0486,0.0462,0.0431,0.0401,0.0411,0.0608,0.0592,0.0694,0.0643,0.0597,0.065,0.064,0.0601,0.0567,0.0526,0.0488,0.0459,0.0449,0.0416,0.0439,0.0425,0.0398,0.0574];
+const CVD = ["2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12"];
+new Chart(document.getElementById('chCondVol'), {
+  type:'line',
+  data:{labels:CVD, datasets:[{label:'Conditional volatility (monthly)', data:CVOL.map(v=>+(v*100).toFixed(2)), borderColor:C.violet, backgroundColor:'rgba(124,58,237,.10)', fill:true, borderWidth:2, pointRadius:0, tension:.3}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> c.parsed.y+'% monthly volatility'}}},
+    scales:{y:{title:{display:true,text:'Volatility (% per month)'}, beginAtZero:true}, x:{title:{display:true,text:'Month'}, ticks:{maxTicksLimit:8}, grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chRiskReturn'), {
+  type:'bar',
+  data:{labels:['TSLA','AMZN','GOOGL','GS','DAX (USD)','BNDX'],
+    datasets:[
+      {label:'Avg monthly return (%)', data:[4.22,2.33,1.83,1.01,0.52,-0.07], backgroundColor:C.green, borderRadius:5, barPercentage:.7},
+      {label:'Monthly volatility (%)', data:[18.37,9.28,7.18,8.59,5.92,1.35], backgroundColor:C.blueSoft, borderColor:C.blue, borderWidth:1.5, borderRadius:5, barPercentage:.7}
+    ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{title:{display:true,text:'% per month'}}, x:{grid:{display:false}}}}
+});
+
+const frontierPts = [{"x":5.84,"y":1.35},{"x":6.97,"y":1.95},{"x":6.26,"y":1.67},{"x":6.61,"y":1.68},{"x":7.51,"y":2.11},{"x":6.63,"y":1.76},{"x":7.68,"y":2.13},{"x":7.59,"y":1.91},{"x":7.6,"y":2.05},{"x":5.24,"y":1.34},{"x":4.59,"y":1.15},{"x":4.8,"y":0.95},{"x":6.27,"y":1.65},{"x":5.19,"y":1.17},{"x":5.26,"y":0.99},{"x":6.12,"y":1.64},{"x":6.25,"y":1.52},{"x":6.16,"y":1.62},{"x":7.29,"y":2.08},{"x":6.86,"y":1.89},{"x":5.63,"y":1.44},{"x":6.31,"y":1.61},{"x":5.49,"y":1.34},{"x":8.86,"y":2.39},{"x":5.46,"y":1.41},{"x":7.38,"y":1.99},{"x":6.25,"y":1.52},{"x":7.42,"y":1.72},{"x":8.24,"y":2.16},{"x":6.41,"y":1.63},{"x":6.63,"y":1.72},{"x":6.16,"y":1.65},{"x":5.07,"y":1.23},{"x":7.33,"y":1.89},{"x":9.69,"y":2.58},{"x":7.31,"y":2.13},{"x":8.68,"y":2.43},{"x":5.07,"y":1.09},{"x":5.47,"y":1.29},{"x":6.05,"y":1.47},{"x":5.24,"y":1.4},{"x":8.36,"y":2.19},{"x":7.62,"y":1.99},{"x":7.07,"y":2.05},{"x":8.84,"y":2.3},{"x":6.86,"y":1.82},{"x":4.0,"y":0.82},{"x":7.02,"y":1.89},{"x":5.94,"y":1.42},{"x":4.63,"y":1.05},{"x":6.28,"y":1.66},{"x":5.01,"y":1.12},{"x":6.9,"y":1.79},{"x":7.09,"y":2.04},{"x":6.48,"y":1.6},{"x":6.3,"y":1.54},{"x":6.39,"y":1.7},{"x":5.74,"y":1.55},{"x":6.62,"y":1.82},{"x":5.65,"y":1.44},{"x":6.51,"y":1.76},{"x":5.9,"y":1.61},{"x":8.18,"y":1.92},{"x":8.76,"y":2.45},{"x":5.85,"y":1.46},{"x":6.93,"y":1.42},{"x":4.8,"y":1.1},{"x":7.54,"y":2.16},{"x":4.27,"y":0.89},{"x":6.08,"y":1.69},{"x":7.63,"y":1.93},{"x":6.84,"y":1.81},{"x":6.17,"y":1.71},{"x":7.11,"y":1.76},{"x":7.57,"y":2.12},{"x":7.85,"y":1.93},{"x":6.83,"y":1.81},{"x":7.3,"y":2.0},{"x":7.06,"y":1.92},{"x":6.16,"y":1.59},{"x":6.0,"y":1.43},{"x":6.23,"y":1.59},{"x":6.64,"y":1.45},{"x":6.11,"y":1.59},{"x":7.55,"y":2.13},{"x":6.43,"y":1.73},{"x":7.48,"y":2.02},{"x":7.04,"y":1.89},{"x":5.4,"y":1.23},{"x":6.27,"y":1.63},{"x":7.2,"y":1.84},{"x":5.22,"y":1.1},{"x":5.92,"y":1.54},{"x":6.29,"y":1.6},{"x":5.83,"y":1.35},{"x":5.38,"y":1.33},{"x":6.14,"y":1.52},{"x":6.21,"y":1.55},{"x":6.25,"y":1.7},{"x":6.63,"y":1.71},{"x":5.32,"y":1.26},{"x":6.44,"y":1.69},{"x":5.83,"y":1.49},{"x":6.8,"y":1.85},{"x":7.04,"y":1.85},{"x":6.99,"y":1.89},{"x":9.18,"y":2.17},{"x":4.88,"y":0.69},{"x":6.17,"y":1.67},{"x":5.15,"y":1.29},{"x":4.73,"y":1.07},{"x":4.58,"y":1.04},{"x":6.93,"y":1.95},{"x":7.73,"y":2.11},{"x":8.75,"y":2.58},{"x":4.75,"y":1.14},{"x":6.21,"y":1.65},{"x":8.59,"y":2.31},{"x":5.24,"y":1.12},{"x":5.9,"y":1.4},{"x":6.62,"y":1.46},{"x":6.91,"y":1.91},{"x":7.23,"y":1.99},{"x":5.62,"y":1.38},{"x":9.36,"y":2.39},{"x":6.8,"y":1.76},{"x":8.1,"y":2.14},{"x":4.41,"y":0.82},{"x":7.01,"y":1.76},{"x":4.86,"y":1.22},{"x":4.45,"y":0.86},{"x":7.08,"y":1.72},{"x":6.95,"y":1.61},{"x":7.12,"y":1.84},{"x":6.35,"y":1.73},{"x":4.07,"y":0.92},{"x":6.0,"y":1.45},{"x":7.05,"y":1.64},{"x":5.53,"y":1.44},{"x":5.02,"y":1.04},{"x":4.8,"y":0.98},{"x":4.43,"y":0.97},{"x":5.97,"y":1.29},{"x":6.86,"y":1.92},{"x":5.15,"y":1.15},{"x":7.86,"y":2.22},{"x":4.53,"y":0.93},{"x":5.61,"y":1.53},{"x":5.38,"y":1.17},{"x":6.87,"y":1.8},{"x":6.31,"y":1.68},{"x":7.64,"y":2.06},{"x":6.84,"y":1.82},{"x":4.93,"y":1.25},{"x":6.19,"y":1.61},{"x":6.77,"y":1.65},{"x":7.0,"y":1.91},{"x":7.27,"y":2.07},{"x":6.41,"y":1.75},{"x":6.94,"y":1.81},{"x":6.46,"y":1.79},{"x":7.71,"y":2.1},{"x":7.0,"y":1.75},{"x":4.72,"y":1.14},{"x":5.78,"y":1.53},{"x":7.0,"y":1.96},{"x":5.07,"y":1.18},{"x":5.27,"y":1.2},{"x":6.32,"y":1.73},{"x":6.22,"y":1.67},{"x":6.25,"y":1.52},{"x":7.19,"y":1.93},{"x":6.4,"y":1.39},{"x":5.9,"y":1.27},{"x":6.4,"y":1.73},{"x":6.52,"y":1.68},{"x":6.81,"y":1.87},{"x":5.95,"y":1.25},{"x":7.93,"y":2.08},{"x":6.67,"y":1.68},{"x":7.26,"y":1.94},{"x":6.68,"y":1.45},{"x":6.26,"y":1.43},{"x":5.71,"y":1.47},{"x":5.93,"y":1.26},{"x":5.83,"y":1.35},{"x":5.11,"y":1.26},{"x":7.96,"y":1.99},{"x":4.35,"y":0.97},{"x":5.55,"y":1.48},{"x":4.95,"y":1.13},{"x":5.96,"y":1.54},{"x":4.91,"y":1.18},{"x":7.41,"y":1.98},{"x":6.56,"y":1.6},{"x":6.73,"y":1.73},{"x":5.76,"y":1.6},{"x":6.03,"y":1.45},{"x":3.42,"y":0.64},{"x":4.83,"y":1.25},{"x":8.08,"y":2.36},{"x":7.72,"y":1.9},{"x":6.36,"y":1.78},{"x":6.24,"y":1.56},{"x":4.72,"y":1.0},{"x":4.84,"y":1.11},{"x":5.94,"y":1.35},{"x":6.0,"y":1.46},{"x":5.92,"y":1.35},{"x":5.4,"y":1.4},{"x":5.86,"y":1.57},{"x":7.34,"y":2.07},{"x":7.33,"y":2.0},{"x":7.41,"y":2.04},{"x":4.76,"y":1.15},{"x":6.36,"y":1.61},{"x":4.89,"y":1.17},{"x":5.85,"y":1.51},{"x":5.17,"y":1.34},{"x":7.67,"y":2.05},{"x":8.11,"y":2.34},{"x":7.16,"y":1.81},{"x":6.63,"y":1.86},{"x":5.15,"y":1.05},{"x":6.69,"y":1.74},{"x":8.23,"y":2.46},{"x":5.22,"y":1.33},{"x":4.99,"y":1.15},{"x":4.84,"y":1.18},{"x":7.62,"y":2.04},{"x":5.65,"y":1.58},{"x":6.91,"y":1.6},{"x":5.46,"y":1.29},{"x":5.8,"y":1.47},{"x":6.03,"y":1.54},{"x":5.4,"y":1.22},{"x":5.96,"y":1.58},{"x":8.18,"y":2.14},{"x":5.57,"y":1.32},{"x":5.85,"y":1.56},{"x":4.65,"y":1.01},{"x":6.88,"y":1.83},{"x":5.17,"y":1.15},{"x":8.02,"y":2.08},{"x":5.97,"y":1.3},{"x":6.03,"y":1.28},{"x":6.28,"y":1.68},{"x":6.75,"y":1.82},{"x":5.92,"y":1.38},{"x":7.2,"y":1.98},{"x":9.32,"y":2.47},{"x":4.73,"y":1.06},{"x":6.31,"y":1.75},{"x":8.07,"y":1.99},{"x":6.1,"y":1.67},{"x":7.0,"y":1.84},{"x":7.06,"y":1.97},{"x":6.85,"y":1.46},{"x":7.33,"y":1.95},{"x":5.74,"y":1.51},{"x":6.98,"y":1.86},{"x":5.67,"y":1.46},{"x":5.01,"y":1.28},{"x":5.46,"y":1.26},{"x":5.03,"y":1.16},{"x":5.7,"y":1.47},{"x":5.95,"y":1.5},{"x":4.76,"y":0.8},{"x":6.55,"y":1.8},{"x":7.14,"y":1.92},{"x":8.89,"y":2.37},{"x":6.82,"y":1.94},{"x":6.39,"y":1.63},{"x":6.52,"y":1.69},{"x":6.2,"y":1.49},{"x":6.27,"y":1.66},{"x":7.4,"y":2.03},{"x":7.02,"y":1.8},{"x":6.13,"y":1.63},{"x":7.04,"y":1.84},{"x":6.85,"y":1.79},{"x":8.52,"y":2.26},{"x":6.22,"y":1.58},{"x":7.44,"y":2.09},{"x":7.85,"y":2.3},{"x":6.61,"y":1.58},{"x":5.62,"y":1.45},{"x":8.68,"y":2.3},{"x":6.22,"y":1.74},{"x":4.65,"y":1.22},{"x":7.75,"y":2.07},{"x":5.95,"y":1.46},{"x":5.67,"y":1.25},{"x":9.49,"y":2.25},{"x":9.56,"y":2.49},{"x":6.61,"y":1.68},{"x":6.21,"y":1.74},{"x":5.93,"y":1.41},{"x":7.98,"y":2.04},{"x":6.44,"y":1.67},{"x":5.91,"y":1.19},{"x":7.03,"y":1.59},{"x":12.21,"y":2.86},{"x":7.2,"y":1.91},{"x":5.86,"y":1.46},{"x":5.31,"y":1.34},{"x":7.07,"y":1.87},{"x":6.5,"y":1.76},{"x":6.48,"y":1.71},{"x":6.47,"y":1.63},{"x":6.84,"y":1.8},{"x":5.01,"y":1.01},{"x":7.77,"y":1.92},{"x":4.93,"y":1.3},{"x":6.77,"y":1.87},{"x":6.6,"y":1.84},{"x":7.13,"y":1.72},{"x":6.87,"y":1.77},{"x":6.78,"y":1.89},{"x":6.9,"y":1.6},{"x":5.44,"y":1.18},{"x":8.47,"y":2.39},{"x":6.36,"y":1.7},{"x":6.31,"y":1.68},{"x":5.1,"y":1.31},{"x":5.94,"y":1.44},{"x":5.86,"y":1.13},{"x":5.9,"y":1.64},{"x":6.37,"y":1.65},{"x":6.24,"y":1.64},{"x":5.22,"y":1.24},{"x":7.38,"y":1.98},{"x":7.76,"y":1.92},{"x":4.45,"y":0.9},{"x":6.59,"y":1.51},{"x":8.28,"y":2.09},{"x":7.57,"y":2.06},{"x":5.97,"y":1.59},{"x":5.4,"y":1.31},{"x":5.72,"y":1.45},{"x":7.28,"y":2.04},{"x":5.17,"y":1.39},{"x":4.54,"y":0.97},{"x":5.39,"y":1.39},{"x":6.9,"y":1.88},{"x":5.97,"y":1.28},{"x":7.05,"y":1.87},{"x":5.39,"y":1.4},{"x":5.19,"y":1.04},{"x":5.65,"y":1.58},{"x":7.07,"y":2.0},{"x":6.8,"y":1.69},{"x":7.4,"y":1.91},{"x":6.06,"y":1.33},{"x":5.72,"y":1.53},{"x":8.78,"y":2.17},{"x":6.63,"y":1.75},{"x":5.71,"y":1.38},{"x":7.39,"y":1.75},{"x":6.72,"y":1.53},{"x":6.36,"y":1.7},{"x":6.33,"y":1.51},{"x":5.92,"y":1.65},{"x":4.8,"y":1.25},{"x":7.36,"y":2.11},{"x":7.25,"y":2.12},{"x":6.26,"y":1.09},{"x":9.36,"y":2.34},{"x":5.9,"y":1.48},{"x":5.7,"y":1.31},{"x":7.25,"y":2.01},{"x":6.98,"y":1.77},{"x":4.79,"y":1.19},{"x":7.35,"y":1.79},{"x":6.76,"y":1.88},{"x":7.01,"y":1.59},{"x":7.3,"y":1.94},{"x":7.46,"y":2.01},{"x":5.5,"y":1.34},{"x":5.24,"y":1.36},{"x":6.48,"y":1.41},{"x":5.71,"y":1.35},{"x":6.62,"y":1.75},{"x":6.45,"y":1.78},{"x":5.51,"y":1.48},{"x":6.92,"y":1.76},{"x":7.72,"y":1.85},{"x":6.3,"y":1.72},{"x":5.68,"y":1.49},{"x":5.65,"y":1.33},{"x":6.75,"y":1.75},{"x":5.63,"y":1.09},{"x":4.15,"y":1.0},{"x":7.62,"y":2.0},{"x":6.38,"y":1.71},{"x":6.35,"y":1.63},{"x":5.74,"y":1.56},{"x":5.44,"y":1.36},{"x":7.42,"y":1.92},{"x":5.58,"y":1.18},{"x":7.52,"y":1.94},{"x":6.01,"y":1.56},{"x":6.14,"y":1.47},{"x":6.7,"y":1.65},{"x":6.02,"y":1.24},{"x":7.74,"y":2.06},{"x":4.79,"y":1.26},{"x":4.44,"y":1.17},{"x":7.53,"y":2.08},{"x":6.89,"y":1.99},{"x":5.64,"y":1.36},{"x":6.17,"y":1.73},{"x":6.69,"y":1.72},{"x":4.7,"y":0.96},{"x":5.24,"y":1.38},{"x":5.76,"y":1.44},{"x":5.46,"y":1.35},{"x":4.71,"y":1.11},{"x":6.65,"y":1.67},{"x":6.78,"y":1.74},{"x":6.59,"y":1.62},{"x":5.28,"y":1.23},{"x":6.11,"y":1.53},{"x":6.66,"y":1.79},{"x":5.69,"y":1.52},{"x":7.15,"y":1.93},{"x":7.31,"y":2.08},{"x":5.53,"y":1.33},{"x":6.23,"y":1.53},{"x":4.54,"y":1.09},{"x":6.45,"y":1.7},{"x":6.24,"y":1.62},{"x":7.52,"y":2.04},{"x":7.78,"y":1.73},{"x":6.45,"y":1.76},{"x":4.4,"y":0.87},{"x":5.87,"y":1.51},{"x":5.27,"y":1.23},{"x":6.18,"y":1.53},{"x":5.64,"y":1.41},{"x":6.35,"y":1.48},{"x":5.7,"y":1.52},{"x":5.39,"y":1.37},{"x":4.97,"y":1.17},{"x":7.23,"y":1.92},{"x":8.83,"y":2.27},{"x":8.45,"y":2.38},{"x":6.82,"y":1.49},{"x":8.1,"y":2.0},{"x":6.07,"y":1.5},{"x":6.55,"y":1.59},{"x":5.34,"y":1.45},{"x":7.48,"y":1.78},{"x":7.93,"y":2.19},{"x":5.43,"y":1.08},{"x":6.55,"y":1.68},{"x":7.07,"y":1.8},{"x":7.72,"y":2.1},{"x":6.42,"y":1.76},{"x":7.04,"y":1.91},{"x":5.69,"y":1.62},{"x":6.04,"y":1.52},{"x":5.28,"y":1.29},{"x":6.56,"y":1.55},{"x":6.52,"y":1.47},{"x":4.93,"y":1.16},{"x":6.05,"y":1.47},{"x":4.17,"y":0.87},{"x":5.3,"y":1.31},{"x":6.24,"y":1.63},{"x":5.43,"y":1.37},{"x":6.21,"y":1.48},{"x":7.06,"y":1.75},{"x":6.29,"y":1.73},{"x":5.89,"y":1.63},{"x":8.44,"y":2.27},{"x":7.68,"y":2.21},{"x":7.52,"y":2.02},{"x":6.42,"y":1.63},{"x":6.54,"y":1.46},{"x":6.93,"y":1.74},{"x":7.14,"y":1.8},{"x":7.63,"y":2.28},{"x":9.0,"y":2.35},{"x":5.83,"y":1.47},{"x":7.08,"y":1.9},{"x":4.81,"y":1.16},{"x":5.43,"y":1.15},{"x":9.09,"y":2.33},{"x":5.29,"y":1.33},{"x":6.99,"y":1.78},{"x":7.8,"y":2.08},{"x":5.44,"y":1.26},{"x":6.81,"y":1.77},{"x":4.25,"y":0.95},{"x":6.69,"y":1.43},{"x":7.02,"y":1.96},{"x":7.26,"y":1.85},{"x":5.88,"y":1.58},{"x":6.85,"y":1.83},{"x":8.67,"y":2.15},{"x":7.66,"y":2.13},{"x":7.04,"y":2.03},{"x":5.83,"y":1.4},{"x":6.33,"y":1.69},{"x":7.16,"y":1.78},{"x":8.51,"y":2.25},{"x":6.04,"y":1.45},{"x":5.89,"y":1.56},{"x":6.85,"y":1.9},{"x":8.0,"y":2.19},{"x":6.96,"y":1.9},{"x":5.06,"y":1.23},{"x":7.41,"y":1.99},{"x":4.65,"y":0.98},{"x":6.12,"y":1.37},{"x":4.99,"y":1.13},{"x":8.34,"y":2.25},{"x":7.23,"y":1.99},{"x":8.74,"y":2.25},{"x":7.45,"y":1.79},{"x":7.27,"y":1.93},{"x":6.56,"y":1.72},{"x":6.67,"y":1.8},{"x":7.08,"y":1.98},{"x":6.28,"y":1.72},{"x":7.92,"y":2.19},{"x":5.11,"y":1.19},{"x":8.14,"y":1.93},{"x":6.7,"y":1.69},{"x":5.94,"y":1.36},{"x":7.47,"y":1.97},{"x":5.64,"y":1.59},{"x":5.76,"y":1.51},{"x":5.62,"y":1.36},{"x":5.88,"y":1.49},{"x":6.84,"y":1.97},{"x":4.85,"y":1.18},{"x":7.47,"y":1.95},{"x":5.91,"y":1.48},{"x":5.27,"y":1.3},{"x":5.53,"y":1.23},{"x":5.53,"y":1.4},{"x":7.76,"y":2.04},{"x":6.16,"y":1.57},{"x":6.26,"y":1.61},{"x":6.55,"y":1.72},{"x":10.22,"y":2.5},{"x":6.21,"y":1.74},{"x":7.45,"y":1.99},{"x":4.82,"y":1.11},{"x":6.2,"y":1.67},{"x":5.49,"y":1.34},{"x":6.86,"y":1.84},{"x":5.11,"y":1.2},{"x":6.09,"y":1.51},{"x":5.21,"y":1.34},{"x":4.56,"y":1.03},{"x":5.66,"y":1.06},{"x":6.53,"y":1.51},{"x":6.9,"y":1.81},{"x":6.01,"y":1.6},{"x":8.62,"y":2.37},{"x":6.53,"y":1.82},{"x":7.52,"y":2.08},{"x":5.61,"y":1.36},{"x":6.24,"y":1.66},{"x":5.77,"y":1.4},{"x":6.0,"y":1.59},{"x":7.32,"y":1.92},{"x":6.61,"y":1.81},{"x":5.42,"y":1.02},{"x":6.27,"y":1.63},{"x":8.43,"y":2.37},{"x":6.17,"y":1.52},{"x":8.19,"y":2.26},{"x":6.27,"y":1.71},{"x":4.54,"y":0.99},{"x":7.46,"y":1.8},{"x":5.7,"y":1.45},{"x":5.03,"y":1.25},{"x":6.02,"y":1.52},{"x":7.71,"y":2.13},{"x":6.63,"y":1.81},{"x":6.21,"y":1.78},{"x":6.5,"y":1.71},{"x":6.1,"y":1.69},{"x":7.45,"y":2.12},{"x":5.24,"y":0.97},{"x":6.24,"y":1.62},{"x":4.1,"y":0.59},{"x":6.92,"y":1.83},{"x":5.31,"y":1.37},{"x":5.3,"y":1.12},{"x":9.11,"y":2.5},{"x":5.41,"y":1.36},{"x":4.98,"y":1.23},{"x":6.28,"y":1.65},{"x":5.93,"y":1.5},{"x":7.88,"y":2.15}];
+const frontierMax = {"x":8.23,"y":2.46};
+new Chart(document.getElementById('chFrontier'), {
+  type:'scatter',
+  data:{datasets:[
+    {label:'Simulated portfolios', data:frontierPts, backgroundColor:'rgba(30,64,232,.28)', pointRadius:2.6},
+    {label:'Max Sharpe (2.46% @ 8.23%)', data:[frontierMax], backgroundColor:C.red, pointRadius:7, pointStyle:'rectRot'}
+  ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'},
+      tooltip:{callbacks:{label:(c)=> 'vol '+c.parsed.x+'% · return '+c.parsed.y+'%/mo'}}},
+    scales:{x:{title:{display:true,text:'Volatility (% / month)'}},
+            y:{title:{display:true,text:'Expected return (% / month)'}}}}
+});
+
+new Chart(document.getElementById('chWeights'), {
+  type:'bar',
+  data:{labels:['GOOGL','AMZN','TSLA','BNDX','GS','DAX (USD)'],
+    datasets:[{data:[44.2,25.6,24.6,3.3,2.0,0.4],
+      backgroundColor:[C.blue,'#4D6BF1','#7B90F7',C.green,C.gold,C.muted], borderRadius:5, barPercentage:.66}]},
+  options:{indexAxis:'y', maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> c.parsed.x+'% of portfolio'}}},
+    scales:{x:{title:{display:true,text:'Weight (%)'}, max:50}, y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chVaR'), {
+  type:'bar',
+  data:{labels:['Normal distribution','GARCH(1,1)','Monte Carlo'],
+    datasets:[{data:[7.60,7.74,10.56], backgroundColor:[C.blue,C.gold,C.red], borderRadius:5, barPercentage:.55}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> '1-month 95% VaR: '+c.parsed.y+'% of portfolio value'}}},
+    scales:{y:{title:{display:true,text:'VaR (% of portfolio value)'}, beginAtZero:true}, x:{grid:{display:false}}}}
+});
+
+const mcLabels = ["0.75","0.77","0.79","0.81","0.83","0.85","0.87","0.89","0.91","0.93","0.95","0.97","0.99","1.01","1.03","1.05","1.07","1.09","1.11","1.13","1.15","1.17","1.19","1.21","1.23","1.25","1.27","1.29","1.31","1.33","1.35","1.37","1.39","1.41"];
+const mcCounts = [3,1,10,29,39,89,168,240,401,498,684,778,883,913,928,908,782,663,538,431,317,253,148,119,63,41,33,15,10,10,2,1,0,2];
+const mcVarBoundary = 0.894;
+new Chart(document.getElementById('chMC'), {
+  type:'bar',
+  data:{labels:mcLabels,
+    datasets:[{data:mcCounts, borderRadius:2, barPercentage:1, categoryPercentage:.96,
+      backgroundColor:mcLabels.map(l=> parseFloat(l) < mcVarBoundary ? 'rgba(220,75,62,.8)' : 'rgba(30,64,232,.55)')}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{title:(c)=>'Portfolio value ≈ '+c[0].label, label:(c)=> c.parsed.y.toLocaleString()+' of 10,000 simulations'}}},
+    scales:{y:{title:{display:true,text:'Simulations'}},
+      x:{title:{display:true,text:'Portfolio value after 1 month (start = 1.0)'}, ticks:{maxTicksLimit:9}, grid:{display:false}}}}
+});
+
+const gbmPaths = [[100.0,100.53,100.08,101.62,101.02,101.81,102.17,101.7,102.1,101.89,102.02,100.57,98.64,99.47,97.92,98.17,98.45,97.5,96.63,97.28,96.86,97.24,97.83,100.2,99.48,98.7,97.45,96.56,98.01,98.15,97.97,97.16,96.97,97.09,97.1,96.31,96.64,97.17,97.22,96.41,95.55,94.03,94.74,96.78,95.64,96.04,96.0,97.97,97.72,97.62],[100.0,99.88,99.43,99.22,101.15,101.35,100.98,100.81,102.43,102.83,103.88,103.46,103.46,102.52,102.62,104.03,104.42,105.29,104.44,103.55,104.49,105.11,106.37,104.38,104.64,104.54,105.55,105.51,104.0,104.73,104.23,103.65,104.85,105.52,104.58,104.86,106.49,108.2,108.77,108.13,108.71,108.07,106.85,108.82,106.6,106.58,107.66,107.72,105.24,104.24],[100.0,100.69,100.96,101.06,101.07,100.97,100.3,99.19,99.18,100.71,100.02,99.69,99.78,101.24,100.17,98.56,97.9,99.09,99.04,97.98,98.22,99.34,100.34,101.07,101.14,101.69,103.95,100.58,101.81,103.5,102.9,103.71,104.62,103.77,103.88,104.16,105.11,105.01,106.61,104.34,102.96,102.99,101.41,101.18,100.92,98.83,97.86,97.19,95.71,94.18],[100.0,101.6,99.65,98.23,97.19,96.92,97.55,96.38,97.96,97.47,97.17,96.39,98.88,97.49,97.99,98.2,98.46,97.66,98.02,98.53,97.3,98.38,99.06,97.47,96.84,97.73,98.79,97.78,97.81,96.6,97.47,98.11,98.95,101.12,100.44,99.95,99.81,100.24,101.26,100.74,102.67,102.74,104.12,105.18,105.99,105.91,106.49,106.75,108.28,108.53],[100.0,99.78,98.06,97.54,98.39,96.93,97.98,98.83,96.23,95.46,95.1,94.97,94.8,95.4,94.53,94.8,95.11,96.07,96.37,96.17,96.36,95.04,94.75,94.32,96.44,95.28,93.83,93.61,92.7,94.77,95.14,95.14,96.44,95.48,96.46,96.02,96.02,96.72,98.9,98.16,99.38,98.94,99.3,99.99,101.56,100.24,99.72,99.63,101.34,100.59],[100.0,99.78,99.23,99.37,98.16,97.46,98.42,99.82,100.69,100.19,98.73,99.16,99.49,101.77,103.43,104.28,103.55,104.01,104.92,105.71,106.16,105.17,106.01,107.23,107.95,107.61,107.1,105.77,106.29,104.21,103.5,103.65,103.7,102.44,102.31,102.58,101.55,101.16,100.39,100.57,100.11,100.78,100.03,101.47,101.57,102.29,101.49,101.29,101.05,99.61],[100.0,101.65,100.63,99.47,99.71,99.26,98.44,98.39,98.5,99.45,99.78,101.75,101.74,100.73,99.95,98.72,100.65,101.52,101.56,102.08,101.18,101.74,100.96,101.05,99.0,98.54,99.85,101.56,101.79,101.66,102.62,104.0,104.75,106.03,105.16,103.64,103.64,103.91,104.86,105.26,103.45,102.35,104.01,103.02,104.77,105.19,105.1,105.79,106.44,105.76],[100.0,100.81,101.16,101.58,99.58,100.69,100.39,101.46,101.17,101.54,101.83,102.04,100.85,100.29,99.98,98.66,99.17,101.13,102.68,102.62,102.81,103.38,103.15,102.04,102.26,101.6,100.89,99.45,98.87,99.49,99.82,99.24,98.95,99.78,99.48,98.08,97.81,97.85,98.05,99.98,101.4,101.28,101.42,102.16,100.75,99.81,98.78,99.57,99.91,98.84],[100.0,99.54,98.65,98.06,96.76,97.13,97.48,97.86,97.98,97.47,97.5,97.78,98.96,99.08,99.93,100.49,99.3,99.07,98.83,98.0,98.08,98.62,98.16,97.46,96.83,98.62,99.09,98.67,98.76,99.07,99.92,100.51,100.87,101.54,101.99,101.27,101.63,101.75,104.08,105.13,105.03,105.18,106.49,107.67,105.84,105.31,104.74,104.19,107.56,109.46],[100.0,100.58,99.16,98.89,99.11,97.36,98.36,97.74,95.79,96.32,96.11,96.06,96.83,96.35,95.17,95.48,96.15,95.43,98.15,96.66,95.56,99.43,99.53,100.25,101.16,101.6,102.43,102.6,102.22,101.59,102.27,102.08,101.97,102.66,102.09,101.89,101.05,100.28,99.48,98.92,100.2,100.75,100.85,99.07,99.04,97.99,96.82,96.28,97.41,98.32]];
+const palette = [C.blue,'#4D6BF1','#7B90F7',C.green,'#3FBF8F',C.gold,'#D49A4A',C.violet,'#9D6FF2',C.muted];
+new Chart(document.getElementById('chGBM'), {
+  type:'line',
+  data:{labels:Array.from({length:50},(_,i)=> (i/49).toFixed(2)),
+    datasets:gbmPaths.map((p,i)=>({data:p, borderColor:palette[i%palette.length], borderWidth:1.6, pointRadius:0, tension:.25}))},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{title:(c)=>'t = '+c[0].label+' yr', label:(c)=>'index '+c.parsed.y}}},
+    scales:{y:{title:{display:true,text:'Index level (start = 100)'}},
+      x:{title:{display:true,text:'Time (years)'}, ticks:{maxTicksLimit:6}, grid:{display:false}}}}
+});
 </script>
-<script src="../analytics.js"></script>
 </body>
 </html>

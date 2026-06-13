@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CarGauge: pricing 58,000 used cars in your browser — Taimoor Ali</title>
+<title>MotorGauge: pricing 58,000 used cars in your browser — Taimoor Ali</title>
 <meta name="description" content="An end-to-end ML pricing system for the Pakistani used-car market: Playwright scraping, cleaning and canonicalisation, a LightGBM model at 7.31% MAPE, calibrated confidence ranges, and a static JavaScript deployment — live at motorguage.com.">
-<link rel="canonical" href="https://taimoorali.online/projects/marketlens.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231E40E8'/%3E%3Cpath d='M22 72 L40 52 L54 60 L78 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,7 +99,7 @@ footer.site{padding:30px 0 44px}
 <div class="art-hero">
   <div class="wrap">
     <span class="kicker k-green">PRICING DECISIONS · LIVE PRODUCT</span>
-    <h1 class="art-title">CarGauge: pricing 58,000 used cars in your browser</h1>
+    <h1 class="art-title">MotorGauge: pricing 58,000 used cars in your browser</h1>
     <p class="dek">An end-to-end machine learning system that estimates used-car asking prices in Pakistan — from a scraper that respects the marketplace, through a cleaning layer that turned listings into vehicles, to a LightGBM model that ships as pure JavaScript. No backend. No API. Just a model, deployed.</p>
     <div class="stat-strip">
       <div class="stat-chip"><b>7.31%</b><span>holdout MAPE</span></div>
@@ -109,7 +108,7 @@ footer.site{padding:30px 0 44px}
       <div class="stat-chip"><b>58,583</b><span>cleaned listings</span></div>
     </div>
     <div class="hero-links">
-      <a class="btn btn-primary" href="https://motorguage.com" target="_blank" rel="noopener">Try CarGauge live ↗</a>
+      <a class="btn btn-primary" href="https://motorguage.com" target="_blank" rel="noopener">Try MotorGauge live ↗</a>
       <a class="btn btn-ghost" href="https://github.com/Taimoor010" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
   </div>
@@ -118,104 +117,189 @@ footer.site{padding:30px 0 44px}
 <article class="art-body">
 
 <h2><span class="num">01 · THE QUESTION</span>What is this car actually worth?</h2>
-<p>Pakistan's largest auto marketplace, PakWheels, hosts tens of thousands of live listings — and no public pricing intelligence on top of them. Buyers anchor on whatever the seller typed. Sellers guess. I wanted to know whether listing data alone could answer the pricing question with calibrated confidence, and whether the answer could run as a real product anyone can use.</p>
-<p>One framing decision shaped everything downstream: the model predicts <strong>advertised asking price</strong>, not transaction price, because asking price is what the data actually contains. Pretending otherwise would have baked an invisible error into every estimate. Instead, the product handles the gap explicitly — more on that in section 07.</p>
+<p>Pakistan's largest auto marketplace, PakWheels, hosts tens of thousands of live listings — and no public pricing intelligence on top of them. Buyers anchor on whatever the seller typed. Sellers guess, then wonder why nobody calls. I wanted to know whether listing data alone could answer the pricing question with calibrated confidence — and whether the answer could run as a real product anyone can open on a phone.</p>
+<p>One framing decision shaped everything downstream: the model predicts <strong>advertised asking price</strong>, not transaction price, because asking price is what the data actually contains. Pretending the model knows sale prices would bake an invisible error into every estimate. Instead, the product handles the asking-vs-deal gap explicitly, with a separate rule that never touches model training — more on that in section 08.</p>
+<p>The project started deliberately small: a Kia Sportage–only prototype, one model family, a scikit-learn pipeline and a local API, just to prove search-page data carried enough signal. Only once that worked did the scope expand to the whole market — which is the moment the real engineering began.</p>
 
 <h2><span class="num">02 · MEASURE</span>Getting the data without getting blocked</h2>
-<p>The obvious scraping approach — visit every listing's detail page — is slow, brittle, and the fastest route to a rate limit. So the Playwright pipeline was built around <strong>search-result cards</strong> instead: title, exact numeric price, listing ID, city, year, mileage, fuel, engine, transmission, badges and photo count, all extracted from the search pages themselves.</p>
-<p>Two fields that matter for price — colour and registration — don't appear on cards. The fix: crawl <strong>filtered</strong> search pages (e.g. "white cars only") and join the labels back to the main dataset by listing ID. Hidden attributes recovered without touching a single detail page. Raw values were preserved untouched throughout; every cleaned field was written separately, so the dataset stays auditable.</p>
+<p>The obvious scraping approach — visit every listing's detail page — is slow, brittle, and the fastest route to a rate limit. So the Playwright pipeline was built around <strong>search-result cards</strong> instead. A single search page yields dozens of listings' worth of structure: title, exact numeric price from the card's data attribute (not the display text), listing ID, city, year, mileage, fuel, engine, transmission, badges, managed/certified/inspected flags, photo count and freshness text.</p>
+<p>Two price-relevant fields never appear on cards: colour and registration. The workaround is the part of the scraper I'm proudest of — crawl <strong>filtered</strong> search pages (say, "white cars only"), record which listing IDs appear, and join the implied label back to the main dataset. Hidden attributes recovered, zero detail pages visited. Throughout, raw values were preserved untouched and every cleaned or derived field written to a separate column, so any row can be audited back to what the seller actually wrote.</p>
+
+<figure class="fig">
+  <div class="fig-title">System architecture: from marketplace to browser</div>
+  <div class="fig-sub">Each stage writes auditable outputs; the model ships as a static bundle</div>
+  <div style="overflow-x:auto">
+  <svg viewBox="0 0 770 120" width="100%" style="min-width:600px" role="img" aria-label="Pipeline: Playwright scraper to enrichment join to cleaning and canonicalisation to model training to static JS export to browser estimator">
+    <defs><marker id="arrc" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5B6B7F"/></marker></defs>
+    <g font-family="IBM Plex Mono, monospace" font-size="10">
+      <rect x="6" y="34" width="112" height="52" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="62" y="55" text-anchor="middle" fill="#0B1626" font-weight="600">Playwright</text>
+      <text x="62" y="70" text-anchor="middle" fill="#5B6B7F">search cards</text>
+      <rect x="138" y="34" width="118" height="52" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="197" y="55" text-anchor="middle" fill="#0B1626" font-weight="600">Enrichment</text>
+      <text x="197" y="70" text-anchor="middle" fill="#5B6B7F">filter-page joins</text>
+      <rect x="276" y="34" width="122" height="52" rx="9" fill="#FBF0DC" stroke="#B7791F"/>
+      <text x="337" y="55" text-anchor="middle" fill="#B7791F" font-weight="600">Cleaning</text>
+      <text x="337" y="70" text-anchor="middle" fill="#5B6B7F">canonical fields</text>
+      <rect x="418" y="34" width="118" height="52" rx="9" fill="#E4E9FD" stroke="#1E40E8"/>
+      <text x="477" y="55" text-anchor="middle" fill="#1E40E8" font-weight="600">LightGBM</text>
+      <text x="477" y="70" text-anchor="middle" fill="#5B6B7F">log-price model</text>
+      <rect x="556" y="34" width="100" height="52" rx="9" fill="#fff" stroke="#D4DCE6"/>
+      <text x="606" y="55" text-anchor="middle" fill="#0B1626" font-weight="600">JS export</text>
+      <text x="606" y="70" text-anchor="middle" fill="#5B6B7F">model + metadata</text>
+      <rect x="676" y="34" width="88" height="52" rx="9" fill="#E0F3EC" stroke="#0E9F6E"/>
+      <text x="720" y="55" text-anchor="middle" fill="#0E9F6E" font-weight="600">Browser</text>
+      <text x="720" y="70" text-anchor="middle" fill="#5B6B7F">motorguage.com</text>
+      <line x1="118" y1="60" x2="132" y2="60" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrc)"/>
+      <line x1="256" y1="60" x2="270" y2="60" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrc)"/>
+      <line x1="398" y1="60" x2="412" y2="60" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrc)"/>
+      <line x1="536" y1="60" x2="550" y2="60" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrc)"/>
+      <line x1="656" y1="60" x2="670" y2="60" stroke="#5B6B7F" stroke-width="1.4" marker-end="url(#arrc)"/>
+    </g>
+  </svg>
+  </div>
+  <figcaption>No detail-page scraping, no server at inference time. The two most fragile pieces of a typical ML product — heavy crawling and a live API — were designed out.</figcaption>
+</figure>
 
 <figure class="fig">
   <div class="fig-title">From scrape to production model</div>
   <div class="fig-sub">Rows surviving each stage of the pipeline</div>
   <div class="chart-box" style="height:260px"><canvas id="chFunnel"></canvas></div>
-  <figcaption>The MVP scope excludes EVs, pre-2000 vehicles and make/model groups with ≤20 rows — accuracy you can't support is accuracy you shouldn't ship.</figcaption>
+  <figcaption>The MVP scope is post-2000 vehicles, EVs excluded, make/model groups with ≤20 rows excluded. Accuracy you can't support is accuracy you shouldn't ship.</figcaption>
 </figure>
 
 <h2><span class="num">03 · CLEAN</span>The real work: making listings mean vehicles</h2>
-<p>The model algorithm was never the hard part. The hard part was that listings describe text, not vehicles. A sample of the battles:</p>
-<ul>
-  <li><strong>Honda Civic generations.</strong> A 2016 Civic can be two very different cars. Generation was separated from family and variant using deterministic year–engine–variant rules; ambiguous transition-year rows were excluded rather than guessed.</li>
-  <li><strong>Missing zeros.</strong> A car listed at 850,000 that should read 8,500,000 destroys a regression. High-confidence missing-zero cases were corrected in a separate model field — the raw price column was never touched.</li>
-  <li><strong>Mileage placeholders.</strong> Annualised mileage was sanity-checked against make/model/year cohorts; extreme values were imputed into a dedicated <span class="mono-sm">mileage_model_km</span> field.</li>
-  <li><strong>Rare vehicles.</strong> Variants with at least 5 rows train exactly; rarer trims fall back to model-level. Make/model groups with ≤20 rows were excluded from the public scope entirely.</li>
-  <li><strong>Leakage bans.</strong> Listing IDs, URLs, price cohorts and any target-derived field were explicitly banned from the feature schema.</li>
-</ul>
+<p>The model algorithm was never the hard part. The hard part was that listings describe <em>text</em>, not vehicles — and text written by motivated sellers at that. The cleaning layer is a set of deterministic, auditable rules, each one earned the hard way:</p>
+
+<table class="dtable">
+  <tr><th>Problem</th><th>Why it hurts</th><th>Fix</th></tr>
+  <tr><td><b>Civic generations</b></td><td>A "2016 Honda Civic" can be two very different cars at two very different prices</td><td>Generation separated from family and variant via year–engine–variant rules; ambiguous transition rows excluded, not guessed</td></tr>
+  <tr><td><b>Missing zeros</b></td><td>A car at 850,000 that should read 8,500,000 wrecks a regression</td><td>High-confidence cases corrected in <span class="mono-sm">price_model_pkr</span> only; raw price never edited</td></tr>
+  <tr><td><b>Mileage placeholders</b></td><td>"123456 km" and friends distort the depreciation signal</td><td>Annualised mileage checked against make/model/year cohorts; extremes imputed into a dedicated model field</td></tr>
+  <tr><td><b>Messy variant text</b></td><td>Bad categories fragment training data into useless slivers</td><td>Canonical make/model/variant fields built from title rules (incl. fixing Peugeot 2008 and MG4 records)</td></tr>
+  <tr><td><b>Rare vehicles</b></td><td>One-row classes can't generalise — they memorise</td><td>Variants with ≥5 rows train exactly; rarer trims fall back to model level; ≤20-row make/model groups excluded</td></tr>
+  <tr><td><b>EV engines</b></td><td>Battery kWh parsed as engine cc poisons a numeric feature</td><td>Combustion cc and battery kWh parsed separately; EVs held out of the MVP entirely</td></tr>
+  <tr><td><b>Leakage</b></td><td>Listing IDs and price cohorts "predict" price by cheating</td><td>IDs, URLs, price-derived fields and cohort labels explicitly banned from the feature schema</td></tr>
+</table>
+
+<p>The design principle running through all of it: <strong>source values stay intact; canonical, quality and model-ready fields are written beside them.</strong> Six months from now, any surprising prediction can be traced to the exact raw text that produced it.</p>
 
 <h2><span class="num">04 · EXPLORE</span>What the market data says</h2>
-<p>Exploration before modelling confirmed the structure the model would need. Log price correlates strongly with engine size (r ≈ 0.69) and model year (0.64); vehicle age is its mirror (−0.64); mileage matters (−0.33) but is noisy because vehicle class dominates it. Depreciation is steep and nonlinear — which is why the target is log price and the models are trees. And the market is concentrated: three Japanese makes account for over three quarters of supported listings.</p>
+<p>Exploration before modelling confirmed the structure the model would need. Depreciation is steep and nonlinear, with the price spread widening as cars age into mixed-condition territory — which is why the target is log price and the contenders are tree ensembles. Engine size and model year carry the strongest relationships with price; mileage matters but is noisy, because vehicle class and year dominate it.</p>
+
+<figure class="fig">
+  <div class="fig-title">What correlates with (log) price</div>
+  <div class="fig-sub">Pearson correlation of numeric model-ready fields with log asking price</div>
+  <div class="chart-box" style="height:250px"><canvas id="chCorr"></canvas></div>
+  <figcaption>Model year and vehicle age are near-perfect mirrors (r = −1.00 with each other), so the final schema keeps a compact set and avoids redundant age/year engineering.</figcaption>
+</figure>
 
 <figure class="fig">
   <div class="fig-title">Model-ready market coverage by make</div>
   <div class="fig-sub">Listings in the MVP training scope (53,034 rows)</div>
   <div class="chart-box" style="height:330px"><canvas id="chMakes"></canvas></div>
-  <figcaption>Toyota 28.4% · Suzuki 27.7% · Honda 21.5% — the long tail below Daihatsu is where segment-level accuracy starts to strain.</figcaption>
+  <figcaption>Toyota 28.4% · Suzuki 27.7% · Honda 21.5% — three Japanese makes are over three-quarters of the supported market. The long tail below Daihatsu is where accuracy starts to strain.</figcaption>
 </figure>
 
-<h2><span class="num">05 · MODEL</span>Choosing a model — and rejecting a better one</h2>
-<p>Ten model families were benchmarked on an 80/20 price-stratified holdout plus 6-fold stratified cross-validation, all on log price: gradient boosting in four flavours, random forest, extra trees, CatBoost, ridge, and MLP challengers. The gradient-boosted family clustered tightly at the top; the linear baseline trailed by 7 points of MAPE — a clean measure of how nonlinear this market is.</p>
+<h2><span class="num">05 · VALIDATE</span>A validation protocol worth trusting</h2>
+<p>Before any model ran, the rules of the contest were fixed:</p>
+<ul>
+  <li><strong>Target:</strong> natural log of cleaned asking price. Price errors are multiplicative — a 10% miss on a 1.5M hatchback and a 10% miss on a 30M import should cost the model the same.</li>
+  <li><strong>Holdout:</strong> 80/20 split, stratified by price band, so cheap cars and luxury imports appear in both sides at true proportions.</li>
+  <li><strong>Cross-validation:</strong> 6-fold stratified CV on the training split — every headline number had to agree with its CV twin before I believed it.</li>
+  <li><strong>Selection metric:</strong> holdout MAPE, sanity-checked against CV MAPE, WMAPE, R² and within-10%/within-20% rates.</li>
+  <li><strong>Known gap:</strong> this dataset is one market snapshot, so validation is cross-sectional. Time-based validation joins the protocol as soon as weekly snapshots accumulate — flagged in the roadmap, not hidden.</li>
+</ul>
+
+<h2><span class="num">06 · MODEL</span>Choosing a model — and rejecting a better one</h2>
+<p>The feature set evolved in deliberate steps, with the benchmark re-run at each stage. Adding colour and registration (the filter-page enrichment) bought ~0.7 points of MAPE; adding variant, fuel and engine bought another full point. Then two instructive dead ends: a richer internal schema scored slightly better, and neural networks scored notably worse.</p>
+
+<figure class="fig">
+  <div class="fig-title">Feature-set progression across experiments</div>
+  <div class="fig-sub">Best holdout MAPE achieved at each stage</div>
+  <div class="chart-box" style="height:270px"><canvas id="chFeat"></canvas></div>
+  <figcaption>The 7.17% point is the rejected internal schema — better score, wrong features. The 9.15% point is the neural-net challenger on final features: on tabular market data, trees won comfortably.</figcaption>
+</figure>
+
+<p>On the final user-enterable feature set, ten model families fought it out under the fixed protocol: LightGBM, XGBoost, CatBoost, three HistGradientBoosting variants, Random Forest, Extra Trees, an MLP challenger, and a ridge baseline to measure how nonlinear the problem really is. Answer: very — the linear baseline trails the winner by 7.3 points of MAPE.</p>
 
 <figure class="fig">
   <div class="fig-title">Production feature-set model benchmark</div>
   <div class="fig-sub">Holdout MAPE, lower is better · identical features and validation protocol</div>
   <div class="chart-box" style="height:340px"><canvas id="chModels"></canvas></div>
-  <figcaption>LightGBM selected: best holdout MAPE (7.31%), confirmed by 6-fold CV (7.37%), with the best within-20% rate (93.43%).</figcaption>
+  <figcaption>LightGBM selected: best holdout MAPE (7.31%), confirmed by 6-fold CV (7.37%), best within-20% rate (93.43%). The top six models sit within 0.17 points — the feature work, not the algorithm, did the heavy lifting.</figcaption>
 </figure>
 
 <div class="callout">
   <span class="c-tag">The call</span>
-  <p>A richer internal feature schema — scraping-quality flags, support counts — scored slightly better in one benchmark (7.17% MAPE). I rejected it. Those fields describe my dataset, not the user's car, and a public estimator can only use what a real person can type into a form. The support signals moved into confidence scoring instead, where they belong. Offline metrics are not the product.</p>
+  <p>The richer internal schema — scraping-quality flags, support counts — scored 7.17% MAPE, beating the production model. I rejected it anyway. Those fields describe <em>my dataset</em>, not <em>the user's car</em>, and a public estimator can only use what a real person can type into a form. The support signals moved into confidence scoring instead, where they genuinely belong. Offline metrics are not the product.</p>
 </div>
 
-<h2><span class="num">06 · DIAGNOSE</span>Where the model struggles</h2>
-<p>A headline MAPE hides more than it reveals, so the holdout was cut by segment. The errors were not random — they concentrated exactly where economics says they should: thin support, cheap cars where small misses become large percentages, and luxury imports where condition and trim dominate price.</p>
+<h2><span class="num">07 · PERFORMANCE</span>The final numbers, in full</h2>
+
+<table class="dtable">
+  <tr><th>Metric</th><th>Holdout</th><th>6-fold CV</th></tr>
+  <tr><td><b>MAPE</b></td><td>7.31%</td><td>7.37%</td></tr>
+  <tr><td><b>WMAPE</b></td><td>6.49%</td><td>6.47%</td></tr>
+  <tr><td><b>R²</b></td><td>0.9335</td><td>0.9737</td></tr>
+  <tr><td><b>Mean absolute error</b></td><td>PKR 2.88 lacs</td><td>PKR 2.88 lacs</td></tr>
+  <tr><td><b>Median absolute error</b></td><td>PKR 1.50 lacs</td><td>PKR 1.50 lacs</td></tr>
+  <tr><td><b>Within 10% of asking</b></td><td>76.21%</td><td>76.13%</td></tr>
+  <tr class="hl"><td><b>Within 20% of asking</b></td><td>93.43%</td><td>93.12%</td></tr>
+  <tr><td><b>90% interval coverage</b></td><td>90.01%</td><td>calibrated from holdout residuals</td></tr>
+  <tr><td><b>Median 90% interval width</b></td><td>PKR 11.17 lacs</td><td>33.9% of prediction</td></tr>
+</table>
+
+<p>Two of these matter more than the rest. The median absolute error — <strong>PKR 1.5 lacs on a typical multi-million-rupee car</strong> — is the number a user feels. And interval coverage of 90.01% against a 90% target means the ranges the product shows are honest, not decorative.</p>
+
+<h2><span class="num">08 · DIAGNOSE</span>Where the model struggles</h2>
+<p>A headline MAPE hides more than it reveals, so the holdout was cut by segment. The errors were not random — they concentrated exactly where economics says they should: thin support, cheap cars where small rupee misses become large percentages, and luxury imports where condition and rare trims dominate price.</p>
 
 <figure class="fig">
   <div class="fig-title">Holdout error by make</div>
   <div class="fig-sub">MAPE (%) on holdout rows · sample size in tooltip</div>
   <div class="chart-box" style="height:340px"><canvas id="chMakeErr"></canvas></div>
-  <figcaption>Mercedes at 15.5% (n=99) vs Honda at 6.1% (n=2,304): rare trims and condition-driven pricing are genuinely harder, and the product should say so.</figcaption>
+  <figcaption>Mercedes at 15.5% (n=99) vs Honda at 6.1% (n=2,304). Suzuki and Daihatsu sit high partly for an arithmetic reason: in low price bands, a small absolute miss is a big percentage.</figcaption>
 </figure>
 
 <figure class="fig">
   <div class="fig-title">Variant support matters</div>
   <div class="fig-sub">Holdout MAPE: exact-variant rows vs model-level fallback rows</div>
   <div class="chart-box" style="height:220px"><canvas id="chVariant"></canvas></div>
-  <figcaption>Exact variants: 7.2% (n=10,440). Fallback rows: 13.6% (n=167) — nearly double the error. This single chart drives the confidence system.</figcaption>
+  <figcaption>Exact variants: 7.2% (n=10,440). Fallback rows: 13.6% (n=167) — nearly double the error. This single chart justifies the entire confidence system.</figcaption>
 </figure>
 
-<h2><span class="num">07 · DECIDE</span>A price is not enough</h2>
-<p>The product never shows a lone number. Every estimate ships with a <strong>calibrated 90% range</strong> (built from holdout residuals; realised coverage 90.01%, median width 33.9% of the prediction) and a <strong>confidence label</strong> scored from interval width, training support, variant fallback, mileage risk, colour missingness and price band:</p>
+<h2><span class="num">09 · DECIDE</span>A price is not enough</h2>
+<p>The product never shows a lone number, because a lone number lies by omission. Every estimate ships with a <strong>calibrated 90% range</strong> built from holdout residuals, and a <strong>confidence label</strong> scored from interval width, training support, variant fallback, mileage risk, colour missingness, fuel-segment risk and price band:</p>
 
-<table class="dtable">
-  <tr><th>Confidence level</th><th>Holdout rows</th><th>What it signals</th></tr>
-  <tr class="hl"><td><b>High</b></td><td>9,700</td><td>Well-supported vehicle, exact variant, tight interval</td></tr>
-  <tr><td><b>Medium</b></td><td>742</td><td>Some risk flags — wider range, read it as a band</td></tr>
-  <tr><td><b>Low</b></td><td>107</td><td>Thin support or fallback variant; treat as directional</td></tr>
-  <tr><td><b>Very Low</b></td><td>58</td><td>The honest answer is "we don't really know"</td></tr>
-</table>
+<figure class="fig">
+  <div class="fig-title">Confidence distribution on the holdout set</div>
+  <div class="fig-sub">Rows per confidence tier · log scale, because honesty is rare by design</div>
+  <div class="chart-box" style="height:240px"><canvas id="chConf"></canvas></div>
+  <figcaption>High 9,700 · Medium 742 · Low 107 · Very Low 58. The bottom tiers exist so the product can say "we don't really know" — the most underrated feature a model can ship.</figcaption>
+</figure>
 
-<p>And because the target is asking price, a separate deterministic post-processing rule estimates an <strong>expected deal price</strong> by applying a negotiation discount by price band. Keeping that rule outside the model means sale-price assumptions never contaminate training — and can be updated without retraining anything.</p>
+<p>And because the target is asking price, a separate deterministic rule estimates the <strong>expected deal price</strong> by applying a negotiation discount per price band. Keeping that rule outside the model means sale-price assumptions never contaminate training — and the discount schedule can be updated in minutes without retraining anything.</p>
 
-<h2><span class="num">08 · SHIP</span>Shipping without a backend</h2>
-<p>The selected LightGBM model and its metadata export to a static JavaScript bundle. The website loads the bundle, populates its form options from model metadata — users can only select supported make/model/variant combinations — and produces the estimate, deal price, range and confidence label <strong>entirely in the browser</strong>. Hosting is GitHub Pages on a personal domain. Zero servers, zero latency budget, zero monthly bill.</p>
+<h2><span class="num">10 · SHIP</span>Shipping without a backend</h2>
+<p>The selected LightGBM model and its metadata export to a static JavaScript bundle. The website loads the bundle, populates form options from model metadata — users can only select supported make/model/variant combinations, so unsupported requests are impossible by construction — and produces the estimate, deal price, range and confidence label <strong>entirely in the browser</strong>. Hosting is GitHub Pages on a personal domain. Zero servers, zero cold starts, zero monthly bill.</p>
 
 <div class="callout">
   <span class="c-tag">The call</span>
-  <p>Static deployment is a deliberate architecture decision, not a shortcut. For an MVP, a backend adds cost, failure modes and maintenance for no user benefit. The trigger points for adding one are written down in the roadmap: model bundles outgrowing the browser, user accounts, or server-side retraining on live snapshots. Until one of those fires, simplest wins.</p>
+  <p>Static deployment is an architecture decision, not a shortcut. For an MVP, a backend adds cost, failure modes and maintenance for no user benefit. The triggers for adding one are written down: model bundles outgrowing the browser, user accounts, or server-side retraining on live snapshots. Until one fires, simplest wins.</p>
 </div>
 
-<h2><span class="num">09 · NEXT</span>What I'd build next</h2>
-<p>The next quality jump isn't a fancier algorithm. It's <strong>data operations</strong>: archive every weekly scrape as an immutable snapshot, validate schema and drift before cleaning, add time-based validation once multiple snapshots exist, and monitor what users actually ask the live estimator for. EVs join the scope once battery and trim coverage can support them honestly. The model is the easy part to upgrade — the discipline around it is what makes the number trustworthy.</p>
+<h2><span class="num">11 · NEXT</span>What I'd build next</h2>
+<p>The next quality jump isn't a fancier algorithm — the top six models already sit within 0.17 MAPE points of each other. It's <strong>data operations</strong>: archive every weekly scrape as an immutable dated snapshot; run schema, row-count, missingness, duplicate and category-drift checks before cleaning; add a time-based holdout once multiple snapshots exist; gate every model export behind segment diagnostics and confidence calibration review; and monitor what users actually ask the live estimator for, because unsupported demand is a roadmap written by the market. EVs join the scope once battery and trim coverage can support them honestly.</p>
 
-<p class="mono-sm" style="color:var(--muted)">Stack: Python · Playwright · pandas · LightGBM / XGBoost / CatBoost benchmarks · scikit-learn · static JS export · GitHub Pages</p>
+<p class="mono-sm" style="color:var(--muted)">Stack: Python · Playwright · pandas · LightGBM / XGBoost / CatBoost / HGB benchmarks · scikit-learn · residual-calibrated intervals · static JS export · GitHub Pages</p>
 
 </article>
 
 <nav class="foot-nav" aria-label="More case studies">
   <div class="fn-grid">
     <a class="fn-card" href="../index.html#work"><span class="fn-dir">← Back</span><span class="fn-title">All work</span></a>
-    <a class="fn-card next" href="bess-forecasting.html"><span class="fn-dir">Next case study →</span><span class="fn-title">Store or sell? Forecast-driven battery trading</span></a>
+    <a class="fn-card next" href="bess-forecasting.html"><span class="fn-dir">Next case study →</span><span class="fn-title">Turning volatility into profit: wind-farm arbitrage</span></a>
   </div>
 </nav>
 
@@ -234,12 +318,12 @@ Chart.defaults.color = '#5B6B7F';
 Chart.defaults.borderColor = '#E3E9F0';
 Chart.defaults.plugins.legend.labels.boxWidth = 12;
 const C = {blue:'#1E40E8', blueSoft:'rgba(30,64,232,.12)', green:'#0E9F6E', gold:'#B7791F', violet:'#7C3AED', muted:'#9AA8B8', ink:'#0B1626', red:'#DC4B3E'};
-const hbar = (id, labels, data, colors, xLabel, tooltipExtra) => new Chart(document.getElementById(id), {
+const hbar = (id, labels, data, colors, xLabel, tooltipExtra, xOpts) => new Chart(document.getElementById(id), {
   type:'bar',
   data:{labels, datasets:[{data, backgroundColor:colors, borderRadius:5, barPercentage:.72}]},
   options:{indexAxis:'y', maintainAspectRatio:false,
     plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> (tooltipExtra?tooltipExtra(c):c.parsed.x)}}},
-    scales:{x:{title:{display:!!xLabel,text:xLabel}, grid:{drawTicks:false}}, y:{grid:{display:false}}}}
+    scales:{x:Object.assign({title:{display:!!xLabel,text:xLabel}, grid:{drawTicks:false}}, xOpts||{}), y:{grid:{display:false}}}}
 });
 
 hbar('chFunnel',
@@ -248,11 +332,29 @@ hbar('chFunnel',
   [C.ink,C.blue,C.blue,C.green,C.muted],
   'Rows', (c)=> c.parsed.x.toLocaleString()+' rows');
 
+hbar('chCorr',
+  ['Engine CC','Model year','Mileage / year','Mileage','Vehicle age'],
+  [0.69,0.64,0.21,-0.33,-0.64],
+  [C.green,C.green,C.muted,'#E8923F','#E8923F'],
+  'Pearson r with log price', (c)=> 'r = '+c.parsed.x, {min:-1, max:1});
+
 hbar('chMakes',
   ['Toyota','Suzuki','Honda','KIA','Hyundai','Daihatsu','Nissan','Changan','MG','Haval'],
   [15085,14692,11406,2324,1936,1879,861,840,831,734],
   ['#1E40E8','#3D5BF0','#5C76F4','#7B90F7','#93A5F8','#A9B7FA','#BCC7FB','#CBD3FC','#D8DEFD','#E2E7FE'],
   'Listings in MVP training scope', (c)=> c.parsed.x.toLocaleString()+' listings');
+
+new Chart(document.getElementById('chFeat'), {
+  type:'line',
+  data:{labels:['Make/model + age, mileage, transmission','+ colour + registration','+ variant + fuel + engine','Richer internal schema (rejected)','Neural nets on final features'],
+    datasets:[{data:[9.07,8.37,7.31,7.17,9.15], borderColor:C.blue, backgroundColor:C.blue,
+      pointBackgroundColor:[C.blue,C.blue,C.green,'#E8923F',C.red], pointBorderColor:[C.blue,C.blue,C.green,'#E8923F',C.red],
+      pointRadius:[4,4,6,5,5], tension:.25}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> c.parsed.y+'% holdout MAPE'}}},
+    scales:{y:{title:{display:true,text:'Holdout MAPE (%)'}, min:6.5, max:9.6},
+      x:{grid:{display:false}, ticks:{maxRotation:30, minRotation:0, autoSkip:false, font:{size:9.5}}}}}
+});
 
 hbar('chModels',
   ['LightGBM','XGBoost','Extra Trees','HGB deeper','Random Forest','CatBoost','HGB current','HGB abs-error','HGB regularised','Ridge baseline'],
@@ -272,7 +374,16 @@ hbar('chVariant',
   [7.2,13.6],
   [C.green,'#E8923F'],
   'Holdout MAPE (%)', (c)=> c.parsed.x+'% MAPE');
+
+new Chart(document.getElementById('chConf'), {
+  type:'bar',
+  data:{labels:['High','Medium','Low','Very Low'],
+    datasets:[{data:[9700,742,107,58], backgroundColor:[C.green,C.blue,'#E8923F',C.red], borderRadius:5, barPercentage:.55}]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=> c.parsed.y.toLocaleString()+' holdout rows'}}},
+    scales:{y:{type:'logarithmic', title:{display:true,text:'Holdout rows (log scale)'}},
+      x:{grid:{display:false}}}}
+});
 </script>
-<script src="../analytics.js"></script>
 </body>
 </html>
